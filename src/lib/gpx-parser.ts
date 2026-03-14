@@ -147,6 +147,46 @@ interface RawStop {
 }
 
 /**
+ * Merges waypoints that are at the same location (within PROXIMITY_THRESHOLD_KM).
+ * When multiple waypoints are close together, combines their names and returns deduplicated list.
+ * Keeps the first waypoint encountered and merges names from subsequent ones.
+ */
+function deduplicateWaypoints(waypoints: Waypoint[]): Waypoint[] {
+  if (waypoints.length === 0) return []
+
+  const merged: Waypoint[] = []
+  const visited = new Set<number>()
+
+  for (let i = 0; i < waypoints.length; i++) {
+    if (visited.has(i)) continue
+
+    const current = waypoints[i]
+    const nearbyNames = [current.name]
+    visited.add(i)
+
+    // Find all waypoints close to this one
+    for (let j = i + 1; j < waypoints.length; j++) {
+      if (!visited.has(j)) {
+        if (haversineDistance(current, waypoints[j]) < PROXIMITY_THRESHOLD_KM) {
+          nearbyNames.push(waypoints[j].name)
+          visited.add(j)
+        }
+      }
+    }
+
+    // If multiple names at same location, combine them
+    const mergedName = nearbyNames.length > 1 ? nearbyNames.join(' / ') : current.name
+
+    merged.push({
+      ...current,
+      name: mergedName,
+    })
+  }
+
+  return merged
+}
+
+/**
  * Detects if a waypoint is at the start location.
  * Returns the waypoint if found within PROXIMITY_THRESHOLD_KM of the track start, else null.
  */
@@ -192,6 +232,9 @@ export function extractAidStations(
 ): AidStation[] {
   if (trackPoints.length === 0) return []
 
+  // Deduplicate waypoints that are at the same location
+  const deduplicatedWaypoints = deduplicateWaypoints(waypoints)
+
   // Build cumulative distances along track
   const cumDist: number[] = [0]
   for (let i = 1; i < trackPoints.length; i++) {
@@ -206,8 +249,8 @@ export function extractAidStations(
     LOOP_DETECTION_THRESHOLD_KM
 
   // Auto-detect start/finish waypoints at course boundaries
-  const startWpt = findStartWaypoint(waypoints, trackPoints[0])
-  const finishWpt = isLoop ? startWpt : findFinishWaypoint(waypoints, trackPoints[trackPoints.length - 1])
+  const startWpt = findStartWaypoint(deduplicatedWaypoints, trackPoints[0])
+  const finishWpt = isLoop ? startWpt : findFinishWaypoint(deduplicatedWaypoints, trackPoints[trackPoints.length - 1])
 
   const stops: RawStop[] = []
 
@@ -227,7 +270,7 @@ export function extractAidStations(
   }
 
   // Collect all visits for each waypoint
-  for (const wpt of waypoints) {
+  for (const wpt of deduplicatedWaypoints) {
     const visits = findAllVisits(wpt, trackPoints, cumDist)
     for (const visit of visits) {
       const isWptStart = startWpt === wpt && visit.distanceFromStart < PROXIMITY_THRESHOLD_KM
