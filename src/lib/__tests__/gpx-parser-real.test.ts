@@ -11,11 +11,30 @@ describe('Real GPX: 2025 Hellbender Alternate 100K', () => {
     const { trackPoints, waypoints } = parseGPX(gpx)
     const stations = extractAidStations(waypoints, trackPoints)
 
-    // Course geometry
+    // Course geometry - every visit shown separately
     expect(trackPoints.length).toBe(7026)
     expect(waypoints.length).toBe(9)
-    expect(stations.length).toBe(24)
+    // With deduplication of start/finish: 9 waypoints with multi-visit entries
+    // = 3+3+3+3+2+2+2+2+2 = 22 visits total
+    expect(stations.length).toBe(22)
     expect(stations[stations.length - 1].distanceFromStart).toBeCloseTo(160.96, 1)
+
+    // Verify no two stations share the same location AND distance
+    // (They can share location but at different distances due to multiple visits)
+    const stationsByDistance = new Map<string, number[]>()
+    stations.forEach((s) => {
+      const key = `${s.lat},${s.lon}`
+      const distances = stationsByDistance.get(key) || []
+      distances.push(s.distanceFromStart)
+      stationsByDistance.set(key, distances)
+    })
+    // Each location+distance combo should be unique
+    let totalUnique = 0
+    for (const distances of stationsByDistance.values()) {
+      const uniqueDist = new Set(distances.map((d) => d.toFixed(1)))
+      totalUnique += uniqueDist.size
+    }
+    expect(totalUnique).toBe(stations.length)
   })
 
   it('includes all expected unique aid stations', () => {
@@ -24,16 +43,17 @@ describe('Real GPX: 2025 Hellbender Alternate 100K', () => {
     const { trackPoints, waypoints } = parseGPX(gpx)
     const stations = extractAidStations(waypoints, trackPoints)
 
-    // Extract unique station names (excluding auto-added Start/Finish)
+    // Extract unique station names (excluding multi-visit entries)
     const uniqueNames = new Set(
       stations
-        .filter((s) => !s.isStart && !s.isFinish && s.name !== 'Start/Finish - Race HQ')
         .map((s) => s.name)
     )
 
-    expect(uniqueNames.size).toBe(8)
+    // Should have exactly 9 unique names (all from waypoints, no synthetic Start/Finish)
+    expect(uniqueNames.size).toBe(9)
 
     const expectedStations = [
+      'Start/Finish - Race HQ',
       'Long Gap Aid 3, 4, & 5',
       'Camp Grier Aid 8',
       'Kitsuma Aid 1 & 9',
@@ -146,12 +166,12 @@ describe('Real GPX: 2025 Hellbender Alternate 100K', () => {
     // Verify the structure for the pace table is complete
     expect(paceTable[0]).toMatchObject({
       order: 0,
-      name: 'Start',
+      name: 'Start/Finish - Race HQ', // The waypoint at the start
       visitNumber: 1,
-      distanceFromStart: 0,
       distanceFromPrev: 0,
       estimatedMinutes: 0,
     })
+    expect(paceTable[0].distanceFromStart).toBeCloseTo(0, 0) // Very close to start
 
     // Verify some key stations
     const graphiteV2 = paceTable.find(
@@ -162,7 +182,7 @@ describe('Real GPX: 2025 Hellbender Alternate 100K', () => {
     expect(graphiteV2!.estimatedMinutes).toBeCloseTo(888, -1) // ~888 minutes
 
     // All stations present
-    expect(paceTable.length).toBe(24)
+    expect(paceTable.length).toBe(22)
   })
 
   it('maintains spatial coordinates for all stations', () => {
@@ -197,14 +217,14 @@ describe('extractUniqueAidStations: Real Hellbender', () => {
     const { trackPoints, waypoints } = parseGPX(gpx)
     const unique = extractUniqueAidStations(waypoints, trackPoints)
 
-    // Hellbender has 9 waypoints + Start + Finish = 11 unique locations
-    expect(unique.length).toBe(11)
+    // Hellbender has 9 waypoints; no synthetic markers added since waypoints exist at start/finish
+    expect(unique.length).toBe(9)
 
-    // Verify Start and Finish are included
-    const start = unique.find((s) => s.isStart)
-    const finish = unique.find((s) => s.isFinish)
-    expect(start).toBeDefined()
-    expect(finish).toBeDefined()
+    // Verify Start/Finish marker and other stations
+    const startFinish = unique.find((s) => s.name === 'Start/Finish - Race HQ')
+    const longGap = unique.find((s) => s.name === 'Long Gap Aid 3, 4, & 5')
+    expect(startFinish).toBeDefined()
+    expect(longGap).toBeDefined()
   })
 
   it('represents each unique aid station only once', () => {
@@ -253,8 +273,9 @@ describe('extractUniqueAidStations: Real Hellbender', () => {
       firstVisitDistance: s.distanceFromStart,
     }))
 
-    expect(setupForm.length).toBe(11)
-    expect(setupForm[0].name).toBe('Start')
-    expect(setupForm[setupForm.length - 1].name).toBe('Start/Finish')
+    // 9 unique stations (no synthetic Start/Finish added since waypoints exist there)
+    expect(setupForm.length).toBe(9)
+    expect(setupForm[0].name).toBe('Start/Finish - Race HQ')
+    expect(setupForm[setupForm.length - 1].name).toBe('Jerdon Mtn Aid 7 & 11')
   })
 })

@@ -60,7 +60,7 @@ describe('parseGPX', () => {
 })
 
 describe('extractAidStations', () => {
-  it('always includes Start and Finish stops', () => {
+  it('marks start and finish with isStart/isFinish flags', () => {
     const gpx = fixture('simple-race.gpx')
     const { trackPoints, waypoints } = parseGPX(gpx)
     const stations = extractAidStations(waypoints, trackPoints)
@@ -70,23 +70,27 @@ describe('extractAidStations', () => {
 
     expect(start).toBeDefined()
     expect(start!.distanceFromStart).toBe(0)
-    expect(start!.name).toBe('Start')
+    // Waypoint at the start location gets the isStart flag
+    expect(start!.name).toBe('Start / Aid Station 1')
 
     expect(finish).toBeDefined()
     expect(finish!.distanceFromStart).toBeGreaterThan(0)
+    expect(finish!.name).toBe('Finish')
   })
 
-  it('snaps waypoints to nearest track point and computes distances', () => {
+  it('deduplicates waypoints at start/finish locations (no synthetic markers)', () => {
     const gpx = fixture('simple-race.gpx')
     const { trackPoints, waypoints } = parseGPX(gpx)
     const stations = extractAidStations(waypoints, trackPoints)
 
-    // 3 waypoints + Start + Finish = 5 stops
-    expect(stations.length).toBe(5)
+    // 3 waypoints (all deduplicated: start replaced, finish replaced)
+    // Result: Start / Aid Station 1 (at 0), Aid Station 2 (middle), Finish (at end)
+    expect(stations.length).toBe(3)
 
-    const nonSpecial = stations.filter((s) => !s.isStart && !s.isFinish)
-    expect(nonSpecial[0].distanceFromStart).toBeGreaterThanOrEqual(0)
-    expect(nonSpecial[1].distanceFromStart).toBeGreaterThan(nonSpecial[0].distanceFromStart)
+    // Verify no duplicate locations
+    const positions = stations.map((s) => `${s.lat},${s.lon}`)
+    const uniquePositions = new Set(positions)
+    expect(uniquePositions.size).toBe(positions.length)
   })
 
   it('sets distanceFromPrev correctly for each station', () => {
@@ -102,14 +106,16 @@ describe('extractAidStations', () => {
     }
   })
 
-  it('returns only Start and Finish when waypoints is empty', () => {
+  it('returns Start and Finish markers when no waypoints at those locations', () => {
     const gpx = fixture('no-waypoints.gpx')
     const { trackPoints, waypoints } = parseGPX(gpx)
     const stations = extractAidStations(waypoints, trackPoints)
 
     expect(stations).toHaveLength(2)
     expect(stations[0].isStart).toBe(true)
+    expect(stations[0].name).toBe('Start')
     expect(stations[1].isFinish).toBe(true)
+    expect(stations[1].name).toBe('Finish')
   })
 
   it('assigns sequential order to stations sorted by distance', () => {
@@ -127,23 +133,23 @@ describe('extractAidStations', () => {
     const { trackPoints, waypoints } = parseGPX(gpx)
     const stations = extractAidStations(waypoints, trackPoints)
 
-    // In a point-to-point course without repeated visits, every waypoint-derived
-    // stop gets visitNumber 1. (The "Finish" waypoint in this fixture shares a name
-    // with the auto-added Finish pseudo-stop, so the pseudo-stop gets visitNumber 2 —
-    // that is expected behaviour for a naming collision, not a bug.)
-    const waypointStops = stations.filter((s) => !s.isStart && !s.isFinish)
-    waypointStops.forEach((s) => {
+    // All stations in point-to-point course with no repeats get visitNumber 1
+    stations.forEach((s) => {
       expect(s.visitNumber).toBe(1)
     })
-    expect(stations.find((s) => s.isStart)!.visitNumber).toBe(1)
   })
 
-  it('labels Finish as "Finish" for a point-to-point course', () => {
+  it('marks waypoints at start/finish with isStart/isFinish flags', () => {
     const gpx = fixture('simple-race.gpx')
     const { trackPoints, waypoints } = parseGPX(gpx)
     const stations = extractAidStations(waypoints, trackPoints)
 
+    const start = stations.find((s) => s.isStart)
     const finish = stations.find((s) => s.isFinish)
+
+    expect(start).toBeDefined()
+    expect(start!.name).toBe('Start / Aid Station 1')
+    expect(finish).toBeDefined()
     expect(finish!.name).toBe('Finish')
   })
 
@@ -196,17 +202,21 @@ describe('extractAidStations', () => {
       expect(separation).toBeGreaterThan(1.0)
     })
 
-    it('includes Start, two Aid A visits, and Start/Finish in correct order', () => {
+    it('includes synthetic Start and Start/Finish with waypoint visits on loop', () => {
       const gpx = fixture('loop-course.gpx')
       const { trackPoints, waypoints } = parseGPX(gpx)
       const stations = extractAidStations(waypoints, trackPoints)
 
-      // Start, Aid A (v1), Aid A (v2), Start/Finish
+      // Start (synthetic), Aid A (v1), Aid A (v2), Start/Finish (synthetic, at same location as Start)
       expect(stations).toHaveLength(4)
       expect(stations[0].isStart).toBe(true)
+      expect(stations[0].name).toBe('Start')
       expect(stations[1].name).toBe('Aid A')
+      expect(stations[1].visitNumber).toBe(1)
       expect(stations[2].name).toBe('Aid A')
+      expect(stations[2].visitNumber).toBe(2)
       expect(stations[3].isFinish).toBe(true)
+      expect(stations[3].name).toBe('Start/Finish')
     })
   })
 })

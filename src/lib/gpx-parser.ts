@@ -181,7 +181,10 @@ function findFinishWaypoint(
 /**
  * Extracts aid stations showing every visit in order.
  * Used for the race pace/planning table where a runner will visit the same station multiple times.
- * Returns all stops (including Start/Finish) sorted by distance from start.
+ * Returns all stops (including Start/Finish markers) sorted by distance from start.
+ * 
+ * Deduplicates: if a waypoint is at the start or finish location, it replaces the synthetic marker.
+ * Result: each physical location appears exactly once in the output.
  */
 export function extractAidStations(
   waypoints: Waypoint[],
@@ -202,29 +205,34 @@ export function extractAidStations(
     haversineDistance(trackPoints[0], trackPoints[trackPoints.length - 1]) <
     LOOP_DETECTION_THRESHOLD_KM
 
-  // Auto-detect start/finish waypoints
+  // Auto-detect start/finish waypoints at course boundaries
   const startWpt = findStartWaypoint(waypoints, trackPoints[0])
   const finishWpt = isLoop ? startWpt : findFinishWaypoint(waypoints, trackPoints[trackPoints.length - 1])
 
   const stops: RawStop[] = []
 
-  // Add synthetic Start at distance 0 (always the true course start)
-  stops.push({
-    name: 'Start',
-    physicalName: 'Start',
-    lat: trackPoints[0].lat,
-    lon: trackPoints[0].lon,
-    distanceFromStart: 0,
-    elevationGain: 0,
-    hasDropBag: false,
-    hasCrewAccess: false,
-    isStart: true,
-  })
+  // Only add synthetic Start if there's no waypoint at the start location
+  if (!startWpt) {
+    stops.push({
+      name: 'Start',
+      physicalName: 'Start',
+      lat: trackPoints[0].lat,
+      lon: trackPoints[0].lon,
+      distanceFromStart: 0,
+      elevationGain: 0,
+      hasDropBag: false,
+      hasCrewAccess: false,
+      isStart: true,
+    })
+  }
 
   // Collect all visits for each waypoint
   for (const wpt of waypoints) {
     const visits = findAllVisits(wpt, trackPoints, cumDist)
     for (const visit of visits) {
+      const isWptStart = startWpt === wpt && visit.distanceFromStart < PROXIMITY_THRESHOLD_KM
+      const isWptFinish = finishWpt === wpt && Math.abs(visit.distanceFromStart - totalDist) < PROXIMITY_THRESHOLD_KM
+      
       stops.push({
         name: wpt.name,
         physicalName: wpt.name,
@@ -234,23 +242,27 @@ export function extractAidStations(
         elevationGain: 0,
         hasDropBag: false,
         hasCrewAccess: false,
+        isStart: isWptStart,
+        isFinish: isWptFinish,
       })
     }
   }
 
-  // Add synthetic Finish at the total distance (always the true course end)
-  const finishName = isLoop ? 'Start/Finish' : 'Finish'
-  stops.push({
-    name: finishName,
-    physicalName: finishName,
-    lat: trackPoints[trackPoints.length - 1].lat,
-    lon: trackPoints[trackPoints.length - 1].lon,
-    distanceFromStart: totalDist,
-    elevationGain: 0,
-    hasDropBag: false,
-    hasCrewAccess: false,
-    isFinish: true,
-  })
+  // Only add synthetic Finish if there's no waypoint at the finish location
+  if (!finishWpt) {
+    const finishName = isLoop ? 'Start/Finish' : 'Finish'
+    stops.push({
+      name: finishName,
+      physicalName: finishName,
+      lat: trackPoints[trackPoints.length - 1].lat,
+      lon: trackPoints[trackPoints.length - 1].lon,
+      distanceFromStart: totalDist,
+      elevationGain: 0,
+      hasDropBag: false,
+      hasCrewAccess: false,
+      isFinish: true,
+    })
+  }
 
   // Sort by distance; at equal distance: Start first, Finish last
   stops.sort((a, b) => {
