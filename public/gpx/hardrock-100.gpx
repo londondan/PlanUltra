@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="PlanUltra" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Hardrock 100</name>
+    <desc>Hardrock 100 Endurance Run - Silverton, CO - ~100 miles</desc>
+  </metadata>
+  <wpt lat="37.8118" lon="-107.6625"><ele>2835</ele><name>Start/Finish - Silverton</name></wpt>
+  <wpt lat="37.8300" lon="-107.7000"><ele>3353</ele><name>Cunningham Gulch (mile 9)</name></wpt>
+  <wpt lat="37.8600" lon="-107.7400"><ele>3658</ele><name>Ouray (mile 27.7)</name></wpt>
+  <wpt lat="37.8900" lon="-107.7200"><ele>3962</ele><name>Engineer (mile 40.5)</name></wpt>
+  <wpt lat="37.9200" lon="-107.6900"><ele>3353</ele><name>Burrows Park (mile 50.9)</name></wpt>
+  <wpt lat="37.9000" lon="-107.6600"><ele>4115</ele><name>Sherman (mile 58)</name></wpt>
+  <wpt lat="37.8700" lon="-107.6300"><ele>3658</ele><name>Grouse Gulch (mile 71.5)</name></wpt>
+  <wpt lat="37.8400" lon="-107.6500"><ele>3962</ele><name>Animas Forks (mile 82)</name></wpt>
+  <wpt lat="37.8200" lon="-107.6600"><ele>3353</ele><name>Cunningham Gulch Out (mile 89)</name></wpt>
+  <wpt lat="37.8118" lon="-107.6625"><ele>2835</ele><name>Finish - Silverton</name></wpt>
+  <trk>
+    <name>Hardrock 100</name>
+    <trkseg>
+      <trkpt lat="37.8118" lon="-107.6625"><ele>2835</ele></trkpt>
+      <trkpt lat="37.8200" lon="-107.6800"><ele>3000</ele></trkpt>
+      <trkpt lat="37.8300" lon="-107.7000"><ele>3353</ele></trkpt>
+      <trkpt lat="37.8400" lon="-107.7150"><ele>3500</ele></trkpt>
+      <trkpt lat="37.8500" lon="-107.7250"><ele>3600</ele></trkpt>
+      <trkpt lat="37.8600" lon="-107.7400"><ele>3658</ele></trkpt>
+      <trkpt lat="37.8700" lon="-107.7350"><ele>3700</ele></trkpt>
+      <trkpt lat="37.8800" lon="-107.7300"><ele>3800</ele></trkpt>
+      <trkpt lat="37.8900" lon="-107.7200"><ele>3962</ele></trkpt>
+      <trkpt lat="37.9000" lon="-107.7100"><ele>3800</ele></trkpt>
+      <trkpt lat="37.9100" lon="-107.7000"><ele>3600</ele></trkpt>
+      <trkpt lat="37.9200" lon="-107.6900"><ele>3353</ele></trkpt>
+      <trkpt lat="37.9150" lon="-107.6800"><ele>3600</ele></trkpt>
+      <trkpt lat="37.9100" lon="-107.6700"><ele>3800</ele></trkpt>
+      <trkpt lat="37.9000" lon="-107.6600"><ele>4115</ele></trkpt>
+      <trkpt lat="37.8900" lon="-107.6500"><ele>3800</ele></trkpt>
+      <trkpt lat="37.8800" lon="-107.6400"><ele>3700</ele></trkpt>
+      <trkpt lat="37.8700" lon="-107.6300"><ele>3658</ele></trkpt>
+      <trkpt lat="37.8600" lon="-107.6400"><ele>3750</ele></trkpt>
+      <trkpt lat="37.8500" lon="-107.6450"><ele>3850</ele></trkpt>
+      <trkpt lat="37.8400" lon="-107.6500"><ele>3962</ele></trkpt>
+      <trkpt lat="37.8300" lon="-107.6550"><ele>3700</ele></trkpt>
+      <trkpt lat="37.8200" lon="-107.6600"><ele>3353</ele></trkpt>
+      <trkpt lat="37.8150" lon="-107.6613"><ele>3100</ele></trkpt>
+      <trkpt lat="37.8118" lon="-107.6625"><ele>2835</ele></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

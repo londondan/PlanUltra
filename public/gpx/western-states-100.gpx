@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="PlanUltra" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Western States 100</name>
+    <desc>Western States Endurance Run - Squaw Valley to Auburn, CA - ~100 miles</desc>
+  </metadata>
+  <!-- Aid stations as waypoints -->
+  <wpt lat="39.1968" lon="-120.2356"><ele>2438</ele><name>Start - Squaw Valley</name></wpt>
+  <wpt lat="39.2100" lon="-120.2200"><ele>2835</ele><name>Escarpment (mile 3.3)</name></wpt>
+  <wpt lat="39.2350" lon="-120.2050"><ele>2250</ele><name>Lyon Ridge (mile 10.3)</name></wpt>
+  <wpt lat="39.2500" lon="-120.1900"><ele>2200</ele><name>Red Star Ridge (mile 16)</name></wpt>
+  <wpt lat="39.2650" lon="-120.1700"><ele>1670</ele><name>Duncan Canyon (mile 23.8)</name></wpt>
+  <wpt lat="39.2800" lon="-120.1500"><ele>1768</ele><name>Robinson Flat (mile 29.7)</name></wpt>
+  <wpt lat="39.3000" lon="-120.1200"><ele>1524</ele><name>Miller's Defeat (mile 34.4)</name></wpt>
+  <wpt lat="39.3150" lon="-120.0950"><ele>1402</ele><name>Dusty Corners (mile 38)</name></wpt>
+  <wpt lat="39.3300" lon="-120.0700"><ele>1189</ele><name>Last Chance (mile 43.3)</name></wpt>
+  <wpt lat="39.3250" lon="-120.0400"><ele>366</ele><name>Devil's Thumb (mile 47.8)</name></wpt>
+  <wpt lat="39.3150" lon="-120.0100"><ele>1006</ele><name>El Dorado Creek (mile 52.9)</name></wpt>
+  <wpt lat="39.3050" lon="-119.9800"><ele>1371</ele><name>Michigan Bluff (mile 55.7)</name></wpt>
+  <wpt lat="39.2900" lon="-119.9500"><ele>884</ele><name>Foresthill (mile 62)</name></wpt>
+  <wpt lat="39.2750" lon="-119.9200"><ele>579</ele><name>Cal-1 (mile 65.7)</name></wpt>
+  <wpt lat="39.2600" lon="-119.8900"><ele>488</ele><name>Cal-2 (mile 70.7)</name></wpt>
+  <wpt lat="39.2450" lon="-119.8600"><ele>457</ele><name>Cal-3 (mile 73)</name></wpt>
+  <wpt lat="39.2300" lon="-119.8300"><ele>366</ele><name>Rucky Chucky (mile 78)</name></wpt>
+  <wpt lat="39.2150" lon="-119.8100"><ele>442</ele><name>Green Gate (mile 79.8)</name></wpt>
+  <wpt lat="39.2000" lon="-119.7900"><ele>472</ele><name>Auburn Lake Trails (mile 85.2)</name></wpt>
+  <wpt lat="39.1900" lon="-119.7700"><ele>518</ele><name>Quarry Road (mile 90.7)</name></wpt>
+  <wpt lat="39.1850" lon="-119.7600"><ele>411</ele><name>Pointed Rocks (mile 94.3)</name></wpt>
+  <wpt lat="39.1811" lon="-121.0571"><ele>366</ele><name>No Hands Bridge (mile 96.8)</name></wpt>
+  <wpt lat="39.0953" lon="-121.0678"><ele>396</ele><name>Robie Point (mile 98.9)</name></wpt>
+  <wpt lat="38.8969" lon="-121.0815"><ele>366</ele><name>Finish - Auburn</name></wpt>
+  <trk>
+    <name>Western States 100</name>
+    <trkseg>
+      <trkpt lat="39.1968" lon="-120.2356"><ele>2438</ele></trkpt>
+      <trkpt lat="39.2020" lon="-120.2320"><ele>2550</ele></trkpt>
+      <trkpt lat="39.2080" lon="-120.2270"><ele>2700</ele></trkpt>
+      <trkpt lat="39.2100" lon="-120.2200"><ele>2835</ele></trkpt>
+      <trkpt lat="39.2150" lon="-120.2170"><ele>2700</ele></trkpt>
+      <trkpt lat="39.2200" lon="-120.2130"><ele>2550</ele></trkpt>
+      <trkpt lat="39.2280" lon="-120.2090"><ele>2400</ele></trkpt>
+      <trkpt lat="39.2350" lon="-120.2050"><ele>2250</ele></trkpt>
+      <trkpt lat="39.2400" lon="-120.2010"><ele>2200</ele></trkpt>
+      <trkpt lat="39.2450" lon="-120.1970"><ele>2180</ele></trkpt>
+      <trkpt lat="39.2500" lon="-120.1900"><ele>2200</ele></trkpt>
+      <trkpt lat="39.2560" lon="-120.1830"><ele>2050</ele></trkpt>
+      <trkpt lat="39.2600" lon="-120.1760"><ele>1900</ele></trkpt>
+      <trkpt lat="39.2640" lon="-120.1730"><ele>1800</ele></trkpt>
+      <trkpt lat="39.2650" lon="-120.1700"><ele>1670</ele></trkpt>
+      <trkpt lat="39.2700" lon="-120.1650"><ele>1700</ele></trkpt>
+      <trkpt lat="39.2750" lon="-120.1580"><ele>1750</ele></trkpt>
+      <trkpt lat="39.2800" lon="-120.1500"><ele>1768</ele></trkpt>
+      <trkpt lat="39.2870" lon="-120.1400"><ele>1680</ele></trkpt>
+      <trkpt lat="39.2920" lon="-120.1300"><ele>1600</ele></trkpt>
+      <trkpt lat="39.3000" lon="-120.1200"><ele>1524</ele></trkpt>
+      <trkpt lat="39.3080" lon="-120.1100"><ele>1480</ele></trkpt>
+      <trkpt lat="39.3150" lon="-120.0950"><ele>1402</ele></trkpt>
+      <trkpt lat="39.3200" lon="-120.0830"><ele>1300</ele></trkpt>
+      <trkpt lat="39.3300" lon="-120.0700"><ele>1189</ele></trkpt>
+      <trkpt lat="39.3300" lon="-120.0570"><ele>900</ele></trkpt>
+      <trkpt lat="39.3270" lon="-120.0480"><ele>550</ele></trkpt>
+      <trkpt lat="39.3250" lon="-120.0400"><ele>366</ele></trkpt>
+      <trkpt lat="39.3220" lon="-120.0270"><ele>600</ele></trkpt>
+      <trkpt lat="39.3180" lon="-120.0180"><ele>800</ele></trkpt>
+      <trkpt lat="39.3150" lon="-120.0100"><ele>1006</ele></trkpt>
+      <trkpt lat="39.3100" lon="-119.9950"><ele>1150</ele></trkpt>
+      <trkpt lat="39.3050" lon="-119.9800"><ele>1371</ele></trkpt>
+      <trkpt lat="39.3000" lon="-119.9700"><ele>1100</ele></trkpt>
+      <trkpt lat="39.2950" lon="-119.9600"><ele>950</ele></trkpt>
+      <trkpt lat="39.2900" lon="-119.9500"><ele>884</ele></trkpt>
+      <trkpt lat="39.2850" lon="-119.9400"><ele>800</ele></trkpt>
+      <trkpt lat="39.2800" lon="-119.9300"><ele>700</ele></trkpt>
+      <trkpt lat="39.2750" lon="-119.9200"><ele>579</ele></trkpt>
+      <trkpt lat="39.2700" lon="-119.9100"><ele>530</ele></trkpt>
+      <trkpt lat="39.2650" lon="-119.9000"><ele>510</ele></trkpt>
+      <trkpt lat="39.2600" lon="-119.8900"><ele>488</ele></trkpt>
+      <trkpt lat="39.2550" lon="-119.8800"><ele>475</ele></trkpt>
+      <trkpt lat="39.2500" lon="-119.8700"><ele>465</ele></trkpt>
+      <trkpt lat="39.2450" lon="-119.8600"><ele>457</ele></trkpt>
+      <trkpt lat="39.2400" lon="-119.8500"><ele>420</ele></trkpt>
+      <trkpt lat="39.2350" lon="-119.8400"><ele>395</ele></trkpt>
+      <trkpt lat="39.2300" lon="-119.8300"><ele>366</ele></trkpt>
+      <trkpt lat="39.2250" lon="-119.8200"><ele>400</ele></trkpt>
+      <trkpt lat="39.2200" lon="-119.8100"><ele>430</ele></trkpt>
+      <trkpt lat="39.2150" lon="-119.8100"><ele>442</ele></trkpt>
+      <trkpt lat="39.2100" lon="-119.8000"><ele>450</ele></trkpt>
+      <trkpt lat="39.2050" lon="-119.7950"><ele>460</ele></trkpt>
+      <trkpt lat="39.2000" lon="-119.7900"><ele>472</ele></trkpt>
+      <trkpt lat="39.1970" lon="-119.7800"><ele>490</ele></trkpt>
+      <trkpt lat="39.1940" lon="-119.7700"><ele>510</ele></trkpt>
+      <trkpt lat="39.1900" lon="-119.7700"><ele>518</ele></trkpt>
+      <trkpt lat="39.1880" lon="-119.7650"><ele>460</ele></trkpt>
+      <trkpt lat="39.1860" lon="-119.7620"><ele>430</ele></trkpt>
+      <trkpt lat="39.1850" lon="-119.7600"><ele>411</ele></trkpt>
+      <trkpt lat="39.1830" lon="-121.0600"><ele>390</ele></trkpt>
+      <trkpt lat="39.1811" lon="-121.0571"><ele>366</ele></trkpt>
+      <trkpt lat="39.1700" lon="-121.0610"><ele>375</ele></trkpt>
+      <trkpt lat="39.1500" lon="-121.0640"><ele>385</ele></trkpt>
+      <trkpt lat="39.0953" lon="-121.0678"><ele>396</ele></trkpt>
+      <trkpt lat="39.0500" lon="-121.0720"><ele>380</ele></trkpt>
+      <trkpt lat="38.9500" lon="-121.0780"><ele>370</ele></trkpt>
+      <trkpt lat="38.8969" lon="-121.0815"><ele>366</ele></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

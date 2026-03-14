@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+src/lib/__tests__/fixtures/real-*.gpx
 
 # next.js
 /.next/
@@ -39,6 +40,9 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# local DynamoDB
+/local/
 
 # typescript
 *.tsbuildinfo

@@ -1,0 +1,34 @@
+export interface TrackPoint {
+  lat: number
+  lon: number
+  ele: number
+  time?: string
+}
+
+export interface Waypoint {
+  lat: number
+  lon: number
+  ele: number
+  name: string
+}
+
+export interface AidStation {
+  order: number
+  name: string
+  physicalName?: string   // groups repeated visits of the same location; defaults to name
+  lat: number
+  lon: number
+  distanceFromStart: number
+  distanceFromPrev: number
+  elevationGain: number
+  hasDropBag: boolean
+  hasCrewAccess: boolean
+  visitNumber?: number    // 1-indexed per unique station name; defaults to 1
+  isStart?: boolean
+  isFinish?: boolean
+}
+
+export interface ParsedGPX {
+  trackPoints: TrackPoint[]
+  waypoints: Waypoint[]
+}

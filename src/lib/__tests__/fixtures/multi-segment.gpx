@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="PlanUltra Test">
+  <wpt lat="37.7749" lon="-122.4194">
+    <ele>100</ele>
+    <name>Start</name>
+  </wpt>
+  <trk>
+    <name>Multi-Segment Race</name>
+    <trkseg>
+      <trkpt lat="37.7749" lon="-122.4194"><ele>100</ele></trkpt>
+      <trkpt lat="37.7760" lon="-122.4180"><ele>110</ele></trkpt>
+    </trkseg>
+    <trkseg>
+      <trkpt lat="37.7770" lon="-122.4170"><ele>120</ele></trkpt>
+      <trkpt lat="37.7850" lon="-122.4100"><ele>200</ele></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

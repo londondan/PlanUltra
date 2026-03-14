@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Synthetic out-and-back loop fixture.
+  Track goes north ~1 km per segment, turns around, and returns to start.
+  Total distance ≈ 4 km. Track points 0 and 8 are identical → loop detected.
+
+  Waypoint "Aid A" at (37.0090, -122.0000) sits on the track at:
+    - tp2 (dist ≈ 1.0 km, outbound)  → visit 1
+    - tp6 (dist ≈ 3.0 km, inbound)   → visit 2
+  The two visits are separated by ~2 km > MIN_VISIT_SEPARATION_KM (1.0 km).
+-->
+<gpx version="1.1" creator="PlanUltra Test">
+  <wpt lat="37.0090" lon="-122.0000">
+    <ele>100</ele>
+    <name>Aid A</name>
+  </wpt>
+  <trk>
+    <name>Loop Course</name>
+    <trkseg>
+      <trkpt lat="37.0000" lon="-122.0000"><ele>10</ele></trkpt>
+      <trkpt lat="37.0045" lon="-122.0000"><ele>20</ele></trkpt>
+      <trkpt lat="37.0090" lon="-122.0000"><ele>30</ele></trkpt>
+      <trkpt lat="37.0135" lon="-122.0000"><ele>40</ele></trkpt>
+      <trkpt lat="37.0180" lon="-122.0000"><ele>50</ele></trkpt>
+      <trkpt lat="37.0135" lon="-122.0000"><ele>40</ele></trkpt>
+      <trkpt lat="37.0090" lon="-122.0000"><ele>30</ele></trkpt>
+      <trkpt lat="37.0045" lon="-122.0000"><ele>20</ele></trkpt>
+      <trkpt lat="37.0000" lon="-122.0000"><ele>10</ele></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

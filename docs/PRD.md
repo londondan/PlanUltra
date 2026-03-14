@@ -1,7 +1,7 @@
 # Product Requirements Document
 ## PlanUltra — Ultra Marathon Race Planner
 
-**Version:** 0.3 (Draft)
+**Version:** 0.4 (Draft)
 **Last Updated:** 2026-03-13
 **Status:** Work in Progress
 
@@ -37,6 +37,10 @@ Ultra marathon planning today is fragmented. Runners piece together information 
 **Structured logistics planning** *(Phase 2).* By layering estimated pace onto the course, the product helps runners calculate projected arrival times at each aid station — enabling precise decisions about what to carry (calories, headlamp, extra layers) and when crews need to be where. Because most ultras run through at least one night, the system is multi-day by design: time estimates, weather, and gear recommendations all account for darkness and overnight conditions.
 
 **Crew coordination** *(Phase 2).* Auto-generated calendar events at crew-accessible stations, keyed to estimated arrival times, remove the logistical burden from both the runner and their crew.
+
+**Race-day reference tattoo** *(Phase 3).* A printable temporary tattoo — designed to go on the runner's forearm — showing the elevation profile, aid stations, and expected arrival times in a compact, waterproof format. Runners today do this manually with paper wristbands or tape; this automates the layout and enables print-on-demand ordering.
+
+**Crew accommodation finder** *(Phase 3).* For races in remote areas, finding accommodation near crew-accessible stations is a frustrating manual process. A future phase will plot nearby hotels and Airbnbs on a map relative to crew stations, helping crew members find the best base of operations during a 24–30 hour race.
 
 The value proposition in one sentence: **turn a GPX file and a race date into a complete race-day plan.**
 
@@ -76,6 +80,12 @@ The value proposition in one sentence: **turn a GPX file and a race date into a 
 
 11. **Live race updates** *(stretch / Phase 3).* A future capability where the runner or a crew member manually updates actual arrival times, which cascades to adjust downstream estimates and crew calendar events.
 
+### 3.3 Future Workflow (Phase 3 — Roadmap)
+
+12. **Generate race tattoo.** After completing their plan, the runner generates a compact tattoo graphic showing the elevation profile with aid stations marked, distances, and estimated arrival times. The layout is optimised for a forearm-width format (roughly 7" × 2"). The runner can download a print-ready file or order a temporary tattoo directly through a print-on-demand partner. This replaces the manual paper wristband or tape-and-marker approach many ultra runners use today.
+
+13. **Find crew accommodation.** For each crew-accessible station, the product surfaces nearby hotels and Airbnbs on a map. Crew members can see at a glance which options are closest to multiple stations, helping them choose a central base for the race rather than scrambling to find lodging in unfamiliar terrain.
+
 ---
 
 ## 4. What We Want to Avoid
@@ -109,7 +119,9 @@ The value proposition in one sentence: **turn a GPX file and a race date into a 
 
 ---
 
-## 6. Phase 2 Roadmap (Future)
+## 6. Future Roadmap
+
+### Phase 2
 
 | Feature | Description |
 |---|---|
@@ -118,6 +130,13 @@ The value proposition in one sentence: **turn a GPX file and a race date into a 
 | Crew calendar integration | Auto-generate Google Calendar events for crew at crew-accessible stations with estimated arrival windows |
 | Manual progress updates | Runner/crew updates actual arrival times mid-race; downstream estimates and calendar events cascade |
 | Race scraping / auto-import | Automated sourcing of race GPX files to grow the curated library |
+
+### Phase 3
+
+| Feature | Description |
+|---|---|
+| Race tattoo generator | Print-ready forearm tattoo showing elevation profile, aid stations, distances, and estimated arrival times; download or order via print-on-demand |
+| Crew accommodation finder | Map of hotels and Airbnbs near crew-accessible stations to help crew choose a base of operations |
 
 ---
 

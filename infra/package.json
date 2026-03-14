@@ -1,0 +1,32 @@
+{
+  "name": "infra",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy",
+    "diff": "cdk diff"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.32.1",
+  "dependencies": {
+    "@auth/core": "^0.34.3",
+    "@aws-sdk/client-dynamodb": "^3.1009.0",
+    "@aws-sdk/lib-dynamodb": "^3.1009.0",
+    "aws-cdk-lib": "^2.243.0",
+    "constructs": "^10.5.1",
+    "next-auth": "5.0.0-beta.30"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.37",
+    "@types/source-map-support": "^0.5.10",
+    "aws-cdk": "^2.1111.0",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
