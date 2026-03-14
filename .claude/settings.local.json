@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(which node:*)",
+      "Bash(brew install:*)",
+      "Bash(node --version && npm install -g pnpm 2>&1 && pnpm --version)",
+      "Bash(pnpm create:*)",
+      "Bash(cp -r /tmp/plan-ultra/. /Users/danrjames/Projects/PlanUltra/ 2>&1 && ls -la /Users/danrjames/Projects/PlanUltra/)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm dlx:*)"
+    ]
+  }
+}
