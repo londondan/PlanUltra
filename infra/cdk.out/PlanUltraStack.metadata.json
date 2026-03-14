@@ -1,0 +1,58 @@
+{
+  "/PlanUltraStack/PlanUltraTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "PlanUltraTableE1661BF2"
+      }
+    }
+  ],
+  "/PlanUltraStack/TableName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TableName"
+    }
+  ],
+  "/PlanUltraStack/AmplifyRoleArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AmplifyRoleArn"
+    }
+  ],
+  "/PlanUltraStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/PlanUltraStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/PlanUltraStack/PlanUltraTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PlanUltraTableE1661BF2"
+    }
+  ],
+  "/PlanUltraStack/AmplifyServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AmplifyServiceRole1EB3E935"
+    }
+  ],
+  "/PlanUltraStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/PlanUltraStack/AmplifyServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AmplifyServiceRoleDefaultPolicyA4A29B19"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="PlanUltra Test">
+  <wpt lat="37.7749" lon="-122.4194">
+    <ele>100</ele>
+    <name>Start / Aid Station 1</name>
+  </wpt>
+  <wpt lat="37.7800" lon="-122.4150">
+    <ele>150</ele>
+    <name>Aid Station 2</name>
+  </wpt>
+  <wpt lat="37.7850" lon="-122.4100">
+    <ele>200</ele>
+    <name>Finish</name>
+  </wpt>
+  <trk>
+    <name>Simple Race</name>
+    <trkseg>
+      <trkpt lat="37.7749" lon="-122.4194"><ele>100</ele><time>2024-06-15T06:00:00Z</time></trkpt>
+      <trkpt lat="37.7760" lon="-122.4180"><ele>110</ele><time>2024-06-15T06:10:00Z</time></trkpt>
+      <trkpt lat="37.7770" lon="-122.4170"><ele>120</ele><time>2024-06-15T06:20:00Z</time></trkpt>
+      <trkpt lat="37.7780" lon="-122.4160"><ele>130</ele><time>2024-06-15T06:30:00Z</time></trkpt>
+      <trkpt lat="37.7790" lon="-122.4155"><ele>140</ele><time>2024-06-15T06:40:00Z</time></trkpt>
+      <trkpt lat="37.7800" lon="-122.4150"><ele>150</ele><time>2024-06-15T06:50:00Z</time></trkpt>
+      <trkpt lat="37.7820" lon="-122.4130"><ele>170</ele><time>2024-06-15T07:10:00Z</time></trkpt>
+      <trkpt lat="37.7835" lon="-122.4115"><ele>185</ele><time>2024-06-15T07:25:00Z</time></trkpt>
+      <trkpt lat="37.7850" lon="-122.4100"><ele>200</ele><time>2024-06-15T07:40:00Z</time></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

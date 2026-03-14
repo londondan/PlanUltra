@@ -1,0 +1,21 @@
+{
+  "version": "52.0.0",
+  "files": {
+    "c18755d93cfe52f06b1cd620168389b2d7c5dde20149f9fdeb61af447d12aab8": {
+      "displayName": "PlanUltraStack Template",
+      "source": {
+        "path": "PlanUltraStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-us-east-1-ec8d5b63": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+          "objectKey": "c18755d93cfe52f06b1cd620168389b2d7c5dde20149f9fdeb61af447d12aab8.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
