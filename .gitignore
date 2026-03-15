@@ -44,6 +44,11 @@ yarn-error.log*
 # local DynamoDB
 /local/
 
+# CDK artifacts and infrastructure node_modules
+infra/node_modules/
+infra/cdk.out/
+infra/dist/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

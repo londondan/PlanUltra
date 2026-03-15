@@ -3,9 +3,7 @@ import { redirect } from 'next/navigation'
 import { getRacesByUser } from '@/lib/db/races'
 import Link from 'next/link'
 import { buttonVariants } from '@/lib/button-variants'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { RaceList } from '@/components/RaceList'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -36,33 +34,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {races.map((race) => (
-            <Link key={race.raceId} href={`/dashboard/${race.raceId}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg">{race.name}</CardTitle>
-                    <Badge variant="outline">{race.timezone}</Badge>
-                  </div>
-                  <CardDescription>
-                    {new Date(race.date).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Start: {race.startTime}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        <RaceList initialRaces={races} />
       )}
     </div>
   )
