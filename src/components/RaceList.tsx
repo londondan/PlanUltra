@@ -41,6 +41,7 @@ export function RaceList({ initialRaces }: RaceListProps) {
       if (!res.ok) throw new Error('Delete failed')
       setRaces((prev) => prev.filter((r) => r.raceId !== pendingDelete.raceId))
       setPendingDelete(null)
+      router.refresh()
     } catch {
       setDeleteError('Something went wrong. Please try again.')
     } finally {
@@ -63,22 +64,20 @@ export function RaceList({ initialRaces }: RaceListProps) {
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">{race.timezone}</Badge>
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="h-6 w-6 flex items-center justify-center rounded hover:bg-muted"
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label="Race options"
-                      >
-                        ⋮
-                      </button>
+                    <DropdownMenuTrigger
+                      className="h-6 w-6 flex items-center justify-center rounded hover:bg-muted"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label="Race options"
+                    >
+                      ⋮
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenuItem onSelect={() => router.push(`/dashboard/${race.raceId}`)}>
+                      <DropdownMenuItem onClick={() => router.push(`/dashboard/${race.raceId}`)}>
                         View race
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        className="text-destructive focus:text-destructive"
-                        onSelect={() => {
+                        variant="destructive"
+                        onClick={() => {
                           setPendingDelete(race)
                           setDeleteError(null)
                         }}

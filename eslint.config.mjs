@@ -5,6 +5,23 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'JSXAttribute[name.name="onSelect"]',
+          message:
+            'onSelect is a Radix UI API. This project uses Base UI — use onClick instead.',
+        },
+        {
+          selector: 'JSXAttribute[name.name="asChild"]',
+          message:
+            'asChild is a Radix UI API. This project uses Base UI — use the render prop or a plain element instead.',
+        },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
