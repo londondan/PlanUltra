@@ -43,6 +43,7 @@ yarn-error.log*
 
 # local DynamoDB
 /local/
+shared-local-instance.db
 
 # CDK artifacts and infrastructure node_modules
 infra/node_modules/
