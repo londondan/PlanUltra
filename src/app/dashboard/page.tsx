@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { getRacesByUser } from '@/lib/db/races'
+import type { Race } from '@/lib/db/races'
 import Link from 'next/link'
 import { buttonVariants } from '@/lib/button-variants'
 import { RaceList } from '@/components/RaceList'
@@ -9,10 +10,21 @@ export default async function DashboardPage() {
   const session = await auth()
   if (!session?.user?.id) redirect('/auth/signin')
 
-  const races = await getRacesByUser(session.user.id).catch(() => [])
+  let races: Race[] = []
+  let dbError = false
+  try {
+    races = await getRacesByUser(session.user.id)
+  } catch {
+    dbError = true
+  }
 
   return (
     <div className="space-y-6">
+      {dbError && (
+        <div className="rounded-lg border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          Could not connect to database. Is DynamoDB Local running?
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Races</h1>

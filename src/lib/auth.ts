@@ -1,4 +1,4 @@
-import NextAuth, { type Session, type User } from 'next-auth'
+import NextAuth, { type Account, type Session } from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
 import Google from 'next-auth/providers/google'
 
@@ -20,9 +20,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session
     },
-    async jwt({ token, user }: { token: JWT; user?: User }) {
-      if (user) {
-        token.sub = user.id
+    async jwt({ token, account }: { token: JWT; account?: Account | null }) {
+      if (account?.providerAccountId) {
+        token.sub = account.providerAccountId
       }
       return token
     },
