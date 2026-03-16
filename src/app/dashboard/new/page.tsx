@@ -94,7 +94,7 @@ export default function NewRacePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Add a race</h1>
+        <h1 className="text-4xl font-bold text-foreground font-display" style={{ letterSpacing: '-0.02em' }}>Add a race</h1>
         <p className="text-muted-foreground">Upload a GPX file or choose from our race library</p>
       </div>
 

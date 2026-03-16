@@ -15,7 +15,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Races</h1>
+          <h1 className="text-4xl font-bold text-foreground font-display" style={{ letterSpacing: '-0.02em' }}>My Races</h1>
           <p className="text-muted-foreground">Plan and manage your ultra marathon races</p>
         </div>
         <Link href="/dashboard/new" className={buttonVariants()}>

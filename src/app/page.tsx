@@ -16,7 +16,7 @@ export default async function HomePage() {
     <>
       <MountainHero minHeight="600px">
         <div className="space-y-4 max-w-2xl">
-          <h1 className="text-5xl font-extrabold tracking-tight text-foreground">
+          <h1 className="text-5xl font-extrabold text-white font-display" style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}>
             Plan your ultra marathon, mile by mile
           </h1>
           <p className="text-xl text-muted-foreground">

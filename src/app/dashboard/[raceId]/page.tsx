@@ -124,7 +124,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
             <span>/</span>
             <span>{race.name}</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">{race.name}</h1>
+          <h1 className="text-[2.625rem] font-extrabold text-foreground leading-[1.1] font-display" style={{ letterSpacing: '-0.02em' }}>{race.name}</h1>
           <p className="text-muted-foreground">
             {new Date(race.date).toLocaleDateString('en-US', {
               weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
