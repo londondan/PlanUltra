@@ -108,7 +108,7 @@ export default function NewRacePage() {
           <TabsContent value="upload" className="space-y-4 pt-4">
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-                dragOver ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
+                dragOver ? 'border-primary bg-primary/5' : 'border-border'
               }`}
               onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
               onDragLeave={() => setDragOver(false)}

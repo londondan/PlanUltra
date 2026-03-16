@@ -3,6 +3,7 @@ import { buttonVariants } from "@/lib/button-variants";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { MountainHero } from "@/components/MountainHero";
 
 export default async function HomePage() {
   const session = await auth();
@@ -12,26 +13,24 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] text-center gap-8">
-      <div className="space-y-4 max-w-2xl">
-        <h1 className="text-5xl font-bold tracking-tight">
-          Plan your ultra marathon,{" "}
-          <span className="text-primary">mile by mile</span>
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Upload a GPX file, set your pace, and get hour-by-hour weather
-          forecasts aligned to your position on course. Turn a route into a
-          complete race-day plan.
-        </p>
-      </div>
+    <>
+      <MountainHero minHeight="600px">
+        <div className="space-y-4 max-w-2xl">
+          <h1 className="text-5xl font-extrabold tracking-tight text-foreground">
+            Plan your ultra marathon, mile by mile
+          </h1>
+          <p className="text-xl text-muted-foreground">
+            Upload a GPX file, set your pace, and get hour-by-hour weather
+            forecasts aligned to your position on course. Turn a route into a
+            complete race-day plan.
+          </p>
+          <Link href="/auth/signin" className={cn(buttonVariants({ size: 'lg' }))}>
+            Get started free
+          </Link>
+        </div>
+      </MountainHero>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Link href="/auth/signin" className={cn(buttonVariants({ size: 'lg' }))}>
-          Get started free
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8 text-left max-w-3xl w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8 max-w-3xl mx-auto">
         {[
           {
             title: "GPX Upload",
@@ -58,6 +57,6 @@ export default async function HomePage() {
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 }

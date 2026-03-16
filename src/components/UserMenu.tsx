@@ -23,7 +23,10 @@ export async function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium cursor-pointer">
+        <div
+          className="flex h-9 w-9 items-center justify-center rounded-full text-white text-sm font-medium cursor-pointer transition-transform hover:scale-105"
+          style={{ background: 'linear-gradient(135deg, #114574, #1D7CBE)' }}
+        >
           {initials}
         </div>
       </DropdownMenuTrigger>

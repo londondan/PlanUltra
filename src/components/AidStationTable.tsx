@@ -126,7 +126,7 @@ export function AidStationTable({ aidStations, arrivalEstimates = [] }: AidStati
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-mono text-sm">
+                    <TableCell className="font-mono text-sm text-primary font-semibold">
                       {formatTime(getArrival(station.order))}
                     </TableCell>
                   </TableRow>

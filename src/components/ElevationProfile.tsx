@@ -94,10 +94,10 @@ export function ElevationProfile({
         {/* Area fill */}
         <path
           d={`${path} L ${VIEWBOX_W - PADDING.right},${VIEWBOX_H - PADDING.bottom} L ${PADDING.left},${VIEWBOX_H - PADDING.bottom} Z`}
-          fill="rgba(239,68,68,0.1)"
+          fill="#DBF1FA"
         />
         {/* Route line */}
-        <path d={path} fill="none" stroke="#ef4444" strokeWidth="2" strokeLinejoin="round" />
+        <path d={path} fill="none" stroke="#1D7CBE" strokeWidth="2" strokeLinejoin="round" />
 
         {/* X axis */}
         <line
@@ -105,40 +105,41 @@ export function ElevationProfile({
           y1={VIEWBOX_H - PADDING.bottom}
           x2={VIEWBOX_W - PADDING.right}
           y2={VIEWBOX_H - PADDING.bottom}
-          stroke="#e2e8f0"
+          stroke="#82C7F6"
           strokeWidth="1"
+          opacity="0.3"
         />
 
         {/* X ticks */}
         {xTicks.map(({ x, label }) => (
           <g key={label}>
-            <line x1={x} y1={VIEWBOX_H - PADDING.bottom} x2={x} y2={VIEWBOX_H - PADDING.bottom + 4} stroke="#94a3b8" strokeWidth="1" />
-            <text x={x} y={VIEWBOX_H - 6} textAnchor="middle" fontSize="10" fill="#94a3b8">
+            <line x1={x} y1={VIEWBOX_H - PADDING.bottom} x2={x} y2={VIEWBOX_H - PADDING.bottom + 4} stroke="#82C7F6" strokeWidth="1" />
+            <text x={x} y={VIEWBOX_H - 6} textAnchor="middle" fontSize="10" fill="#114574">
               {label}
             </text>
           </g>
         ))}
 
         {/* X axis label */}
-        <text x={VIEWBOX_W / 2} y={VIEWBOX_H - 1} textAnchor="middle" fontSize="9" fill="#94a3b8">
+        <text x={VIEWBOX_W / 2} y={VIEWBOX_H - 1} textAnchor="middle" fontSize="9" fill="#114574">
           Distance ({unit})
         </text>
 
         {/* Y ticks */}
         {yTicks.map(({ y, label }) => (
           <g key={label}>
-            <text x={PADDING.left - 4} y={y + 3} textAnchor="end" fontSize="9" fill="#94a3b8">
+            <text x={PADDING.left - 4} y={y + 3} textAnchor="end" fontSize="9" fill="#114574">
               {label}
             </text>
-            <line x1={PADDING.left - 2} y1={y} x2={PADDING.left} y2={y} stroke="#94a3b8" strokeWidth="1" />
+            <line x1={PADDING.left - 2} y1={y} x2={PADDING.left} y2={y} stroke="#82C7F6" strokeWidth="1" />
           </g>
         ))}
 
         {/* Aid station markers */}
         {aidMarkers.map((m) => m && (
           <g key={m.order}>
-            <line x1={m.x} y1={m.y} x2={m.x} y2={VIEWBOX_H - PADDING.bottom} stroke="#3b82f6" strokeWidth="1" strokeDasharray="3,2" />
-            <circle cx={m.x} cy={m.y} r="4" fill="white" stroke="#3b82f6" strokeWidth="2" />
+            <line x1={m.x} y1={m.y} x2={m.x} y2={VIEWBOX_H - PADDING.bottom} stroke="#1D7CBE" strokeWidth="1" strokeDasharray="3,2" />
+            <circle cx={m.x} cy={m.y} r="4" fill="white" stroke="#1D7CBE" strokeWidth="2" />
           </g>
         ))}
       </svg>

@@ -24,7 +24,7 @@ export default async function DashboardPage() {
       </div>
 
       {races.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-secondary p-12 text-center">
           <h3 className="text-lg font-semibold">No races yet</h3>
           <p className="text-sm text-muted-foreground mt-1 mb-4">
             Upload a GPX file or select from our curated race library to get started.

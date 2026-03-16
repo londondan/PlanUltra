@@ -68,7 +68,6 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
     if (!startLat || !startLon) return
 
     const raceDate = race.date
-    const [year, month, day] = raceDate.split('-').map(Number)
     const lastArrival = arrivalEstimates[arrivalEstimates.length - 1].estimatedArrival
     const endDate = lastArrival.toISOString().split('T')[0]
 
@@ -121,7 +120,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-            <Link href="/dashboard" className="hover:underline">Races</Link>
+            <Link href="/dashboard" className="text-primary hover:underline">Races</Link>
             <span>/</span>
             <span>{race.name}</span>
           </div>
@@ -174,6 +173,10 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
         <TabsContent value="weather" className="pt-4">
           <WeatherTimeline
             entries={weatherEntries}
+            aidStations={aidStations}
+            arrivalEstimates={arrivalEstimates}
+            raceStart={raceStart}
+            totalDistanceMiles={totalKm * KM_TO_MI}
             forecastAvailable={forecastAvailable}
             unavailableReason={forecastReason}
           />
