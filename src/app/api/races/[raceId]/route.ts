@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { getRaceById, updateRace, deleteRace } from '@/lib/db/races'
 import { getAidStations, deleteAidStations } from '@/lib/db/aid-stations'
+import { getSectionPlans, deleteSectionPlans } from '@/lib/db/sections'
 
 export async function GET(
   _req: NextRequest,
@@ -19,7 +20,8 @@ export async function GET(
   }
 
   const aidStations = await getAidStations(raceId)
-  return NextResponse.json({ race, aidStations })
+  const sectionPlans = await getSectionPlans(raceId)
+  return NextResponse.json({ race, aidStations, sectionPlans })
 }
 
 export async function PUT(
@@ -58,6 +60,7 @@ export async function DELETE(
   }
 
   await deleteAidStations(raceId)
+  await deleteSectionPlans(raceId)
   await deleteRace(session.user.id, raceId)
   return NextResponse.json({ success: true })
 }

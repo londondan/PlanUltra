@@ -16,10 +16,13 @@ import { fetchForecast } from '@/lib/weather-client'
 import type { TrackPoint, AidStation } from '@/types/gpx'
 import type { ArrivalEstimate } from '@/lib/pace-calculator'
 import type { Race } from '@/lib/db/races'
+import type { SectionPlan } from '@/types/section'
+import { PlanTab } from '@/components/PlanTab'
 
 interface RaceData {
   race: Race
   aidStations: AidStation[]
+  sectionPlans: SectionPlan[]
 }
 
 const KM_TO_MI = 0.621371
@@ -105,7 +108,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
     )
   }
 
-  const { race, aidStations } = raceData
+  const { race, aidStations, sectionPlans } = raceData
   const raceStart = new Date(`${race.date}T${race.startTime}:00`)
   const totalKm = aidStations.length > 0
     ? aidStations[aidStations.length - 1].distanceFromStart
@@ -156,11 +159,12 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
         onArrivalEstimatesChange={setArrivalEstimates}
       />
 
-      {/* Aid Stations + Weather Tabs */}
+      {/* Aid Stations + Weather + Plan Tabs */}
       <Tabs defaultValue="stations">
         <TabsList>
           <TabsTrigger value="stations">Aid Stations</TabsTrigger>
           <TabsTrigger value="weather">Weather</TabsTrigger>
+          <TabsTrigger value="plan">Plan</TabsTrigger>
         </TabsList>
 
         <TabsContent value="stations" className="pt-4">
@@ -172,6 +176,19 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
             entries={weatherEntries}
             forecastAvailable={forecastAvailable}
             unavailableReason={forecastReason}
+          />
+        </TabsContent>
+
+        <TabsContent value="plan" className="pt-4">
+          <PlanTab
+            raceId={raceId}
+            race={race}
+            aidStations={aidStations}
+            arrivalEstimates={arrivalEstimates}
+            weatherEntries={weatherEntries}
+            trackPoints={trackPoints}
+            initialSectionPlans={sectionPlans}
+            raceStart={raceStart}
           />
         </TabsContent>
       </Tabs>

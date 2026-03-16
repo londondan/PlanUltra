@@ -18,6 +18,7 @@ export interface Race {
   date: string
   startTime: string
   timezone: string
+  caloriesPerHour?: number
   gpxUrl?: string
   gpxData?: string
   startLat?: number

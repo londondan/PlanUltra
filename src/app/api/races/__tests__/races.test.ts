@@ -20,6 +20,13 @@ vi.mock('@/lib/db/aid-stations', () => ({
   getAidStations: vi.fn(),
   updateAidStation: vi.fn(),
   deleteAidStations: vi.fn(),
+  chunkArray: vi.fn(),
+}))
+
+vi.mock('@/lib/db/sections', () => ({
+  getSectionPlans: vi.fn(),
+  upsertSectionPlan: vi.fn(),
+  deleteSectionPlans: vi.fn(),
 }))
 
 vi.mock('@/lib/gpx-parser', () => ({
@@ -176,6 +183,9 @@ describe('GET /api/races/[raceId]', () => {
     const { getAidStations } = await import('@/lib/db/aid-stations')
     vi.mocked(getAidStations).mockResolvedValueOnce([])
 
+    const { getSectionPlans } = await import('@/lib/db/sections')
+    vi.mocked(getSectionPlans).mockResolvedValueOnce([])
+
     const { GET } = await import('@/app/api/races/[raceId]/route')
     const req = new NextRequest('http://localhost/api/races/race-1')
     const res = await GET(req, { params: Promise.resolve({ raceId: 'race-1' }) })
@@ -218,7 +228,9 @@ describe('DELETE /api/races/[raceId]', () => {
 
     const { deleteAidStations } = await import('@/lib/db/aid-stations')
     const { deleteRace } = await import('@/lib/db/races')
+    const { deleteSectionPlans } = await import('@/lib/db/sections')
     vi.mocked(deleteAidStations).mockResolvedValueOnce(undefined)
+    vi.mocked(deleteSectionPlans).mockResolvedValueOnce(undefined)
     vi.mocked(deleteRace).mockResolvedValueOnce(undefined)
 
     const { DELETE } = await import('@/app/api/races/[raceId]/route')
