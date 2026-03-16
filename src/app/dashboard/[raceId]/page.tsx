@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, useCallback, useRef, use } from 'react'
 import Link from 'next/link'
 import { CourseMap } from '@/components/CourseMap'
 import { ElevationProfile } from '@/components/ElevationProfile'
@@ -16,6 +16,7 @@ import { fetchForecast } from '@/lib/weather-client'
 import type { TrackPoint, AidStation } from '@/types/gpx'
 import type { ArrivalEstimate } from '@/lib/pace-calculator'
 import type { Race } from '@/lib/db/races'
+import type { PaceSetting } from '@/components/PaceInput'
 import type { SectionPlan } from '@/types/section'
 import { PlanTab } from '@/components/PlanTab'
 
@@ -35,8 +36,24 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
   const [weatherEntries, setWeatherEntries] = useState<RaceWeatherEntry[]>([])
   const [forecastAvailable, setForecastAvailable] = useState(true)
   const [forecastReason, setForecastReason] = useState<string>()
+  const [weatherError, setWeatherError] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const savePaceSetting = useCallback(
+    (setting: PaceSetting) => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current)
+      debounceTimer.current = setTimeout(() => {
+        fetch(`/api/races/${raceId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(setting),
+        })
+      }, 600)
+    },
+    [raceId]
+  )
 
   useEffect(() => {
     fetch(`/api/races/${raceId}`)
@@ -61,6 +78,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
   useEffect(() => {
     if (!raceData || arrivalEstimates.length === 0 || trackPoints.length === 0) return
 
+    setWeatherError(false)
     const race = raceData.race
     const startLat = race.startLat ?? trackPoints[0]?.lat
     const startLon = race.startLon ?? trackPoints[0]?.lon
@@ -83,7 +101,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
         setWeatherEntries(aligned)
       })
       .catch(() => {
-        // Weather fetch failed silently
+        setWeatherError(true)
       })
   }, [arrivalEstimates, raceData, trackPoints])
 
@@ -156,6 +174,12 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
         raceStart={raceStart}
         totalDistanceKm={totalKm}
         onArrivalEstimatesChange={setArrivalEstimates}
+        initialPaceMode={race.paceMode}
+        initialPaceMin={race.paceMin}
+        initialPaceSec={race.paceSec}
+        initialFinishHours={race.finishHours}
+        initialFinishMins={race.finishMins}
+        onPaceSettingChange={savePaceSetting}
       />
 
       {/* Aid Stations + Weather + Plan Tabs */}
@@ -171,6 +195,11 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
         </TabsContent>
 
         <TabsContent value="weather" className="pt-4">
+          {weatherError && (
+            <div className="rounded-lg border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive mb-4">
+              Could not load weather forecast. Check your network connection.
+            </div>
+          )}
           <WeatherTimeline
             entries={weatherEntries}
             aidStations={aidStations}

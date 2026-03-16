@@ -24,6 +24,11 @@ export interface Race {
   startLat?: number
   startLon?: number
   createdAt: string
+  paceMode?: 'pace' | 'finish'
+  paceMin?: string
+  paceSec?: string
+  finishHours?: string
+  finishMins?: string
 }
 
 export async function createRace(
