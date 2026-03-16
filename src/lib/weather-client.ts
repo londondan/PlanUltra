@@ -43,7 +43,6 @@ export async function fetchForecast(
   url.searchParams.set('start_date', startDate)
   url.searchParams.set('end_date', endDate)
   url.searchParams.set('timezone', timezone)
-  url.searchParams.set('forecast_days', '16')
 
   const response = await fetch(url.toString())
   if (!response.ok) {
