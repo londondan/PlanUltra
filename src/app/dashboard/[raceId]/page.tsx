@@ -213,6 +213,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
                 sections={sections}
                 sectionPlans={sectionPlans}
                 caloriesPerHour={caloriesPerHour}
+                arrivalEstimates={arrivalEstimates}
               />
             </div>
           </TabsContent>
