@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { computeSectionCalories } from '@/lib/calories'
+import { computeSunConditions } from '@/lib/sun-utils'
 import type { Section, SectionPlan } from '@/types/section'
 
 interface SectionCardProps {
@@ -14,6 +15,8 @@ interface SectionCardProps {
   caloriesPerHour: number | null
   onChange: (updates: Partial<SectionPlan>) => void
   onSave: (plan: SectionPlan) => void
+  raceLat?: number
+  raceLon?: number
 }
 
 function formatDuration(minutes: number): string {
@@ -28,7 +31,7 @@ function formatNumber(n: number): string {
   return Math.round(n).toLocaleString('en-US')
 }
 
-export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave }: SectionCardProps) {
+export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, raceLat, raceLon }: SectionCardProps) {
   const [open, setOpen] = useState(false)
   const [saved, setSaved] = useState(false)
   const planRef = useRef<SectionPlan>(plan)
@@ -75,6 +78,11 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave }
 
   const computedKcal = computeSectionCalories(caloriesPerHour, durationMinutes)
   const kcal = plan.caloriesOverride !== null ? plan.caloriesOverride : computedKcal
+
+  const sunConditions =
+    raceLat !== undefined && raceLon !== undefined
+      ? computeSunConditions(section, raceLat, raceLon)
+      : null
 
   return (
     <div className="rounded-lg border overflow-hidden">
@@ -190,6 +198,48 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave }
                 <p className="text-sky-700 font-medium mb-0.5">Weather</p>
                 <p className="font-mono text-sky-900">
                   {Math.round(tempAtDeparture)}°→{tempAtArrival !== null ? Math.round(tempAtArrival) : '?'}°F
+                </p>
+              </div>
+            )}
+
+            {/* Night card */}
+            {sunConditions?.hasNight && (
+              <div className="rounded-md border bg-gradient-to-r from-[#1e1b4b] to-[#312e81] px-3 py-2 text-xs text-white">
+                <p className="font-medium mb-0.5 opacity-80">Night running</p>
+                <p>This section crosses darkness</p>
+              </div>
+            )}
+
+            {/* Sunrise card */}
+            {sunConditions?.sunriseAt && (
+              <div className="rounded-md border bg-gradient-to-r from-[#fff7ed] to-[#fed7aa] px-3 py-2 text-xs">
+                <p className="text-orange-700 font-medium mb-0.5">Sunrise</p>
+                <p className="font-mono text-orange-900">
+                  ~mile {sunConditions.sunriseAt.sectionMile.toFixed(1)}
+                </p>
+                <p className="text-orange-700">
+                  {sunConditions.sunriseAt.time.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
+                </p>
+              </div>
+            )}
+
+            {/* Sunset card */}
+            {sunConditions?.sunsetAt && (
+              <div className="rounded-md border bg-gradient-to-r from-[#faf5ff] to-[#e9d5ff] px-3 py-2 text-xs">
+                <p className="text-purple-700 font-medium mb-0.5">Sunset</p>
+                <p className="font-mono text-purple-900">
+                  ~mile {sunConditions.sunsetAt.sectionMile.toFixed(1)}
+                </p>
+                <p className="text-purple-700">
+                  {sunConditions.sunsetAt.time.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
                 </p>
               </div>
             )}

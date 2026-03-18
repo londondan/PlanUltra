@@ -128,6 +128,8 @@ export function PlanTab({
           caloriesPerHour={caloriesPerHour}
           onChange={(updates) => handleChange(section.fromStation.order, updates)}
           onSave={handleSave}
+          raceLat={race.startLat}
+          raceLon={race.startLon}
         />
       ))}
     </div>
