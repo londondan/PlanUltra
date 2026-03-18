@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, use } from 'react'
 import Link from 'next/link'
-import { CourseMap } from '@/components/CourseMap'
-import { ElevationProfile } from '@/components/ElevationProfile'
+import { CourseHeader } from '@/components/CourseHeader'
 import { AidStationTable } from '@/components/AidStationTable'
 import { PaceInput } from '@/components/PaceInput'
 import { WeatherTimeline } from '@/components/WeatherTimeline'
@@ -156,17 +155,10 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
         </div>
       </div>
 
-      {/* Map */}
-      <CourseMap
-        trackPoints={trackPoints}
-        aidStations={aidStations}
-        className="h-80 w-full"
-      />
-
-      {/* Elevation Profile */}
-      {trackPoints.length > 1 && (
-        <ElevationProfile trackPoints={trackPoints} aidStations={aidStations} />
-      )}
+      {/* Course Header */}
+      <div className="max-w-2xl mx-auto">
+        <CourseHeader race={race} trackPoints={trackPoints} aidStations={aidStations} />
+      </div>
 
       {/* Pace Input */}
       <PaceInput
