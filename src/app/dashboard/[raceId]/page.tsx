@@ -213,14 +213,12 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
           </TabsContent>
 
           <TabsContent value="pack" className="pt-4">
-            <div className="space-y-4 max-w-2xl mx-auto">
-              <PackingPlan
-                sections={sections}
-                sectionPlans={sectionPlans}
-                caloriesPerHour={caloriesPerHour}
-                arrivalEstimates={arrivalEstimates}
-              />
-            </div>
+            <PackingPlan
+              sections={sections}
+              sectionPlans={sectionPlans}
+              caloriesPerHour={caloriesPerHour}
+              arrivalEstimates={arrivalEstimates}
+            />
           </TabsContent>
 
           <TabsContent value="crew" className="pt-4">
