@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { SectionCard } from '@/components/SectionCard'
-import { DropBagSummary } from '@/components/DropBagSummary'
+import { PackingPlan } from '@/components/PackingPlan'
 import { computeSections } from '@/lib/section-utils'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -124,12 +124,8 @@ export function PlanTab({
       ))}
       {sections.length > 0 && (
         <>
-          <h3 className="text-sm font-medium text-muted-foreground">Drop Bag Summary</h3>
-          <DropBagSummary
-            sections={sections}
-            sectionPlans={sectionPlans}
-            caloriesPerHour={caloriesPerHour ?? undefined}
-          />
+          <h3 className="text-sm font-medium text-muted-foreground">Packing Plan</h3>
+          <PackingPlan sections={sections} sectionPlans={sectionPlans} caloriesPerHour={caloriesPerHour} />
         </>
       )}
     </div>
