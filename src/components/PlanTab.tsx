@@ -73,7 +73,7 @@ export function PlanTab({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-2xl mx-auto">
       {arrivalEstimates.length === 0 && (
         <div className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
           Set your pace above to see time estimates and weather context for each section.
