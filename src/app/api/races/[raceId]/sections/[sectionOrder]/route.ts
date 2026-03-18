@@ -33,7 +33,8 @@ export async function PUT(
     hasRainGear: body.hasRainGear ?? false,
     hasPoles: body.hasPoles ?? false,
     shoeChange: body.shoeChange ?? false,
-    notes: body.notes ?? '',
+    packingList: body.packingList ?? '',
+    crewNotes: body.crewNotes ?? '',
     updatedAt: new Date().toISOString(),
   }
 

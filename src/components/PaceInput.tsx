@@ -1,17 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { calculateArrivalTimes, type ArrivalEstimate, type PaceConfig } from '@/lib/pace-calculator'
 import type { AidStation } from '@/types/gpx'
 
+export interface PaceSetting {
+  paceMode: 'pace' | 'finish'
+  paceMin: string
+  paceSec: string
+  finishHours: string
+  finishMins: string
+}
+
 interface PaceInputProps {
   aidStations: AidStation[]
   raceStart: Date
   totalDistanceKm: number
   onArrivalEstimatesChange: (estimates: ArrivalEstimate[]) => void
+  initialPaceMode?: 'pace' | 'finish'
+  initialPaceMin?: string
+  initialPaceSec?: string
+  initialFinishHours?: string
+  initialFinishMins?: string
+  onPaceSettingChange?: (setting: PaceSetting) => void
 }
 
 export function PaceInput({
@@ -19,14 +33,20 @@ export function PaceInput({
   raceStart,
   totalDistanceKm,
   onArrivalEstimatesChange,
+  initialPaceMode,
+  initialPaceMin,
+  initialPaceSec,
+  initialFinishHours,
+  initialFinishMins,
+  onPaceSettingChange,
 }: PaceInputProps) {
-  const [mode, setMode] = useState<'pace' | 'finish'>('pace')
-  const [paceMin, setPaceMin] = useState('15')
-  const [paceSec, setPaceSec] = useState('00')
-  const [finishHours, setFinishHours] = useState('24')
-  const [finishMins, setFinishMins] = useState('00')
+  const [mode, setMode] = useState<'pace' | 'finish'>(initialPaceMode ?? 'pace')
+  const [paceMin, setPaceMin] = useState(initialPaceMin ?? '15')
+  const [paceSec, setPaceSec] = useState(initialPaceSec ?? '00')
+  const [finishHours, setFinishHours] = useState(initialFinishHours ?? '24')
+  const [finishMins, setFinishMins] = useState(initialFinishMins ?? '00')
 
-  const recalculate = (
+  const recalculateWithValues = (
     newMode: 'pace' | 'finish',
     pm: string,
     ps: string,
@@ -47,23 +67,30 @@ export function PaceInput({
 
     const estimates = calculateArrivalTimes(config, aidStations, raceStart)
     onArrivalEstimatesChange(estimates)
+    onPaceSettingChange?.({ paceMode: newMode, paceMin: pm, paceSec: ps, finishHours: fh, finishMins: fm })
   }
+
+  // Emit initial estimates on mount so weather loads without user interaction
+  useEffect(() => {
+    recalculateWithValues(mode, paceMin, paceSec, finishHours, finishMins)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handlePaceChange = (min: string, sec: string) => {
     setPaceMin(min)
     setPaceSec(sec)
-    recalculate('pace', min, sec, finishHours, finishMins)
+    recalculateWithValues('pace', min, sec, finishHours, finishMins)
   }
 
   const handleFinishChange = (h: string, m: string) => {
     setFinishHours(h)
     setFinishMins(m)
-    recalculate('finish', paceMin, paceSec, h, m)
+    recalculateWithValues('finish', paceMin, paceSec, h, m)
   }
 
   const switchMode = (newMode: 'pace' | 'finish') => {
     setMode(newMode)
-    recalculate(newMode, paceMin, paceSec, finishHours, finishMins)
+    recalculateWithValues(newMode, paceMin, paceSec, finishHours, finishMins)
   }
 
   return (

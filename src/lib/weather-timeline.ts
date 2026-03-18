@@ -76,11 +76,8 @@ function interpolateRunnerDistance(
   estimates: ArrivalEstimate[],
   totalDistKm: number
 ): number {
-  // Before first station
+  // Before first station — runner is at the start
   if (time <= estimates[0].estimatedArrival) {
-    const ratio =
-      (time.getTime() - estimates[0].estimatedArrival.getTime()) /
-      (estimates[0].estimatedArrival.getTime() - estimates[0].estimatedArrival.getTime() || 1)
     return 0
   }
 

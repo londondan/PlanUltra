@@ -55,7 +55,7 @@ export function RaceList({ initialRaces }: RaceListProps) {
         {races.map((race) => (
           <Card
             key={race.raceId}
-            className="hover:shadow-md transition-shadow cursor-pointer"
+            className="cursor-pointer hover:bg-[#DBF1FA] hover:border-[#82C7F6] hover:border-l-[#1D7CBE] hover:shadow-[0_4px_16px_rgba(29,124,190,0.12)] hover:-translate-y-0.5"
             onClick={() => router.push(`/dashboard/${race.raceId}`)}
           >
             <CardHeader>

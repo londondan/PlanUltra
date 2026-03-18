@@ -34,7 +34,7 @@ export function MountainHero({ minHeight = '400px', children }: MountainHeroProp
           opacity="0.85"
         />
       </svg>
-      <div className="relative z-10 text-center px-4">
+      <div className="relative z-10 text-center px-4 text-white">
         {children}
       </div>
     </div>

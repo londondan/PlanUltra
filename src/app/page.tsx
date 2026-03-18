@@ -16,10 +16,10 @@ export default async function HomePage() {
     <>
       <MountainHero minHeight="600px">
         <div className="space-y-4 max-w-2xl">
-          <h1 className="text-5xl font-extrabold tracking-tight text-foreground">
+          <h1 className="text-5xl font-extrabold tracking-tight text-white">
             Plan your ultra marathon, mile by mile
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-white/85">
             Upload a GPX file, set your pace, and get hour-by-hour weather
             forecasts aligned to your position on course. Turn a route into a
             complete race-day plan.

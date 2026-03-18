@@ -31,9 +31,9 @@ const generateForecasts = (startHour: number, count: number): HourlyForecast[] =
   Array.from({ length: count }, (_, i) => {
     const hour = startHour + i
     const time = new Date('2024-06-15T00:00:00Z')
-    time.setHours(hour)
+    time.setUTCHours(hour)
     return {
-      time: time.toISOString().replace('.000Z', '').replace('T', 'T').substring(0, 16),
+      time: time.toISOString().slice(0, 16) + 'Z',
       temperature: 60 + i,
       precipitationProbability: 10,
       windSpeed: 5,
@@ -41,6 +41,40 @@ const generateForecasts = (startHour: number, count: number): HourlyForecast[] =
       isNight: hour < 6 || hour >= 20,
     }
   })
+
+// ---------------------------------------------------------------------------
+// Regression: interpolateRunnerDistance divide-by-zero
+// Before the fix, the "before first station" branch had a dead ratio computation
+// (same value minus itself) that was masked by an unconditional `return 0`.
+// This test verifies the early hours of the race produce valid, non-NaN entries.
+// ---------------------------------------------------------------------------
+describe('interpolateRunnerDistance regression', () => {
+  it('produces valid (non-NaN) coordinates for hours before the first aid station', () => {
+    // Race starts at 06:00, first station not until 08:00
+    // Hours 06:00 and 07:00 fall in the "before first station" branch
+    const forecasts = generateForecasts(6, 3) // 06:00, 07:00, 08:00
+    const result = alignWeatherToRace(forecasts, arrivalEstimates, trackPoints, raceStart)
+
+    // Should have at least 2 entries (06:00 and 07:00 are within the race window)
+    expect(result.length).toBeGreaterThanOrEqual(2)
+
+    for (const entry of result) {
+      expect(entry.locationLat).not.toBeNaN()
+      expect(entry.locationLon).not.toBeNaN()
+      expect(entry.elapsedHours).toBeGreaterThanOrEqual(0)
+    }
+  })
+
+  it('maps the race start hour to track point 0 coordinates', () => {
+    const forecasts = generateForecasts(6, 1) // just 06:00 = race start
+    const result = alignWeatherToRace(forecasts, arrivalEstimates, trackPoints, raceStart)
+
+    expect(result).toHaveLength(1)
+    // Runner is at the start — should be at (or very near) trackPoints[0]
+    expect(result[0].locationLat).toBeCloseTo(trackPoints[0].lat, 4)
+    expect(result[0].locationLon).toBeCloseTo(trackPoints[0].lon, 4)
+  })
+})
 
 describe('alignWeatherToRace', () => {
   it('returns empty array when forecasts are empty', () => {

@@ -12,7 +12,8 @@ if [ ! -f "$JAR_DIR/DynamoDBLocal.jar" ]; then
 fi
 
 # Start DynamoDB Local
-java -Djava.library.path="$JAR_DIR/DynamoDBLocal_lib" -jar "$JAR_DIR/DynamoDBLocal.jar" -sharedDb -port 8000 &
+mkdir -p "$JAR_DIR/data"
+java -Djava.library.path="$JAR_DIR/DynamoDBLocal_lib" -jar "$JAR_DIR/DynamoDBLocal.jar" -sharedDb -dbPath "$JAR_DIR/data" -port 8000 &
 DYNAMO_PID=$!
 echo "DynamoDB Local started (PID: $DYNAMO_PID) on port 8000"
 
