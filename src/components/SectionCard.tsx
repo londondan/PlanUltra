@@ -161,14 +161,25 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave }
 
         {/* Notes */}
         <div className="space-y-1">
-          <Label htmlFor={`notes-${fromStation.order}`}>Notes</Label>
+          <Label htmlFor={`packing-list-${fromStation.order}`}>Packing list</Label>
           <textarea
-            id={`notes-${fromStation.order}`}
+            id={`packing-list-${fromStation.order}`}
             rows={3}
-            value={plan.notes}
-            onChange={(e) => handleChange({ notes: e.target.value })}
+            value={plan.packingList}
+            onChange={(e) => handleChange({ packingList: e.target.value })}
             className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 resize-none"
-            placeholder="Notes for this section..."
+            placeholder="List food to pack for this segment, e.g. 4× gel, 2× bar, 1× rice ball"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor={`crew-notes-${fromStation.order}`}>Notes</Label>
+          <textarea
+            id={`crew-notes-${fromStation.order}`}
+            rows={3}
+            value={plan.crewNotes}
+            onChange={(e) => handleChange({ crewNotes: e.target.value })}
+            className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 resize-none"
+            placeholder="Reminders, crew instructions, anything else"
           />
         </div>
       </CardContent>

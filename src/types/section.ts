@@ -12,7 +12,8 @@ export interface SectionPlan {
   hasRainGear: boolean
   hasPoles: boolean
   shoeChange: boolean
-  notes: string
+  packingList: string
+  crewNotes: string
   updatedAt: string               // ISO 8601
 }
 

@@ -36,7 +36,8 @@ function defaultPlan(raceId: string, section: Section): SectionPlan {
     hasRainGear: false,
     hasPoles: false,
     shoeChange: false,
-    notes: '',
+    packingList: '',
+    crewNotes: '',
     updatedAt: '',
   }
 }

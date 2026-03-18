@@ -38,7 +38,8 @@ const defaultPlan = (raceId: string, order: number): SectionPlan => ({
   hasRainGear: false,
   hasPoles: false,
   shoeChange: false,
-  notes: '',
+  packingList: '',
+  crewNotes: '',
   updatedAt: '',
 })
 
