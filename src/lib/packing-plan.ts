@@ -35,19 +35,20 @@ export function buildPackingCards(
   sectionPlans: SectionPlan[],
   caloriesPerHour: number | null
 ): PackingCard[] {
-  const cardMap = new Map<number, PackingCard>()
+  const cardMap = new Map<string, PackingCard>()
 
   for (const section of sections) {
-    const stationOrder = section.fromStation.order
-    if (!cardMap.has(stationOrder)) {
-      cardMap.set(stationOrder, { station: section.fromStation, baggies: [] })
+    const physicalKey = section.fromStation.physicalName ?? section.fromStation.name
+    if (!cardMap.has(physicalKey)) {
+      cardMap.set(physicalKey, { station: section.fromStation, baggies: [] })
     }
+    const stationOrder = section.fromStation.order
     const plan =
       sectionPlans.find((p) => p.fromStationOrder === stationOrder) ??
       EMPTY_PLAN(sectionPlans[0]?.raceId ?? '', stationOrder)
 
     const computedKcal = computeSectionCalories(caloriesPerHour, section.durationMinutes)
-    cardMap.get(stationOrder)!.baggies.push({ section, plan, computedKcal })
+    cardMap.get(physicalKey)!.baggies.push({ section, plan, computedKcal })
   }
 
   return Array.from(cardMap.values())

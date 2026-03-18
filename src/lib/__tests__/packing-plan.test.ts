@@ -93,4 +93,17 @@ describe('buildPackingCards', () => {
 
     expect(cards[0].baggies[0].computedKcal).toBeNull()
   })
+
+  it('sections from same physicalName → one card with two baggies', () => {
+    const s1 = makeSection(0, 1)
+    const s2 = makeSection(2, 3)
+    s2.fromStation = { ...s2.fromStation, physicalName: 'Station 0', order: 2 }
+
+    const sections = [s1, s2]
+    const plans = [makePlan('race1', 0), makePlan('race1', 2)]
+    const cards = buildPackingCards(sections, plans, null)
+
+    expect(cards).toHaveLength(1)
+    expect(cards[0].baggies).toHaveLength(2)
+  })
 })

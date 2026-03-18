@@ -36,14 +36,18 @@ export function PackingPlan({ sections, sectionPlans, caloriesPerHour }: Packing
           baggies.some(({ plan }) => plan[key])
         )
 
+        const visitMiles = [...new Set(baggies.map(b => b.section.fromStation.distanceFromStart))]
+          .sort((a, b) => a - b)
+        const mileLabel = visitMiles.map(m => (m * KM_TO_MI).toFixed(1)).join(', ')
+
         return (
-          <Card key={station.order}>
+          <Card key={station.physicalName ?? station.name}>
             <CardHeader>
               <CardTitle className="text-base">
                 {station.name}
-                {station.distanceFromStart > 0 && (
+                {visitMiles.some(m => m > 0) && (
                   <span className="ml-2 text-sm font-normal text-muted-foreground">
-                    mile {(station.distanceFromStart * KM_TO_MI).toFixed(1)}
+                    mile {mileLabel}
                   </span>
                 )}
               </CardTitle>
