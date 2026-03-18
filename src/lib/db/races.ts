@@ -24,6 +24,7 @@ export interface Race {
   startLat?: number
   startLon?: number
   createdAt: string
+  targetFinishMinutes?: number
   paceMode?: 'pace' | 'finish'
   paceMin?: string
   paceSec?: string

@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { Timer, ClipboardList, Package, Users } from 'lucide-react'
 import { CourseHeader } from '@/components/CourseHeader'
+import { PaceTab } from '@/components/PaceTab'
 import { PlanTab } from '@/components/PlanTab'
 import { PackingPlan } from '@/components/PackingPlan'
 import { buttonVariants } from '@/lib/button-variants'
@@ -178,7 +179,12 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
           </TabsList>
 
           <TabsContent value="pace" className="pt-4">
-            <p className="text-sm text-muted-foreground">Pace settings coming soon</p>
+            <PaceTab
+              race={race}
+              aidStations={aidStations}
+              raceStart={raceStart}
+              onArrivalEstimatesChange={setArrivalEstimates}
+            />
           </TabsContent>
 
           <TabsContent value="plan" className="pt-4">

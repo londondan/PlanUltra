@@ -44,6 +44,26 @@ export async function PUT(
   return NextResponse.json({ success: true })
 }
 
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ raceId: string }> }
+) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { raceId } = await params
+  const race = await getRaceById(session.user.id, raceId)
+  if (!race) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  const updates = await req.json()
+  await updateRace(session.user.id, raceId, updates)
+  return NextResponse.json({ success: true })
+}
+
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ raceId: string }> }
