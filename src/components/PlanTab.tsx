@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react'
 import { SectionCard } from '@/components/SectionCard'
-import { PackingPlan } from '@/components/PackingPlan'
 import { computeSections } from '@/lib/section-utils'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,6 +20,8 @@ interface PlanTabProps {
   trackPoints: TrackPoint[]
   initialSectionPlans: SectionPlan[]
   raceStart: Date
+  onSectionPlansChange?: (plans: SectionPlan[]) => void
+  onCaloriesPerHourChange?: (cph: number | null) => void
 }
 
 function defaultPlan(raceId: string, section: Section): SectionPlan {
@@ -51,6 +52,8 @@ export function PlanTab({
   trackPoints,
   initialSectionPlans,
   raceStart,
+  onSectionPlansChange,
+  onCaloriesPerHourChange,
 }: PlanTabProps) {
   const [sectionPlans, setSectionPlans] = useState<SectionPlan[]>(initialSectionPlans)
   const [caloriesPerHour, setCaloriesPerHour] = useState<number | null>(race.caloriesPerHour ?? null)
@@ -61,16 +64,21 @@ export function PlanTab({
   const handleChange = (order: number, updates: Partial<SectionPlan>) => {
     setSectionPlans((prev) => {
       const idx = prev.findIndex((p) => p.fromStationOrder === order)
+      let next: SectionPlan[]
       if (idx >= 0) {
-        return prev.map((p) => (p.fromStationOrder === order ? { ...p, ...updates } : p))
+        next = prev.map((p) => (p.fromStationOrder === order ? { ...p, ...updates } : p))
+      } else {
+        const section = sections.find((s) => s.fromStation.order === order)!
+        next = [...prev, { ...defaultPlan(raceId, section), ...updates }]
       }
-      const section = sections.find((s) => s.fromStation.order === order)!
-      return [...prev, { ...defaultPlan(raceId, section), ...updates }]
+      onSectionPlansChange?.(next)
+      return next
     })
   }
 
   const handleCaloriesPerHourChange = (value: number | null) => {
     setCaloriesPerHour(value)
+    onCaloriesPerHourChange?.(value)
     if (calDebounceRef.current) clearTimeout(calDebounceRef.current)
     calDebounceRef.current = setTimeout(() => {
       fetch(`/api/races/${raceId}`, {
@@ -122,12 +130,6 @@ export function PlanTab({
           onSave={handleSave}
         />
       ))}
-      {sections.length > 0 && (
-        <>
-          <h3 className="text-sm font-medium text-muted-foreground">Packing Plan</h3>
-          <PackingPlan sections={sections} sectionPlans={sectionPlans} caloriesPerHour={caloriesPerHour} />
-        </>
-      )}
     </div>
   )
 }

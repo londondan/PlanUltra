@@ -1,23 +1,22 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef, use } from 'react'
+import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
+import { Timer, ClipboardList, Package, Users } from 'lucide-react'
 import { CourseHeader } from '@/components/CourseHeader'
-import { AidStationTable } from '@/components/AidStationTable'
-import { PaceInput } from '@/components/PaceInput'
-import { WeatherTimeline } from '@/components/WeatherTimeline'
+import { PlanTab } from '@/components/PlanTab'
+import { PackingPlan } from '@/components/PackingPlan'
 import { buttonVariants } from '@/lib/button-variants'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { parseGPX } from '@/lib/gpx-parser'
 import { alignWeatherToRace, type RaceWeatherEntry } from '@/lib/weather-timeline'
 import { fetchForecast } from '@/lib/weather-client'
+import { computeSections } from '@/lib/section-utils'
 import type { TrackPoint, AidStation } from '@/types/gpx'
 import type { ArrivalEstimate } from '@/lib/pace-calculator'
 import type { Race } from '@/lib/db/races'
-import type { PaceSetting } from '@/components/PaceInput'
 import type { SectionPlan } from '@/types/section'
-import { PlanTab } from '@/components/PlanTab'
 
 interface RaceData {
   race: Race
@@ -38,35 +37,23 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
   const [weatherError, setWeatherError] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const savePaceSetting = useCallback(
-    (setting: PaceSetting) => {
-      if (debounceTimer.current) clearTimeout(debounceTimer.current)
-      debounceTimer.current = setTimeout(() => {
-        fetch(`/api/races/${raceId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(setting),
-        })
-      }, 600)
-    },
-    [raceId]
-  )
+  const [sectionPlans, setSectionPlans] = useState<SectionPlan[]>([])
+  const [caloriesPerHour, setCaloriesPerHour] = useState<number | null>(null)
 
   useEffect(() => {
     fetch(`/api/races/${raceId}`)
       .then((r) => r.json())
       .then(async (data: RaceData) => {
         setRaceData(data)
+        setSectionPlans(data.sectionPlans)
+        setCaloriesPerHour(data.race.caloriesPerHour ?? null)
 
-        // Parse GPX from stored data if available
         if (data.race.gpxData) {
           try {
             const { trackPoints: pts } = parseGPX(data.race.gpxData)
             setTrackPoints(pts)
           } catch {
-            // GPX not available, map will show empty
+            // GPX not available
           }
         }
       })
@@ -124,12 +111,13 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
     )
   }
 
-  const { race, aidStations, sectionPlans } = raceData
+  const { race, aidStations } = raceData
   const raceStart = new Date(`${race.date}T${race.startTime}:00`)
-  const totalKm = aidStations.length > 0
-    ? aidStations[aidStations.length - 1].distanceFromStart
-    : 0
+  const totalKm =
+    aidStations.length > 0 ? aidStations[aidStations.length - 1].distanceFromStart : 0
   const totalMiles = (totalKm * KM_TO_MI).toFixed(1)
+
+  const sections = computeSections(aidStations, arrivalEstimates, weatherEntries, trackPoints, raceStart)
 
   return (
     <div className="space-y-6">
@@ -137,85 +125,99 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-            <Link href="/dashboard" className="text-primary hover:underline">Races</Link>
+            <Link href="/dashboard" className="text-primary hover:underline">
+              Races
+            </Link>
             <span>/</span>
             <span>{race.name}</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight">{race.name}</h1>
           <p className="text-muted-foreground">
             {new Date(race.date).toLocaleDateString('en-US', {
-              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-            })} · Start {race.startTime} · {totalMiles} miles
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}{' '}
+            · Start {race.startTime} · {totalMiles} miles
           </p>
         </div>
         <div className="flex gap-2">
-          <Link href={`/dashboard/${raceId}/setup`} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+          <Link
+            href={`/dashboard/${raceId}/setup`}
+            className={buttonVariants({ variant: 'outline', size: 'sm' })}
+          >
             Edit stations
           </Link>
         </div>
       </div>
 
-      {/* Course Header */}
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Course Header */}
         <CourseHeader race={race} trackPoints={trackPoints} aidStations={aidStations} />
-      </div>
 
-      {/* Pace Input */}
-      <PaceInput
-        aidStations={aidStations}
-        raceStart={raceStart}
-        totalDistanceKm={totalKm}
-        onArrivalEstimatesChange={setArrivalEstimates}
-        initialPaceMode={race.paceMode}
-        initialPaceMin={race.paceMin}
-        initialPaceSec={race.paceSec}
-        initialFinishHours={race.finishHours}
-        initialFinishMins={race.finishMins}
-        onPaceSettingChange={savePaceSetting}
-      />
+        {/* Tabs */}
+        <Tabs defaultValue="plan">
+          <TabsList>
+            <TabsTrigger value="pace">
+              <Timer className="size-4" />
+              <span className="hidden sm:inline">Pace</span>
+            </TabsTrigger>
+            <TabsTrigger value="plan">
+              <ClipboardList className="size-4" />
+              <span className="hidden sm:inline">Plan</span>
+            </TabsTrigger>
+            <TabsTrigger value="pack">
+              <Package className="size-4" />
+              <span className="hidden sm:inline">Pack</span>
+            </TabsTrigger>
+            <TabsTrigger value="crew">
+              <Users className="size-4" />
+              <span className="hidden sm:inline">Crew</span>
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Aid Stations + Weather + Plan Tabs */}
-      <Tabs defaultValue="stations">
-        <TabsList>
-          <TabsTrigger value="stations">Aid Stations</TabsTrigger>
-          <TabsTrigger value="weather">Weather</TabsTrigger>
-          <TabsTrigger value="plan">Plan</TabsTrigger>
-        </TabsList>
+          <TabsContent value="pace" className="pt-4">
+            <p className="text-sm text-muted-foreground">Pace settings coming soon</p>
+          </TabsContent>
 
-        <TabsContent value="stations" className="pt-4">
-          <AidStationTable aidStations={aidStations} arrivalEstimates={arrivalEstimates} />
-        </TabsContent>
+          <TabsContent value="plan" className="pt-4">
+            {weatherError && (
+              <div className="rounded-lg border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive mb-4">
+                Could not load weather forecast. Check your network connection.
+              </div>
+            )}
+            <PlanTab
+              raceId={raceId}
+              race={race}
+              aidStations={aidStations}
+              arrivalEstimates={arrivalEstimates}
+              weatherEntries={weatherEntries}
+              trackPoints={trackPoints}
+              initialSectionPlans={sectionPlans}
+              raceStart={raceStart}
+              onSectionPlansChange={setSectionPlans}
+              onCaloriesPerHourChange={setCaloriesPerHour}
+            />
+          </TabsContent>
 
-        <TabsContent value="weather" className="pt-4">
-          {weatherError && (
-            <div className="rounded-lg border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive mb-4">
-              Could not load weather forecast. Check your network connection.
+          <TabsContent value="pack" className="pt-4">
+            <div className="space-y-4 max-w-2xl mx-auto">
+              <PackingPlan
+                sections={sections}
+                sectionPlans={sectionPlans}
+                caloriesPerHour={caloriesPerHour}
+              />
             </div>
-          )}
-          <WeatherTimeline
-            entries={weatherEntries}
-            aidStations={aidStations}
-            arrivalEstimates={arrivalEstimates}
-            raceStart={raceStart}
-            totalDistanceMiles={totalKm * KM_TO_MI}
-            forecastAvailable={forecastAvailable}
-            unavailableReason={forecastReason}
-          />
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="plan" className="pt-4">
-          <PlanTab
-            raceId={raceId}
-            race={race}
-            aidStations={aidStations}
-            arrivalEstimates={arrivalEstimates}
-            weatherEntries={weatherEntries}
-            trackPoints={trackPoints}
-            initialSectionPlans={sectionPlans}
-            raceStart={raceStart}
-          />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="crew" className="pt-4">
+            <p className="text-sm text-muted-foreground">
+              Share your plan with crew — coming soon
+            </p>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   )
 }
