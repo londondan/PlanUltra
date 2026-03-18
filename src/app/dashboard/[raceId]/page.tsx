@@ -7,6 +7,7 @@ import { CourseHeader } from '@/components/CourseHeader'
 import { PaceTab } from '@/components/PaceTab'
 import { PlanTab } from '@/components/PlanTab'
 import { PackingPlan } from '@/components/PackingPlan'
+import { CrewTab } from '@/components/CrewTab'
 import { buttonVariants } from '@/lib/button-variants'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
@@ -40,6 +41,10 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
   const [error, setError] = useState<string | null>(null)
   const [sectionPlans, setSectionPlans] = useState<SectionPlan[]>([])
   const [caloriesPerHour, setCaloriesPerHour] = useState<number | null>(null)
+
+  const handleRaceUpdate = (updates: Partial<Race>) => {
+    setRaceData((prev) => prev ? { ...prev, race: { ...prev.race, ...updates } } : prev)
+  }
 
   useEffect(() => {
     fetch(`/api/races/${raceId}`)
@@ -219,9 +224,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
           </TabsContent>
 
           <TabsContent value="crew" className="pt-4">
-            <p className="text-sm text-muted-foreground">
-              Share your plan with crew — coming soon
-            </p>
+            <CrewTab race={race} onRaceUpdate={handleRaceUpdate} />
           </TabsContent>
         </Tabs>
       </div>

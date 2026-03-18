@@ -25,6 +25,8 @@ export interface Race {
   startLon?: number
   createdAt: string
   targetFinishMinutes?: number
+  crewShareToken?: string
+  crewPublishedAt?: string
   paceMode?: 'pace' | 'finish'
   paceMin?: string
   paceSec?: string
@@ -106,25 +108,35 @@ export async function updateRace(
   raceId: string,
   updates: Partial<Omit<Race, 'raceId' | 'userId' | 'createdAt'>>
 ): Promise<void> {
-  const expressions: string[] = []
+  const setExpressions: string[] = []
+  const removeExpressions: string[] = []
   const names: Record<string, string> = {}
   const values: Record<string, unknown> = {}
 
   for (const [key, value] of Object.entries(updates)) {
-    expressions.push(`#${key} = :${key}`)
-    names[`#${key}`] = key
-    values[`:${key}`] = value
+    if (value === null || value === undefined) {
+      removeExpressions.push(`#${key}`)
+      names[`#${key}`] = key
+    } else {
+      setExpressions.push(`#${key} = :${key}`)
+      names[`#${key}`] = key
+      values[`:${key}`] = value
+    }
   }
 
-  if (expressions.length === 0) return
+  if (setExpressions.length === 0 && removeExpressions.length === 0) return
+
+  const parts: string[] = []
+  if (setExpressions.length > 0) parts.push(`SET ${setExpressions.join(', ')}`)
+  if (removeExpressions.length > 0) parts.push(`REMOVE ${removeExpressions.join(', ')}`)
 
   await docClient.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
       Key: { PK: `USER#${userId}`, SK: `RACE#${raceId}` },
-      UpdateExpression: `SET ${expressions.join(', ')}`,
+      UpdateExpression: parts.join(' '),
       ExpressionAttributeNames: names,
-      ExpressionAttributeValues: values,
+      ...(Object.keys(values).length > 0 ? { ExpressionAttributeValues: values } : {}),
     })
   )
 }
