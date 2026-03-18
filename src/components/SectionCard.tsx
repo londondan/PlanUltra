@@ -5,12 +5,13 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { computeSectionCalories } from '@/lib/calories'
 import type { Section, SectionPlan } from '@/types/section'
 
 interface SectionCardProps {
   section: Section
   plan: SectionPlan
-  caloriesPerHour: number | undefined
+  caloriesPerHour: number | null
   onChange: (updates: Partial<SectionPlan>) => void
   onSave: (plan: SectionPlan) => void
 }
@@ -107,11 +108,23 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave }
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor={`calories-${fromStation.order}`}>Cal/hr override</Label>
+            <Label htmlFor={`calories-${fromStation.order}`}>
+              Calories{plan.caloriesOverride !== null
+                ? <span className="ml-1 text-muted-foreground font-normal">(override)</span>
+                : null}
+            </Label>
+            {plan.caloriesOverride === null ? (
+              <div className="flex h-9 items-center text-sm text-muted-foreground">
+                {computeSectionCalories(caloriesPerHour, durationMinutes) !== null
+                  ? `~${computeSectionCalories(caloriesPerHour, durationMinutes)} kcal`
+                  : '—'}
+              </div>
+            ) : null}
             <Input
               id={`calories-${fromStation.order}`}
               type="number"
-              placeholder={caloriesPerHour !== undefined ? String(caloriesPerHour) : ''}
+              min="0"
+              placeholder={plan.caloriesOverride === null ? 'override kcal' : ''}
               value={plan.caloriesOverride ?? ''}
               onChange={(e) =>
                 handleChange({ caloriesOverride: e.target.value === '' ? null : Number(e.target.value) })
