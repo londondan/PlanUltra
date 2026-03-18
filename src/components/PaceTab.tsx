@@ -124,33 +124,50 @@ export function PaceTab({ race, aidStations, raceStart, onArrivalEstimatesChange
             Set your target finish time above to see projected splits.
           </p>
         ) : (
-          <div className="rounded-lg border overflow-hidden">
+          <div className="rounded-lg border border-[rgba(130,199,246,0.55)] overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/40">
-                  <th className="text-left px-3 py-2 font-medium">Station</th>
-                  <th className="text-right px-3 py-2 font-medium">Mile</th>
-                  <th className="text-right px-3 py-2 font-medium">Arrive</th>
+                  <th className="text-left px-3 py-2 font-medium">Segment</th>
+                  <th className="text-right px-3 py-2 font-medium whitespace-nowrap">Start mi</th>
+                  <th className="text-right px-3 py-2 font-medium whitespace-nowrap">Dist</th>
+                  <th className="text-right px-3 py-2 font-medium whitespace-nowrap">Est. pace</th>
+                  <th className="text-right px-3 py-2 font-medium whitespace-nowrap">Arrive at</th>
                 </tr>
               </thead>
               <tbody>
-                {estimates.map((est, i) => (
-                  <tr
-                    key={est.order}
-                    className={i % 2 === 0 ? 'bg-sky-50/30' : ''}
-                  >
-                    <td className="px-3 py-2">{est.name}</td>
-                    <td className="px-3 py-2 text-right text-muted-foreground font-mono">
-                      {(
-                        (aidStations.find((s) => s.order === est.order)?.distanceFromStart ?? 0) *
-                        KM_TO_MI
-                      ).toFixed(1)}
-                    </td>
-                    <td className="px-3 py-2 text-right font-mono font-bold">
-                      {formatTime(est.estimatedArrival)}
-                    </td>
-                  </tr>
-                ))}
+                {estimates.map((est, i) => {
+                  const currentStation = aidStations.find((s) => s.order === est.order)
+                  const prevStation = aidStations
+                    .filter((s) => s.order < est.order)
+                    .sort((a, b) => b.order - a.order)[0]
+                  const startMileMi = (prevStation?.distanceFromStart ?? 0) * KM_TO_MI
+                  const endMileMi = (currentStation?.distanceFromStart ?? 0) * KM_TO_MI
+                  const legDistMi = endMileMi - startMileMi
+                  const segmentLabel = prevStation
+                    ? `${prevStation.name} → ${est.name}`
+                    : `Start → ${est.name}`
+                  return (
+                    <tr
+                      key={est.order}
+                      style={{ backgroundColor: i % 2 === 0 ? 'rgba(219,241,250,0.3)' : 'transparent' }}
+                    >
+                      <td className="px-3 py-2">{segmentLabel}</td>
+                      <td className="px-3 py-2 text-right text-muted-foreground font-mono whitespace-nowrap">
+                        {startMileMi.toFixed(1)}
+                      </td>
+                      <td className="px-3 py-2 text-right text-muted-foreground font-mono whitespace-nowrap">
+                        {legDistMi.toFixed(1)}
+                      </td>
+                      <td className="px-3 py-2 text-right text-muted-foreground font-mono whitespace-nowrap">
+                        {minutesPerMile ? formatPace(minutesPerMile) : '—'}
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono font-bold text-secondary-foreground whitespace-nowrap">
+                        {formatTime(est.estimatedArrival)}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
