@@ -53,3 +53,10 @@ infra/dist/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Code local config
+.claude/
+
+# Local planning and memory (not for repo)
+memory/
+requirements/
