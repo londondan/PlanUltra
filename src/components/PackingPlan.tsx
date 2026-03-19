@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronRight } from 'lucide-react'
 import { buildPackingCards } from '@/lib/packing-plan'
 import type { Section, SectionPlan } from '@/types/section'
 import type { ArrivalEstimate } from '@/lib/pace-calculator'
@@ -23,6 +22,14 @@ const GEAR_ITEMS = [
   { key: 'hasPoles', label: 'Poles' },
   { key: 'shoeChange', label: 'Shoe change' },
 ] as const
+
+const GEAR_PILL_COLORS: Record<string, { backgroundColor: string; color: string }> = {
+  hasHeadlamp:   { backgroundColor: '#e0e7ff', color: '#3730a3' },
+  hasRainGear:   { backgroundColor: '#fef3c7', color: '#92400e' },
+  hasExtraLayer: { backgroundColor: '#f1f5f9', color: '#475569' },
+  hasPoles:      { backgroundColor: '#f1f5f9', color: '#475569' },
+  shoeChange:    { backgroundColor: '#f1f5f9', color: '#475569' },
+}
 
 interface PackingPlanProps {
   sections: Section[]
@@ -57,6 +64,9 @@ export function PackingPlan({
 
   return (
     <div className="space-y-3">
+      <p className="text-sm text-[#64748b] mb-3.5 leading-relaxed">
+        Each drop bag listed once. Expand to see what to pack and when you&apos;ll reach it during the race.
+      </p>
       {cards.map(({ station, baggies }) => {
         const cardKey = station.physicalName ?? station.name
         const isOpen = openCards.has(cardKey)
@@ -79,58 +89,64 @@ export function PackingPlan({
         const baggieCount = baggies.length
 
         return (
-          <div key={cardKey} className="rounded-lg overflow-hidden border border-[#1a2e44]/20">
-            {/* Collapsed header */}
+          <div key={cardKey} className="rounded-lg overflow-hidden border border-[rgba(130,199,246,0.55)] shadow-[0_2px_6px_rgba(29,124,190,0.06)]">
             <button
               type="button"
-              className="w-full flex items-center gap-3 px-4 py-3 text-left bg-[#1a3a4a] text-white"
+              className="w-full flex items-start gap-3 px-4 py-3 text-left text-white transition-colors"
+              style={{ backgroundColor: '#114574' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0d3a63')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#114574')}
               onClick={() => toggleCard(cardKey)}
             >
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-base leading-tight">{station.name}</p>
+                <p className="font-display font-extrabold text-[15px] tracking-[-0.01em] leading-tight">
+                  {station.name}
+                </p>
                 {mileSubtitle && (
-                  <p className="text-xs text-white/70 mt-0.5">{mileSubtitle}</p>
-                )}
-                {(gearSummary || baggieCount > 0) && (
-                  <p className="text-xs text-white/60 mt-0.5 truncate">
-                    {[gearSummary, `${baggieCount} baggi${baggieCount !== 1 ? 'es' : 'e'} packed`]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </p>
+                  <p className="text-xs text-white/65 mt-0.5">{mileSubtitle}</p>
                 )}
               </div>
-              <ChevronRight
-                className="size-4 shrink-0 text-white/60 transition-transform"
+              {!isOpen && (gearSummary || baggieCount > 0) && (
+                <div className="text-right text-[11px] text-white/60 leading-snug shrink-0 max-w-[40%]">
+                  {gearSummary && <div>{gearSummary}</div>}
+                  <div>{baggieCount} baggi{baggieCount !== 1 ? 'es' : 'e'} packed</div>
+                </div>
+              )}
+              <span
+                className="text-white/60 text-xs shrink-0 mt-0.5 transition-transform inline-block"
                 style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
-              />
+              >
+                ▸
+              </span>
             </button>
 
             {/* Expanded body */}
             {isOpen && (
-              <div className="px-4 py-4 space-y-5">
+              <div className="px-4 py-3.5 space-y-4">
                 {/* Section A: What to pack */}
                 <div className="space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.07em] text-[#114574] mb-2">
                     What to pack
                   </p>
 
                   {/* Gear checklist pills (display only) */}
                   {gearItems.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {gearItems.map(({ label }) => (
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {gearItems.map(({ key, label }) => (
                         <span
                           key={label}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full bg-foreground text-background"
+                          className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-[0.05em]"
+                          style={GEAR_PILL_COLORS[key]}
                         >
-                          ✓ {label}
+                          ☐ {label}
                         </span>
                       ))}
                     </div>
                   )}
 
                   {hasShoeChange && (
-                    <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2.5 py-1.5">
-                      ⚠ Shoe change at this station
+                    <p className="text-[11px] text-amber-700 mt-1">
+                      ⚠ Shoe change at this station — note in crew plan
                     </p>
                   )}
 
@@ -146,16 +162,19 @@ export function PackingPlan({
                     return (
                       <div
                         key={section.toStation.order}
-                        className="rounded-md border bg-muted/20 p-3 space-y-1.5"
+                        className="rounded-lg border border-[rgba(130,199,246,0.5)] px-3 py-2.5 mb-1.5"
+                        style={{ backgroundColor: '#DBF1FA' }}
                       >
-                        <p className="text-sm font-medium">
-                          🥡 Baggie → {section.toStation.name}
-                        </p>
-                        <p className="text-xs font-mono text-muted-foreground">
-                          {legMiles} mi{legDur ? ` · ${legDur} leg` : ''}
-                        </p>
+                        <div className="flex items-baseline gap-2 flex-wrap mb-1.5">
+                          <span className="text-[13px] font-bold text-[#02071E]">
+                            🥡 Baggie → {section.toStation.name}
+                          </span>
+                          <span className="text-[11px] font-mono text-[#64748b]">
+                            {legMiles} mi{legDur ? ` · ${legDur} leg` : ''}
+                          </span>
+                        </div>
                         {(plan.drinkMixes !== null && plan.drinkMixes > 0) || kcal !== null ? (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-[#475569] leading-relaxed">
                             {[
                               plan.drinkMixes !== null && plan.drinkMixes > 0
                                 ? `${plan.drinkMixes}× drink mix`
@@ -167,7 +186,9 @@ export function PackingPlan({
                           </p>
                         ) : null}
                         {plan.packingList && (
-                          <p className="text-xs whitespace-pre-wrap">{plan.packingList}</p>
+                          <p className="text-xs text-[#475569] leading-relaxed whitespace-pre-wrap mt-1">
+                            {plan.packingList}
+                          </p>
                         )}
                       </div>
                     )
@@ -176,7 +197,7 @@ export function PackingPlan({
 
                 {/* Section B: When do I reach this bag? */}
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.07em] text-[#114574] mb-2 mt-3 first:mt-0">
                     When do I reach this bag?
                   </p>
                   {hasPace ? (
@@ -190,15 +211,15 @@ export function PackingPlan({
                         return (
                           <div
                             key={section.fromStation.order}
-                            className="flex items-center gap-3 text-xs py-1.5 border-b last:border-0"
+                            className="flex items-center gap-2 py-[7px] border-b border-[rgba(130,199,246,0.2)] last:border-0"
                           >
-                            <span className="font-mono font-bold w-16 shrink-0">
+                            <span className="font-mono text-[13px] font-bold text-[#114574] min-w-[68px] shrink-0">
                               Mile {(section.fromStation.distanceFromStart * KM_TO_MI).toFixed(1)}
                             </span>
-                            <span className="font-mono text-muted-foreground w-20 shrink-0">
+                            <span className="font-mono text-xs text-[#64748b] w-20 shrink-0">
                               {arrival ? formatTime(arrival.estimatedArrival) : '—'}
                             </span>
-                            <span className="text-muted-foreground truncate">
+                            <span className="text-xs text-[#475569] flex-1 min-w-0">
                               {prevName ? `Arriving from ${prevName}` : 'Race start'}
                             </span>
                           </div>
@@ -219,11 +240,11 @@ export function PackingPlan({
 
       {/* Finish line card */}
       {lastSection && (
-        <div className="rounded-lg overflow-hidden border border-[#1a2e44]/20">
-          <div className="px-4 py-3 bg-[#1a3a4a] text-white">
-            <p className="font-bold text-base">{lastSection.toStation.name}</p>
+        <div className="rounded-lg overflow-hidden border border-[rgba(130,199,246,0.55)] shadow-[0_2px_6px_rgba(29,124,190,0.06)]">
+          <div className="px-4 py-3 text-white" style={{ backgroundColor: '#114574' }}>
+            <p className="font-display font-extrabold text-[15px] tracking-[-0.01em]">{lastSection.toStation.name}</p>
             {lastSection.toStation.distanceFromStart > 0 && (
-              <p className="text-xs text-white/70 mt-0.5">
+              <p className="text-xs text-white/65 mt-0.5">
                 Mile {(lastSection.toStation.distanceFromStart * KM_TO_MI).toFixed(1)} · Finish
               </p>
             )}
