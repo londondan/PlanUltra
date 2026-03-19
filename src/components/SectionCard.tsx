@@ -45,6 +45,7 @@ const gearPillStyle = (key: string, checked: boolean): React.CSSProperties => {
 export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, raceLat, raceLon }: SectionCardProps) {
   const [open, setOpen] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [hovered, setHovered] = useState(false)
   const planRef = useRef<SectionPlan>(plan)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -101,8 +102,11 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
       <button
         type="button"
         className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
-          open ? 'bg-secondary border-b border-[rgba(130,199,246,0.4)]' : 'hover:bg-secondary/40'
+          open ? 'bg-secondary border-b border-[rgba(130,199,246,0.4)]' : ''
         }`}
+        style={!open && hovered ? { backgroundColor: 'var(--secondary)' } : undefined}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         onClick={() => setOpen((v) => !v)}
       >
         {/* Mile + time badges */}
