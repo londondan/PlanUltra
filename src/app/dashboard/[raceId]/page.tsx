@@ -16,7 +16,7 @@ import { alignWeatherToRace, type RaceWeatherEntry } from '@/lib/weather-timelin
 import { fetchForecast } from '@/lib/weather-client'
 import { computeSections } from '@/lib/section-utils'
 import type { TrackPoint, AidStation } from '@/types/gpx'
-import type { ArrivalEstimate } from '@/lib/pace-calculator'
+import { calculateArrivalTimes, type ArrivalEstimate } from '@/lib/pace-calculator'
 import type { Race } from '@/lib/db/races'
 import type { SectionPlan } from '@/types/section'
 
@@ -53,6 +53,18 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
         setRaceData(data)
         setSectionPlans(data.sectionPlans)
         setCaloriesPerHour(data.race.caloriesPerHour ?? null)
+
+        if (data.race.targetFinishMinutes && data.aidStations.length > 0) {
+          const totalKm = data.aidStations[data.aidStations.length - 1].distanceFromStart
+          const raceStart = new Date(`${data.race.date}T${data.race.startTime}:00`)
+          setArrivalEstimates(
+            calculateArrivalTimes(
+              { mode: 'finish', targetMinutes: data.race.targetFinishMinutes, totalDistanceKm: totalKm },
+              data.aidStations,
+              raceStart
+            )
+          )
+        }
 
         if (data.race.gpxData) {
           try {
@@ -164,22 +176,34 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
 
         {/* Tabs */}
         <Tabs defaultValue="plan">
-          <TabsList>
-            <TabsTrigger value="pace">
+          <TabsList variant="line" className="w-full h-11 rounded-none p-0 gap-0 border-b border-[rgba(130,199,246,0.55)]">
+            <TabsTrigger
+              value="pace"
+              className="rounded-none border-b-2 border-b-transparent data-active:border-b-[#114574] data-active:font-semibold hover:bg-muted/20"
+            >
               <Timer className="size-4" />
-              <span className="hidden sm:inline">Pace</span>
+              <span className="max-[479px]:hidden">Pace</span>
             </TabsTrigger>
-            <TabsTrigger value="plan">
+            <TabsTrigger
+              value="plan"
+              className="rounded-none border-b-2 border-b-transparent data-active:border-b-[#114574] data-active:font-semibold hover:bg-muted/20"
+            >
               <ClipboardList className="size-4" />
-              <span className="hidden sm:inline">Plan</span>
+              <span className="max-[479px]:hidden">Plan</span>
             </TabsTrigger>
-            <TabsTrigger value="pack">
+            <TabsTrigger
+              value="pack"
+              className="rounded-none border-b-2 border-b-transparent data-active:border-b-[#114574] data-active:font-semibold hover:bg-muted/20"
+            >
               <Package className="size-4" />
-              <span className="hidden sm:inline">Pack</span>
+              <span className="max-[479px]:hidden">Pack</span>
             </TabsTrigger>
-            <TabsTrigger value="crew">
+            <TabsTrigger
+              value="crew"
+              className="rounded-none border-b-2 border-b-transparent data-active:border-b-[#114574] data-active:font-semibold hover:bg-muted/20"
+            >
               <Users className="size-4" />
-              <span className="hidden sm:inline">Crew</span>
+              <span className="max-[479px]:hidden">Crew</span>
             </TabsTrigger>
           </TabsList>
 
