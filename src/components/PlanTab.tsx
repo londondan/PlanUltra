@@ -62,18 +62,16 @@ export function PlanTab({
   const sections = computeSections(aidStations, arrivalEstimates, weatherEntries, trackPoints, raceStart)
 
   const handleChange = (order: number, updates: Partial<SectionPlan>) => {
-    setSectionPlans((prev) => {
-      const idx = prev.findIndex((p) => p.fromStationOrder === order)
-      let next: SectionPlan[]
-      if (idx >= 0) {
-        next = prev.map((p) => (p.fromStationOrder === order ? { ...p, ...updates } : p))
-      } else {
-        const section = sections.find((s) => s.fromStation.order === order)!
-        next = [...prev, { ...defaultPlan(raceId, section), ...updates }]
-      }
-      onSectionPlansChange?.(next)
-      return next
-    })
+    const idx = sectionPlans.findIndex((p) => p.fromStationOrder === order)
+    let next: SectionPlan[]
+    if (idx >= 0) {
+      next = sectionPlans.map((p) => (p.fromStationOrder === order ? { ...p, ...updates } : p))
+    } else {
+      const section = sections.find((s) => s.fromStation.order === order)!
+      next = [...sectionPlans, { ...defaultPlan(raceId, section), ...updates }]
+    }
+    setSectionPlans(next)
+    onSectionPlansChange?.(next)
   }
 
   const handleCaloriesPerHourChange = (value: number | null) => {
@@ -104,18 +102,23 @@ export function PlanTab({
           Set your finish time in the Pace tab to see time estimates and weather context.
         </div>
       )}
-      <div className="flex items-center gap-3">
-        <Label htmlFor="calories-per-hour" className="whitespace-nowrap">Calories / hr</Label>
+      <div className="rounded-lg border border-[rgba(130,199,246,0.4)] bg-card px-4 py-3 flex items-center gap-3 flex-wrap">
+        <Label htmlFor="calories-per-hour" className="whitespace-nowrap text-sm font-semibold text-secondary-foreground">
+          Calories / hr
+        </Label>
         <Input
           id="calories-per-hour"
           type="number"
           min="0"
-          className="w-32"
+          className="w-24"
           value={caloriesPerHour ?? ''}
           onChange={(e) =>
             handleCaloriesPerHourChange(e.target.value === '' ? null : Number(e.target.value))
           }
         />
+        <span className="text-xs text-muted-foreground">
+          Applied to all segments · override per-segment below
+        </span>
       </div>
       {sections.map((section) => (
         <SectionCard

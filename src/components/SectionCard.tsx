@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { ChevronRight } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { computeSectionCalories } from '@/lib/calories'
@@ -29,6 +28,18 @@ function formatTime(date: Date): string {
 
 function formatNumber(n: number): string {
   return Math.round(n).toLocaleString('en-US')
+}
+
+const gearPillStyle = (key: string, checked: boolean): React.CSSProperties => {
+  if (key === 'hasHeadlamp') return checked
+    ? { backgroundColor: '#3730a3', color: 'white', borderColor: '#3730a3' }
+    : { backgroundColor: '#e0e7ff', color: '#3730a3', borderColor: '#e0e7ff' }
+  if (key === 'hasRainGear') return checked
+    ? { backgroundColor: '#92400e', color: 'white', borderColor: '#92400e' }
+    : { backgroundColor: '#fef3c7', color: '#92400e', borderColor: '#fef3c7' }
+  return checked
+    ? { backgroundColor: '#475569', color: 'white', borderColor: '#475569' }
+    : { backgroundColor: '#f1f5f9', color: '#475569', borderColor: '#f1f5f9' }
 }
 
 export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, raceLat, raceLon }: SectionCardProps) {
@@ -85,26 +96,26 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
       : null
 
   return (
-    <div className="rounded-lg border overflow-hidden">
+    <div className="rounded-lg border border-[rgba(130,199,246,0.55)] bg-card overflow-hidden shadow-[0_2px_6px_rgba(29,124,190,0.06)]">
       {/* Collapsed header */}
       <button
         type="button"
         className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
-          open ? 'bg-muted/40 border-b' : 'hover:bg-muted/20'
+          open ? 'bg-secondary border-b border-[rgba(130,199,246,0.4)]' : 'hover:bg-secondary/40'
         }`}
         onClick={() => setOpen((v) => !v)}
       >
         {/* Mile + time badges */}
         <div className="flex flex-col gap-1 shrink-0">
-          <span className="inline-flex items-center rounded-full bg-foreground text-background px-2 py-0.5 text-xs font-mono font-medium">
+          <span className="inline-flex items-center rounded text-white px-2 py-0.5 text-[11px] font-mono font-bold whitespace-nowrap" style={{ backgroundColor: '#114574' }}>
             Mile {(fromStation.distanceFromStart * 0.621371).toFixed(1)}
           </span>
           {departureTime ? (
-            <span className="inline-flex items-center rounded-full bg-sky-100 text-sky-800 px-2 py-0.5 text-xs font-mono">
+            <span className="inline-flex items-center rounded bg-secondary text-secondary-foreground px-2 py-0.5 text-[11px] font-mono font-semibold whitespace-nowrap">
               {formatTime(departureTime)}
             </span>
           ) : (
-            <span className="inline-flex items-center rounded-full bg-muted text-muted-foreground px-2 py-0.5 text-xs font-mono">
+            <span className="inline-flex items-center rounded bg-secondary text-secondary-foreground/50 px-2 py-0.5 text-[11px] font-mono whitespace-nowrap">
               —
             </span>
           )}
@@ -112,37 +123,36 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
 
         {/* Center: title + chips */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">
+          <p className="text-sm font-bold">
             {fromStation.name} → {toStation.name}
           </p>
           <div className="flex flex-wrap gap-1 mt-1">
-            <Badge variant="secondary" className="text-xs px-1.5 py-0">
-              {distanceMiles.toFixed(1)} mi
-            </Badge>
+            <span className="text-xs text-muted-foreground">{distanceMiles.toFixed(1)} mi</span>
             {elevationGainFt !== null && (
-              <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                +{formatNumber(elevationGainFt)} ft
-              </Badge>
+              <span className="text-xs text-muted-foreground">+{formatNumber(elevationGainFt)} ft</span>
             )}
             {durationMinutes !== null && (
-              <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                ~{formatDuration(durationMinutes)}
-              </Badge>
+              <span className="text-xs text-muted-foreground">~{formatDuration(durationMinutes)}</span>
             )}
             {tempAtDeparture !== null && tempAtArrival !== null && (
-              <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                ⛅ {Math.round(tempAtDeparture)}°→{Math.round(tempAtArrival)}°F
-              </Badge>
+              <span className="text-xs text-muted-foreground">⛅ {Math.round(tempAtDeparture)}°→{Math.round(tempAtArrival)}°F</span>
             )}
             {hasNight && (
-              <Badge variant="outline" className="text-xs px-1.5 py-0">
-                Night
-              </Badge>
+              <span className="text-xs text-muted-foreground">
+                {sunConditions?.hasNight ? '🌙 night section' : '🌙 night'}
+              </span>
             )}
-            {hasSunsetOrSunrise && (
-              <Badge variant="outline" className="text-xs px-1.5 py-0">
-                Sunset/Sunrise
-              </Badge>
+            {sunConditions?.sunriseAt ? (
+              <span className="text-xs text-muted-foreground">
+                🌅 sunrise ~mi {sunConditions.sunriseAt.sectionMile.toFixed(0)}
+              </span>
+            ) : hasSunsetOrSunrise ? (
+              <span className="text-xs text-muted-foreground">🌅 sunrise</span>
+            ) : null}
+            {sunConditions?.sunsetAt && (
+              <span className="text-xs text-muted-foreground">
+                🌇 sunset ~mi {sunConditions.sunsetAt.sectionMile.toFixed(0)}
+              </span>
             )}
           </div>
         </div>
@@ -158,24 +168,24 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
       {open && (
         <div className="px-4 py-4 space-y-4">
           {/* Info grid */}
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-2">
+          <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))' }}>
             {/* Start card */}
-            <div className="rounded-md border bg-muted/20 px-3 py-2 text-xs">
-              <p className="text-muted-foreground font-medium mb-0.5">Start</p>
-              <p className="font-mono">
+            <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-secondary px-3 py-2 text-xs">
+              <p className="text-[10px] font-bold uppercase tracking-[0.07em] text-muted-foreground mb-0.5">Start</p>
+              <p className="font-mono text-base font-bold">
                 Mile {(fromStation.distanceFromStart * 0.621371).toFixed(1)}
               </p>
               {departureTime && (
-                <p className="font-mono text-muted-foreground">{formatTime(departureTime)}</p>
+                <p className="font-mono text-muted-foreground text-xs">{formatTime(departureTime)}</p>
               )}
             </div>
 
             {/* Distance card */}
-            <div className="rounded-md border bg-muted/20 px-3 py-2 text-xs">
-              <p className="text-muted-foreground font-medium mb-0.5">Distance</p>
-              <p className="font-mono">{distanceMiles.toFixed(1)} mi</p>
+            <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-secondary px-3 py-2 text-xs">
+              <p className="text-[10px] font-bold uppercase tracking-[0.07em] text-muted-foreground mb-0.5">Distance</p>
+              <p className="font-mono text-base font-bold">{distanceMiles.toFixed(1)} mi</p>
               {elevationGainFt !== null && (
-                <p className="font-mono text-muted-foreground">
+                <p className="font-mono text-muted-foreground text-xs">
                   +{formatNumber(elevationGainFt)} / −{formatNumber(elevationLossFt ?? 0)} ft
                 </p>
               )}
@@ -183,18 +193,18 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
 
             {/* Duration card */}
             {durationMinutes !== null && (
-              <div className="rounded-md border bg-muted/20 px-3 py-2 text-xs">
-                <p className="text-muted-foreground font-medium mb-0.5">Duration</p>
-                <p className="font-mono">{formatDuration(durationMinutes)}</p>
+              <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-secondary px-3 py-2 text-xs">
+                <p className="text-[10px] font-bold uppercase tracking-[0.07em] text-muted-foreground mb-0.5">Duration</p>
+                <p className="font-mono text-base font-bold">{formatDuration(durationMinutes)}</p>
                 {kcal !== null && (
-                  <p className="font-mono text-muted-foreground">~{kcal} kcal</p>
+                  <p className="font-mono text-muted-foreground text-xs">~{kcal} kcal</p>
                 )}
               </div>
             )}
 
             {/* Weather card */}
             {tempAtDeparture !== null && (
-              <div className="rounded-md border bg-gradient-to-br from-sky-50 to-sky-100 px-3 py-2 text-xs">
+              <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-gradient-to-br from-sky-50 to-sky-100 px-3 py-2 text-xs">
                 <p className="text-sky-700 font-medium mb-0.5">Weather</p>
                 <p className="font-mono text-sky-900">
                   {Math.round(tempAtDeparture)}°→{tempAtArrival !== null ? Math.round(tempAtArrival) : '?'}°F
@@ -204,7 +214,7 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
 
             {/* Night card */}
             {sunConditions?.hasNight && (
-              <div className="rounded-md border bg-gradient-to-r from-[#1e1b4b] to-[#312e81] px-3 py-2 text-xs text-white">
+              <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-gradient-to-r from-[#1e1b4b] to-[#312e81] px-3 py-2 text-xs text-white">
                 <p className="font-medium mb-0.5 opacity-80">Night running</p>
                 <p>This section crosses darkness</p>
               </div>
@@ -212,7 +222,7 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
 
             {/* Sunrise card */}
             {sunConditions?.sunriseAt && (
-              <div className="rounded-md border bg-gradient-to-r from-[#fff7ed] to-[#fed7aa] px-3 py-2 text-xs">
+              <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-gradient-to-r from-[#fff7ed] to-[#fed7aa] px-3 py-2 text-xs">
                 <p className="text-orange-700 font-medium mb-0.5">Sunrise</p>
                 <p className="font-mono text-orange-900">
                   ~mile {sunConditions.sunriseAt.sectionMile.toFixed(1)}
@@ -229,7 +239,7 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
 
             {/* Sunset card */}
             {sunConditions?.sunsetAt && (
-              <div className="rounded-md border bg-gradient-to-r from-[#faf5ff] to-[#e9d5ff] px-3 py-2 text-xs">
+              <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-gradient-to-r from-[#faf5ff] to-[#e9d5ff] px-3 py-2 text-xs">
                 <p className="text-purple-700 font-medium mb-0.5">Sunset</p>
                 <p className="font-mono text-purple-900">
                   ~mile {sunConditions.sunsetAt.sectionMile.toFixed(1)}
@@ -298,7 +308,7 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
           {/* Gear checkboxes (only for drop-bag stations) */}
           {toStation.hasDropBag && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">Gear</p>
+              <p className="text-sm font-medium">Gear at {toStation.name} <span className="text-[#94a3b8] font-normal">(drop bag)</span></p>
               <div className="flex flex-wrap gap-2">
                 {(
                   [
@@ -309,23 +319,20 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
                     { key: 'shoeChange', label: 'Shoe change' },
                   ] as const
                 ).map(({ key, label }) => (
-                  <label
-                    key={key}
-                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${
-                      plan[key]
-                        ? 'bg-foreground text-background border-foreground'
-                        : 'hover:bg-muted'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={plan[key]}
-                      onChange={(e) => handleChange({ [key]: e.target.checked })}
-                      className="sr-only"
-                    />
-                    {label}
-                  </label>
-                ))}
+                    <label
+                      key={key}
+                      className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.05em] px-2.5 py-1 rounded-full border cursor-pointer transition-colors"
+                      style={gearPillStyle(key, plan[key])}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={plan[key]}
+                        onChange={(e) => handleChange({ [key]: e.target.checked })}
+                        className="sr-only"
+                      />
+                      {label}
+                    </label>
+                  ))}
               </div>
             </div>
           )}
