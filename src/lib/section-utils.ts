@@ -1,7 +1,7 @@
 import type { AidStation, TrackPoint } from '@/types/gpx'
 import type { ArrivalEstimate } from '@/lib/pace-calculator'
 import type { RaceWeatherEntry } from '@/lib/weather-timeline'
-import type { Section } from '@/types/section'
+import type { Section, WeatherCondition, WeatherConditionType } from '@/types/section'
 import { cumulativeDistances } from '@/lib/geo-utils'
 
 const KM_TO_MI = 0.621371
@@ -98,6 +98,9 @@ export function computeSections(
       (e, idx) => idx > 0 && e.isNight !== windowEntries[idx - 1].isNight
     )
 
+    // Dominant weather condition
+    const weatherCondition = windowEntries.length > 0 ? getDominantCondition(windowEntries) : null
+
     // Elevation
     let elevationGainFt: number | null = null
     let elevationLossFt: number | null = null
@@ -128,10 +131,84 @@ export function computeSections(
       hasSunsetOrSunrise,
       elevationGainFt,
       elevationLossFt,
+      weatherCondition,
     })
   }
 
   return sections
+}
+
+// --- Weather condition helpers ---
+
+const CONDITION_PRIORITY: WeatherConditionType[] = ['storm', 'snow', 'rain', 'fog', 'wind', 'clear']
+
+const CONDITION_EMOJI: Record<WeatherConditionType, string> = {
+  storm: '⛈️',
+  snow: '❄️',
+  rain: '🌧️',
+  fog: '🌫️',
+  wind: '💨',
+  clear: '☀️',
+}
+
+function weatherCodeToConditionType(code: number, windSpeed: number): WeatherConditionType {
+  if (code >= 95) return 'storm'
+  if (code >= 85) return 'snow'
+  if (code >= 80) return 'rain'
+  if (code >= 70) return 'snow'
+  if (code >= 50) return 'rain'
+  if (code >= 40) return 'fog'
+  if (windSpeed > 25) return 'wind'
+  return 'clear'
+}
+
+function getDominantCondition(entries: RaceWeatherEntry[]): WeatherCondition {
+  let dominant: WeatherConditionType = 'clear'
+  let maxWindSpeed = 0
+  let minTemp = Infinity
+  let maxTemp = -Infinity
+
+  for (const e of entries) {
+    const type = weatherCodeToConditionType(e.weatherCode, e.windSpeed)
+    if (CONDITION_PRIORITY.indexOf(type) < CONDITION_PRIORITY.indexOf(dominant)) {
+      dominant = type
+    }
+    if (e.windSpeed > maxWindSpeed) maxWindSpeed = e.windSpeed
+    if (e.temperature < minTemp) minTemp = e.temperature
+    if (e.temperature > maxTemp) maxTemp = e.temperature
+  }
+
+  let subLabel: string
+  switch (dominant) {
+    case 'clear':
+      subLabel = maxWindSpeed < 15
+        ? 'Clear · light wind'
+        : `Clear · ${Math.round(maxWindSpeed)} mph wind`
+      break
+    case 'rain':
+      subLabel = 'Rain showers expected'
+      break
+    case 'storm':
+      subLabel = 'Storm risk · check timing'
+      break
+    case 'snow':
+      subLabel = 'Snow expected · check conditions'
+      break
+    case 'fog':
+      subLabel = 'Fog · reduced visibility'
+      break
+    case 'wind':
+      subLabel = `${Math.round(maxWindSpeed)} mph sustained winds`
+      break
+  }
+
+  return {
+    type: dominant,
+    emoji: CONDITION_EMOJI[dominant],
+    minTemp: Math.round(minTemp),
+    maxTemp: Math.round(maxTemp),
+    subLabel,
+  }
 }
 
 // --- Helpers ---

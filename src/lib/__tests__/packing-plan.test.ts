@@ -34,6 +34,7 @@ function makeSection(fromOrder: number, toOrder: number, durationMinutes: number
     hasSunsetOrSunrise: false,
     elevationGainFt: null,
     elevationLossFt: null,
+    weatherCondition: null,
   }
 }
 

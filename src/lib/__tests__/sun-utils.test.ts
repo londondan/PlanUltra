@@ -40,6 +40,7 @@ function makeSection(
     hasSunsetOrSunrise: false,
     elevationGainFt: null,
     elevationLossFt: null,
+    weatherCondition: null,
   }
 }
 

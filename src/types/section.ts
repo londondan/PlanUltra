@@ -1,5 +1,15 @@
 import type { AidStation } from '@/types/gpx'
 
+export type WeatherConditionType = 'clear' | 'rain' | 'storm' | 'snow' | 'fog' | 'wind'
+
+export interface WeatherCondition {
+  type: WeatherConditionType
+  emoji: string
+  minTemp: number
+  maxTemp: number
+  subLabel: string
+}
+
 export interface SectionPlan {
   raceId: string
   fromStationOrder: number        // used as part of the DynamoDB sort key
@@ -33,4 +43,5 @@ export interface Section {
   hasSunsetOrSunrise: boolean
   elevationGainFt: number | null  // null when GPX has no elevation data
   elevationLossFt: number | null
+  weatherCondition: WeatherCondition | null
 }

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { computeSectionCalories } from '@/lib/calories'
 import { computeSunConditions } from '@/lib/sun-utils'
 import type { Section, SectionPlan } from '@/types/section'
+import { ConditionCard } from '@/components/ConditionCard'
 
 interface SectionCardProps {
   section: Section
@@ -82,10 +83,9 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
     departureTime,
     elevationGainFt,
     elevationLossFt,
-    tempAtDeparture,
-    tempAtArrival,
     hasNight,
     hasSunsetOrSunrise,
+    weatherCondition,
   } = section
 
   const computedKcal = computeSectionCalories(caloriesPerHour, durationMinutes)
@@ -138,8 +138,10 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
             {durationMinutes !== null && (
               <span className="text-xs text-muted-foreground">~{formatDuration(durationMinutes)}</span>
             )}
-            {tempAtDeparture !== null && tempAtArrival !== null && (
-              <span className="text-xs text-muted-foreground">⛅ {Math.round(tempAtDeparture)}°→{Math.round(tempAtArrival)}°F</span>
+            {weatherCondition && (
+              <span className="text-xs text-muted-foreground">
+                {weatherCondition.emoji} {weatherCondition.minTemp}°→{weatherCondition.maxTemp}°F
+              </span>
             )}
             {hasNight && (
               <span className="text-xs text-muted-foreground">
@@ -207,55 +209,67 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
             )}
 
             {/* Weather card */}
-            {tempAtDeparture !== null && (
-              <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-gradient-to-br from-sky-50 to-sky-100 px-3 py-2 text-xs">
-                <p className="text-sky-700 font-medium mb-0.5">Weather</p>
-                <p className="font-mono text-sky-900">
-                  {Math.round(tempAtDeparture)}°→{tempAtArrival !== null ? Math.round(tempAtArrival) : '?'}°F
-                </p>
-              </div>
+            {weatherCondition && (
+              <ConditionCard
+                type={`weather-${weatherCondition.type}` as `weather-${typeof weatherCondition.type}`}
+                label={`${weatherCondition.emoji} Weather`}
+                value={`${weatherCondition.minTemp}°→${weatherCondition.maxTemp}°F`}
+                subLabel={weatherCondition.subLabel}
+                wide={weatherCondition.type === 'storm' || weatherCondition.type === 'snow'}
+              />
             )}
 
             {/* Night card */}
-            {sunConditions?.hasNight && (
-              <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-gradient-to-r from-[#1e1b4b] to-[#312e81] px-3 py-2 text-xs text-white">
-                <p className="font-medium mb-0.5 opacity-80">Night running</p>
-                <p>This section crosses darkness</p>
-              </div>
-            )}
+            {sunConditions?.hasNight && (() => {
+              let nightValue: string
+              let nightSubLabel: string
+              if (sunConditions.sunriseAt) {
+                nightValue = `Start → ~mile ${sunConditions.sunriseAt.sectionMile.toFixed(1)}`
+                nightSubLabel = `Sunrise ${formatTime(sunConditions.sunriseAt.time)} · headlamp required`
+              } else if (sunConditions.sunsetAt) {
+                nightValue = `~mile ${sunConditions.sunsetAt.sectionMile.toFixed(1)} → end`
+                nightSubLabel = `Sunset ${formatTime(sunConditions.sunsetAt.time)} · headlamp from mile ${sunConditions.sunsetAt.sectionMile.toFixed(0)}`
+              } else {
+                nightValue = 'Full segment'
+                nightSubLabel = 'Entire leg in darkness'
+              }
+              return (
+                <ConditionCard
+                  type="night"
+                  label="🌙 Night running"
+                  value={nightValue}
+                  subLabel={nightSubLabel}
+                />
+              )
+            })()}
 
             {/* Sunrise card */}
             {sunConditions?.sunriseAt && (
-              <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-gradient-to-r from-[#fff7ed] to-[#fed7aa] px-3 py-2 text-xs">
-                <p className="text-orange-700 font-medium mb-0.5">Sunrise</p>
-                <p className="font-mono text-orange-900">
-                  ~mile {sunConditions.sunriseAt.sectionMile.toFixed(1)}
-                </p>
-                <p className="text-orange-700">
-                  {sunConditions.sunriseAt.time.toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  })}
-                </p>
-              </div>
+              <ConditionCard
+                type="sunrise"
+                label="🌅 Sunrise"
+                value={`~mile ${sunConditions.sunriseAt.sectionMile.toFixed(1)} · ${formatTime(sunConditions.sunriseAt.time)}`}
+                subLabel={
+                  sunConditions.hasNight
+                    ? `Starts dark · light by mile ${sunConditions.sunriseAt.sectionMile.toFixed(0)}`
+                    : 'Sunrise near end of segment'
+                }
+              />
             )}
 
             {/* Sunset card */}
             {sunConditions?.sunsetAt && (
-              <div className="rounded-md border border-[rgba(130,199,246,0.55)] bg-gradient-to-r from-[#faf5ff] to-[#e9d5ff] px-3 py-2 text-xs">
-                <p className="text-purple-700 font-medium mb-0.5">Sunset</p>
-                <p className="font-mono text-purple-900">
-                  ~mile {sunConditions.sunsetAt.sectionMile.toFixed(1)}
-                </p>
-                <p className="text-purple-700">
-                  {sunConditions.sunsetAt.time.toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  })}
-                </p>
-              </div>
+              <ConditionCard
+                type="sunset"
+                label="🌇 Sunset"
+                value={`~mile ${sunConditions.sunsetAt.sectionMile.toFixed(1)} · ${formatTime(sunConditions.sunsetAt.time)}`}
+                subLabel={
+                  !plan.hasHeadlamp
+                    ? '⚠ Headlamp not packed for this leg'
+                    : `Headlamp needed from ~mile ${sunConditions.sunsetAt.sectionMile.toFixed(0)}`
+                }
+                warnSubLabel={!plan.hasHeadlamp}
+              />
             )}
           </div>
 
