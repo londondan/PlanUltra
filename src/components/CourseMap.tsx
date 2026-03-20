@@ -15,7 +15,7 @@ type MapStyle = 'streets' | 'satellite'
 
 function updateMapData(
   map: import('mapbox-gl').Map,
-  mapboxgl: typeof import('mapbox-gl'),
+  mapboxgl: (typeof import('mapbox-gl'))['default'],
   trackPoints: TrackPoint[],
   aidStations: AidStation[],
   markersRef: React.MutableRefObject<import('mapbox-gl').Marker[]>
@@ -85,7 +85,7 @@ export function CourseMap({ trackPoints, aidStations, className = '' }: CourseMa
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<import('mapbox-gl').Map | null>(null)
   const markersRef = useRef<import('mapbox-gl').Marker[]>([])
-  const mapboxglRef = useRef<typeof import('mapbox-gl') | null>(null)
+  const mapboxglRef = useRef<(typeof import('mapbox-gl'))['default'] | null>(null)
   const [style, setStyle] = useState<MapStyle>('streets')
   const [error, setError] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(false)

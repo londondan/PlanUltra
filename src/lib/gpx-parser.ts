@@ -335,7 +335,7 @@ export function extractAidStations(
   // Identify which stations are start/finish to flag all their visits
   const startFinishPhysicalNames = new Set<string>()
   stations.forEach((s) => {
-    if (s.isStart || s.isFinish) {
+    if ((s.isStart || s.isFinish) && s.physicalName) {
       startFinishPhysicalNames.add(s.physicalName)
     }
   })
@@ -346,7 +346,7 @@ export function extractAidStations(
     
     // Auto-flag start/finish with crew access and drop bag availability
     // (Runners can always get crew support and drop bags at start/finish, even on lap 2+)
-    if (startFinishPhysicalNames.has(stations[i].physicalName)) {
+    if (stations[i].physicalName && startFinishPhysicalNames.has(stations[i].physicalName!)) {
       stations[i].hasCrewAccess = true
       stations[i].hasDropBag = true
     }
