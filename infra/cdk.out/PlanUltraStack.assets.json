@@ -1,18 +1,18 @@
 {
   "version": "52.0.0",
   "files": {
-    "c18755d93cfe52f06b1cd620168389b2d7c5dde20149f9fdeb61af447d12aab8": {
+    "3a430765087b2335ac0a82e13eb63c1b131c274a0935ed78f120b8ff1a1ed561": {
       "displayName": "PlanUltraStack Template",
       "source": {
         "path": "PlanUltraStack.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-us-east-1-ec8d5b63": {
-          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
-          "objectKey": "c18755d93cfe52f06b1cd620168389b2d7c5dde20149f9fdeb61af447d12aab8.json",
+        "992664234343-us-east-1-7b623439": {
+          "bucketName": "cdk-hnb659fds-assets-992664234343-us-east-1",
+          "objectKey": "3a430765087b2335ac0a82e13eb63c1b131c274a0935ed78f120b8ff1a1ed561.json",
           "region": "us-east-1",
-          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::992664234343:role/cdk-hnb659fds-file-publishing-role-992664234343-us-east-1"
         }
       }
     }

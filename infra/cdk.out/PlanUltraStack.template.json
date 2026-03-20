@@ -24,6 +24,9 @@
       "KeyType": "RANGE"
      }
     ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
     "TableName": "PlanUltra"
    },
    "UpdateReplacePolicy": "Retain",
