@@ -47,6 +47,11 @@
 
 :root {
   --font-sans: var(--font-geist-sans);
+  --midnight:   #02071E;
+  --deep-ridge: #114574;
+  --ridge-blue: #1D7CBE;
+  --sky:        #82C7F6;
+  --mist:       #DBF1FA;
   --background:            oklch(1 0 0);
   --foreground:            oklch(0.10 0.04 264);    /* Midnight */
   --card:                  oklch(1 0 0);
