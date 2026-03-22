@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
     AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
     AUTH_URL: process.env.AUTH_URL,
+    DYNAMODB_TABLE_NAME: process.env.DYNAMODB_TABLE_NAME,
   },
 };
 

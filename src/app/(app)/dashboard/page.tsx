@@ -22,7 +22,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       {dbError && (
         <div className="rounded-lg border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          Could not connect to database. Is DynamoDB Local running?
+          Could not connect to database. Check DynamoDB table name and IAM permissions.
         </div>
       )}
       <div className="flex items-center justify-between">
