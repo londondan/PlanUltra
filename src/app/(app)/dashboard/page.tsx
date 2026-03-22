@@ -14,7 +14,8 @@ export default async function DashboardPage() {
   let dbError = false
   try {
     races = await getRacesByUser(session.user.id)
-  } catch {
+  } catch (error) {
+    console.error('[DynamoDB] getRacesByUser failed:', error)
     dbError = true
   }
 
