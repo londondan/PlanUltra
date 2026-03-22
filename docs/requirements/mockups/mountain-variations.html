@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlanUltra — Mountain Variations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --midnight: #02071E;
+      --deep-ridge: #114574;
+      --ridge-blue: #1D7CBE;
+      --sky: #82C7F6;
+      --mist: #DBF1FA;
+      --font-display: 'DM Sans', -apple-system, sans-serif;
+      --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    body { font-family: var(--font-ui); background: #0d1520; color: white; }
+
+    .page-label {
+      text-align: center;
+      padding: 28px 0 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(130,199,246,0.6);
+    }
+
+    /* Each variant is a full-width hero strip */
+    .variant {
+      position: relative;
+      height: 420px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .variant-label {
+      position: absolute;
+      top: 20px;
+      left: 28px;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .variant-letter {
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      opacity: 0.9;
+    }
+    .variant-desc {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(130,199,246,0.7);
+      max-width: 260px;
+      line-height: 1.5;
+    }
+
+    /* Hero text overlay — same across all variants */
+    .hero-text {
+      position: absolute;
+      bottom: 52px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 20;
+      white-space: nowrap;
+    }
+    .hero-text h2 {
+      font-family: var(--font-display);
+      font-size: 38px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      text-shadow: 0 2px 20px rgba(2,7,30,0.6);
+    }
+    .hero-text h2 em {
+      font-style: normal;
+      color: var(--sky);
+    }
+
+    .mountain-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Atmosphere overlay — same for all */
+    .atmo {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Separator between variants */
+    .variant-sep {
+      height: 3px;
+      background: #0d1520;
+    }
+
+    /* Note strip under each variant */
+    .variant-notes {
+      background: rgba(2,7,30,0.8);
+      padding: 10px 28px 12px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(130,199,246,0.1);
+    }
+    .note-chip {
+      font-size: 11px;
+      color: rgba(130,199,246,0.75);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .note-chip::before {
+      content: '·';
+      font-size: 16px;
+      color: var(--ridge-blue);
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-label">Mountain Hero — 4 Variations · Select your favourite</div>
+
+<!-- ══════════════════════════════════════════════════════
+     VARIANT A — Sharp pinnacles, tight peaks, jagged skyline
+     Character: Alpine, aggressive, very pointy
+     ══════════════════════════════════════════════════════ -->
+<div class="variant">
+  <svg class="mountain-svg" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <linearGradient id="a-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#071428"/>
+        <stop offset="100%" stop-color="#02071E"/>
+      </linearGradient>
+      <radialGradient id="a-atmo" cx="50%" cy="0%" r="65%">
+        <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.28"/>
+        <stop offset="60%" stop-color="#1D7CBE" stop-opacity="0.08"/>
+        <stop offset="100%" stop-color="#02071E" stop-opacity="0"/>
+      </radialGradient>
+      <!-- Sharp pinnacles: use M/L lines not curves for hard edges -->
+      <!-- Layer 5: sky-toned, jagged sharp peaks -->
+      <linearGradient id="a-rg5" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#4aaee0" stop-opacity="0.35"/>
+      </linearGradient>
+      <linearGradient id="a-rg4" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1D7CBE" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="#1260a0" stop-opacity="0.9"/>
+      </linearGradient>
+      <linearGradient id="a-rg3" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#114574"/>
+        <stop offset="100%" stop-color="#0c3457"/>
+      </linearGradient>
+      <linearGradient id="a-rg2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#082d4e"/>
+        <stop offset="100%" stop-color="#031626"/>
+      </linearGradient>
+      <linearGradient id="a-rg1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#051222"/>
+        <stop offset="100%" stop-color="#02071E"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="1440" height="420" fill="url(#a-sky)"/>
+    <rect width="1440" height="420" fill="url(#a-atmo)"/>
+
+    <!-- Layer 5: sharp pinnacles — mix of L (hard) and tight C (slight smoothing at tips) -->
+    <path d="M0,310
+      L80,270 L120,200 L145,155 L165,105 L185,155 L210,200 L250,265
+      L310,240 L360,175 L390,120 L415,70 L440,120 L465,175 L510,245
+      L570,225 L620,165 L650,115 L675,75 L700,115 L725,165 L760,230
+      L820,210 L870,155 L905,100 L930,55 L955,100 L980,155 L1020,215
+      L1080,200 L1130,145 L1165,95 L1190,50 L1215,95 L1240,145 L1280,205
+      L1340,220 L1390,180 L1440,165
+      L1440,420 L0,420 Z"
+      fill="url(#a-rg5)"/>
+
+    <!-- Layer 4: slightly softer but still sharp, offset peaks -->
+    <path d="M0,330
+      L60,308 L100,278 L140,240 L180,195 L215,160 L240,195 L265,240 L300,275
+      L350,258 L400,218 L440,178 L475,145 L505,178 L530,218 L565,255
+      L620,240 L670,200 L710,162 L745,130 L775,162 L800,200 L835,242
+      L890,228 L940,188 L985,150 L1020,118 L1050,150 L1075,188 L1110,230
+      L1165,215 L1215,175 L1260,140 L1295,108 L1325,140 L1350,175 L1390,218
+      L1440,228
+      L1440,420 L0,420 Z"
+      fill="url(#a-rg4)"/>
+
+    <!-- Layer 3: broader ridgeline, less jagged -->
+    <path d="M0,355
+      C40,345 80,335 130,322 C180,308 220,295 270,285
+      C310,277 350,274 400,280 C450,287 490,298 540,305
+      C590,312 630,310 680,300 C730,289 770,275 820,265
+      C870,255 915,253 965,260 C1015,268 1055,280 1105,290
+      C1155,300 1200,305 1250,298 C1300,290 1360,275 1440,268
+      L1440,420 L0,420 Z"
+      fill="url(#a-rg3)"/>
+
+    <!-- Layer 2: heavy foreground ridge -->
+    <path d="M0,378
+      C70,370 150,362 240,356 C330,350 410,350 500,346
+      C590,342 670,340 760,338 C850,336 930,338 1020,335
+      C1110,332 1200,328 1300,332 C1370,335 1410,337 1440,338
+      L1440,420 L0,420 Z"
+      fill="url(#a-rg2)"/>
+
+    <!-- Layer 1: ground -->
+    <path d="M0,400 C200,395 400,392 600,390 C800,388 1000,390 1200,388 C1320,387 1390,389 1440,390
+      L1440,420 L0,420 Z"
+      fill="url(#a-rg1)"/>
+  </svg>
+
+  <div class="atmo" style="background: linear-gradient(180deg, rgba(2,7,30,0.05) 0%, rgba(2,7,30,0.25) 45%, rgba(2,7,30,0.80) 100%);"></div>
+
+  <div class="variant-label">
+    <div class="variant-letter">A</div>
+    <div class="variant-desc">Sharp pinnacles · jagged skyline · hard edges</div>
+  </div>
+  <div class="hero-text">
+    <h2>Because the miles are <em>hard</em> enough</h2>
+  </div>
+</div>
+<div class="variant-notes">
+  <span class="note-chip">Far layers: straight L-line peaks — very angular</span>
+  <span class="note-chip">Near layers: smoother cubic curves</span>
+  <span class="note-chip">Steep slopes, distinct peak-to-valley drops of 80–160px</span>
+  <span class="note-chip">5 layers, each with different peak density</span>
+</div>
+
+<div class="variant-sep"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     VARIANT B — Rounded peaks, wide ridges, layered depth
+     Character: Softer, flowing but clearly mountainous
+     ══════════════════════════════════════════════════════ -->
+<div class="variant">
+  <svg class="mountain-svg" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <linearGradient id="b-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#060f22"/>
+        <stop offset="100%" stop-color="#02071E"/>
+      </linearGradient>
+      <radialGradient id="b-atmo" cx="40%" cy="0%" r="70%">
+        <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.22"/>
+        <stop offset="50%" stop-color="#1D7CBE" stop-opacity="0.1"/>
+        <stop offset="100%" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="b-rg5" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#a8d8f0" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#82C7F6" stop-opacity="0.3"/>
+      </linearGradient>
+      <linearGradient id="b-rg4" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2a8fd4" stop-opacity="0.75"/>
+        <stop offset="100%" stop-color="#1D7CBE" stop-opacity="0.85"/>
+      </linearGradient>
+      <linearGradient id="b-rg3" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#165f9a"/>
+        <stop offset="100%" stop-color="#0f4070"/>
+      </linearGradient>
+      <linearGradient id="b-rg2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0a2e4e"/>
+        <stop offset="100%" stop-color="#040e1e"/>
+      </linearGradient>
+      <linearGradient id="b-rg1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#061220"/>
+        <stop offset="100%" stop-color="#02071E"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="1440" height="420" fill="url(#b-sky)"/>
+    <rect width="1440" height="420" fill="url(#b-atmo)"/>
+
+    <!-- Layer 5: rounded peaks, wide gentle mountains — fewer but taller -->
+    <path d="M0,320
+      C50,300 90,270 140,230 C180,198 210,172 250,148 C290,124 320,130 360,155
+      C400,180 430,210 480,240 C520,265 560,272 610,255
+      C660,238 700,205 750,172 C790,143 820,128 865,118
+      C910,108 945,118 990,142 C1035,166 1070,198 1120,228
+      C1165,255 1200,268 1250,258
+      C1300,247 1360,220 1440,205
+      L1440,420 L0,420 Z"
+      fill="url(#b-rg5)"/>
+
+    <!-- Layer 4: offset from L5, wider shoulders, one dominant peak right-center -->
+    <path d="M0,348
+      C60,332 120,315 180,298 C230,283 270,270 320,258
+      C370,245 410,240 460,248 C510,257 550,272 600,282
+      C650,292 695,292 745,278 C795,263 840,240 895,218
+      C945,197 990,185 1045,188 C1095,191 1135,205 1185,222
+      C1235,240 1280,255 1330,252 C1380,248 1415,238 1440,232
+      L1440,420 L0,420 Z"
+      fill="url(#b-rg4)"/>
+
+    <!-- Layer 3: broad undulating ridge — very different character from above layers -->
+    <path d="M0,368
+      C80,358 160,348 250,340 C330,333 400,330 480,334
+      C560,338 630,348 710,352 C790,356 860,352 940,344
+      C1020,336 1090,326 1170,325 C1250,324 1330,330 1440,335
+      L1440,420 L0,420 Z"
+      fill="url(#b-rg3)"/>
+
+    <!-- Layer 2 -->
+    <path d="M0,388
+      C120,382 240,376 380,372 C500,368 610,368 730,366
+      C850,364 960,366 1080,364 C1200,362 1320,360 1440,362
+      L1440,420 L0,420 Z"
+      fill="url(#b-rg2)"/>
+
+    <!-- Layer 1: ground -->
+    <path d="M0,406 C300,402 600,400 900,400 C1100,400 1300,401 1440,402
+      L1440,420 L0,420 Z"
+      fill="url(#b-rg1)"/>
+  </svg>
+
+  <div class="atmo" style="background: linear-gradient(180deg, rgba(2,7,30,0.0) 0%, rgba(2,7,30,0.20) 40%, rgba(2,7,30,0.82) 100%);"></div>
+
+  <div class="variant-label">
+    <div class="variant-letter">B</div>
+    <div class="variant-desc">Rounded peaks · fewer mountains · wide shoulders</div>
+  </div>
+  <div class="hero-text">
+    <h2>Because the miles are <em>hard</em> enough</h2>
+  </div>
+</div>
+<div class="variant-notes">
+  <span class="note-chip">Far layers: few large rounded peaks, big valleys</span>
+  <span class="note-chip">Near layers: broad smooth undulating ridge</span>
+  <span class="note-chip">Lighter color at top — slightly higher opacity on layer 5</span>
+  <span class="note-chip">More contrast between layers</span>
+</div>
+
+<div class="variant-sep"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     VARIANT C — Asymmetric ridgeline: dramatic left, flat right
+     Character: Directional, cinematic — like a single massive range
+     ══════════════════════════════════════════════════════ -->
+<div class="variant">
+  <svg class="mountain-svg" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <linearGradient id="c-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#050d1e"/>
+        <stop offset="100%" stop-color="#02071E"/>
+      </linearGradient>
+      <!-- Sky light source: left-biased -->
+      <radialGradient id="c-atmo" cx="25%" cy="5%" r="55%">
+        <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.30"/>
+        <stop offset="50%" stop-color="#1D7CBE" stop-opacity="0.12"/>
+        <stop offset="100%" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="c-rg5" x1="0" y1="0" x2="1" y2="0.5">
+        <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.65"/>
+        <stop offset="50%" stop-color="#4aaee0" stop-opacity="0.45"/>
+        <stop offset="100%" stop-color="#1D7CBE" stop-opacity="0.25"/>
+      </linearGradient>
+      <linearGradient id="c-rg4" x1="0" y1="0" x2="1" y2="0.3">
+        <stop offset="0%" stop-color="#1D7CBE" stop-opacity="0.9"/>
+        <stop offset="60%" stop-color="#155d94" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#0e3f6a" stop-opacity="0.7"/>
+      </linearGradient>
+      <linearGradient id="c-rg3" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#114574"/>
+        <stop offset="100%" stop-color="#092e52"/>
+      </linearGradient>
+      <linearGradient id="c-rg2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#07213a"/>
+        <stop offset="100%" stop-color="#020b18"/>
+      </linearGradient>
+      <linearGradient id="c-rg1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#040f1c"/>
+        <stop offset="100%" stop-color="#02071E"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="1440" height="420" fill="url(#c-sky)"/>
+    <rect width="1440" height="420" fill="url(#c-atmo)"/>
+
+    <!-- Layer 5: dominant peak far-left, gradual slope to flat right side -->
+    <path d="M0,340
+      C30,305 60,258 90,210 C120,162 145,120 170,88
+      C195,56 220,48 245,68 C268,86 280,118 305,155
+      C330,192 355,228 390,255
+      C430,282 475,292 530,285 C585,277 630,262 685,248
+      C745,233 800,225 860,218 C920,211 980,210 1050,212
+      C1120,214 1190,218 1270,220 C1340,222 1390,222 1440,222
+      L1440,420 L0,420 Z"
+      fill="url(#c-rg5)"/>
+
+    <!-- Layer 4: secondary peak left-center, tail off to right -->
+    <path d="M0,365
+      C30,350 65,330 100,308 C135,285 165,260 200,238
+      C235,215 265,204 300,210 C335,217 360,235 395,255
+      C430,275 460,290 505,298 C550,306 595,306 650,298
+      C705,290 755,275 815,262 C875,249 935,242 1000,240
+      C1065,238 1135,240 1210,242 C1290,244 1370,244 1440,244
+      L1440,420 L0,420 Z"
+      fill="url(#c-rg4)"/>
+
+    <!-- Layer 3: near-flat on right, steeper on left -->
+    <path d="M0,382
+      C80,368 155,352 235,342 C305,333 370,328 445,330
+      C520,332 590,340 665,346 C740,352 815,354 895,350
+      C975,346 1055,338 1145,334 C1235,330 1340,330 1440,332
+      L1440,420 L0,420 Z"
+      fill="url(#c-rg3)"/>
+
+    <!-- Layer 2 -->
+    <path d="M0,396
+      C150,390 300,386 480,383 C650,380 820,381 1000,380
+      C1150,379 1300,380 1440,381
+      L1440,420 L0,420 Z"
+      fill="url(#c-rg2)"/>
+
+    <path d="M0,410 C400,406 800,405 1200,406 C1320,406 1390,407 1440,408
+      L1440,420 L0,420 Z"
+      fill="url(#c-rg1)"/>
+  </svg>
+
+  <div class="atmo" style="background: linear-gradient(160deg, rgba(2,7,30,0.0) 0%, rgba(2,7,30,0.15) 30%, rgba(2,7,30,0.78) 85%, rgba(2,7,30,0.92) 100%);"></div>
+
+  <div class="variant-label">
+    <div class="variant-letter">C</div>
+    <div class="variant-desc">Dominant left peak · asymmetric · cinematic sweep</div>
+  </div>
+  <div class="hero-text">
+    <h2>Because the miles are <em>hard</em> enough</h2>
+  </div>
+</div>
+<div class="variant-notes">
+  <span class="note-chip">Single dominant peak on left, skyline falls away right</span>
+  <span class="note-chip">Horizontal gradients on far layers — lit from left</span>
+  <span class="note-chip">Near layers flatten toward right — creates depth receding into distance</span>
+  <span class="note-chip">Sky light source positioned upper-left</span>
+</div>
+
+<div class="variant-sep"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     VARIANT D — Dense layered ridges, mixed sharp + round
+     Character: High-alpine, complex terrain, full-frame depth
+     ══════════════════════════════════════════════════════ -->
+<div class="variant">
+  <svg class="mountain-svg" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <linearGradient id="d-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#080f20"/>
+        <stop offset="100%" stop-color="#02071E"/>
+      </linearGradient>
+      <radialGradient id="d-atmo" cx="60%" cy="0%" r="60%">
+        <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.25"/>
+        <stop offset="55%" stop-color="#1D7CBE" stop-opacity="0.08"/>
+        <stop offset="100%" stop-opacity="0"/>
+      </radialGradient>
+      <!-- Layer 5: lightest — almost white-sky peaks -->
+      <linearGradient id="d-rg5" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#b8e0f8" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#82C7F6" stop-opacity="0.35"/>
+      </linearGradient>
+      <!-- Layer 4a: intermediate — teal accent, only visible on left side -->
+      <linearGradient id="d-rg4a" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#1a8080" stop-opacity="0.5"/>
+        <stop offset="40%" stop-color="#1D7CBE" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#1D7CBE" stop-opacity="0.75"/>
+      </linearGradient>
+      <linearGradient id="d-rg4" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1D7CBE" stop-opacity="0.88"/>
+        <stop offset="100%" stop-color="#155a8e"/>
+      </linearGradient>
+      <linearGradient id="d-rg3" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#114574"/>
+        <stop offset="100%" stop-color="#0b3358"/>
+      </linearGradient>
+      <linearGradient id="d-rg2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#082640"/>
+        <stop offset="100%" stop-color="#030d1a"/>
+      </linearGradient>
+      <linearGradient id="d-rg1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#041018"/>
+        <stop offset="100%" stop-color="#02071E"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="1440" height="420" fill="url(#d-sky)"/>
+    <rect width="1440" height="420" fill="url(#d-atmo)"/>
+
+    <!-- Layer 5: 6 distinct peaks, mixed heights, tight spacing on right -->
+    <path d="M0,300
+      C20,275 45,245 70,205 C95,165 112,132 132,100
+      C152,68 168,60 188,75 C208,90 220,120 245,158
+      C265,190 285,218 315,235 C345,252 375,252 410,238
+      C440,225 465,200 495,168 C522,138 542,115 568,95
+      C592,75 612,68 636,80 C658,92 672,118 695,150
+      C718,182 738,210 765,228 C795,248 825,252 860,242
+      C892,232 918,210 950,182 C978,156 1000,132 1028,110
+      C1055,88 1075,78 1100,85 C1124,92 1138,115 1160,148
+      C1182,180 1200,210 1228,232 C1258,255 1290,262 1330,252
+      C1368,242 1408,225 1440,218
+      L1440,420 L0,420 Z"
+      fill="url(#d-rg5)"/>
+
+    <!-- Layer 4a: teal-accent layer — only on left 40% of frame, fades out -->
+    <path d="M0,330
+      C25,312 52,292 80,268 C110,243 138,220 168,202
+      C198,183 225,175 255,182 C285,190 308,210 335,232
+      C362,255 385,272 420,282 C460,293 500,292 545,285
+      C600,275 640,260 680,252 C720,244 760,242 800,244
+      C840,246 880,250 930,252 C980,254 1030,254 1080,252
+      C1140,250 1210,248 1290,248 C1360,248 1410,248 1440,248
+      L1440,420 L0,420 Z"
+      fill="url(#d-rg4a)"/>
+
+    <!-- Layer 4: main Ridge Blue layer, peaks slightly offset from L5 -->
+    <path d="M0,352
+      C30,338 62,322 98,305 C135,287 168,270 205,256
+      C242,242 275,236 310,242 C345,248 372,262 405,278
+      C438,295 465,308 502,315 C542,323 580,322 622,314
+      C665,305 702,288 742,270 C782,252 818,238 860,230
+      C902,222 942,222 985,230 C1028,238 1062,252 1102,268
+      C1142,285 1178,300 1222,308 C1268,316 1318,315 1380,308
+      L1440,302
+      L1440,420 L0,420 Z"
+      fill="url(#d-rg4)"/>
+
+    <!-- Layer 3: Deep Ridge, broad humps — very different silhouette from above -->
+    <path d="M0,372
+      C60,360 130,348 210,340 C290,332 365,328 450,332
+      C535,336 605,346 685,352 C765,358 840,358 920,350
+      C1000,342 1075,330 1160,326 C1245,322 1340,326 1440,330
+      L1440,420 L0,420 Z"
+      fill="url(#d-rg3)"/>
+
+    <!-- Layer 2 -->
+    <path d="M0,390
+      C100,385 220,380 360,376 C500,372 640,371 780,370
+      C920,369 1060,370 1200,372 C1320,374 1390,375 1440,376
+      L1440,420 L0,420 Z"
+      fill="url(#d-rg2)"/>
+
+    <!-- Layer 1 -->
+    <path d="M0,408 C250,405 550,403 850,403 C1100,403 1300,404 1440,405
+      L1440,420 L0,420 Z"
+      fill="url(#d-rg1)"/>
+  </svg>
+
+  <div class="atmo" style="background: linear-gradient(180deg, rgba(2,7,30,0.0) 0%, rgba(2,7,30,0.18) 40%, rgba(2,7,30,0.82) 100%);"></div>
+
+  <div class="variant-label">
+    <div class="variant-letter">D</div>
+    <div class="variant-desc">Dense 6-peak skyline · teal accent layer · high-alpine</div>
+  </div>
+  <div class="hero-text">
+    <h2>Because the miles are <em>hard</em> enough</h2>
+  </div>
+</div>
+<div class="variant-notes">
+  <span class="note-chip">6 sharp peaks on far layer — densely packed, varying heights</span>
+  <span class="note-chip">Teal-accent intermediate layer (left-heavy, fades right)</span>
+  <span class="note-chip">5 layers with strongly differentiated silhouettes</span>
+  <span class="note-chip">Light source top-right — sky glow from upper right</span>
+</div>
+
+<div style="padding: 32px; text-align:center; font-size:12px; color:rgba(130,199,246,0.4); letter-spacing:0.05em;">
+  Pick a favourite — or call out what you like from each to mix and match
+</div>
+
+</body>
+</html>

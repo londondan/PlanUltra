@@ -1,5 +1,9 @@
 # PlanUltra — Developer Notes
 
+## File Locations
+
+All requirements documents (PRDs, mockups) go in `docs/requirements/`. Do not use `requirements/` at the project root.
+
 ## UI Components: shadcn v4 / Base UI
 
 This project uses **shadcn v4** (`base-nova` style) built on **`@base-ui/react`**.

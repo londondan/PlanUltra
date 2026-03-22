@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanUltra — Ridge Light Concept</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --midnight: #02071E;
+            --deep-ridge: #114574;
+            --ridge-blue: #1D7CBE;
+            --sky: #82C7F6;
+            --mist: #DBF1FA;
+        }
+
+        /* ====== TYPOGRAPHY ====== */
+        /* DM Sans: display/headings — high x-height, purposeful at large weights */
+        /* System UI stack: all UI chrome — labels, tables, inputs, nav, metadata */
+        :root {
+            --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Helvetica Neue', sans-serif;
+            --font-mono: 'Monaco', 'Menlo', 'Courier New', monospace;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            background-color: var(--mist);
+            color: var(--midnight);
+            line-height: 1.5;
+        }
+
+        /* ====== NAVIGATION HEADER ====== */
+        nav {
+            background-color: white;
+            border-bottom: 1px solid var(--sky);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--midnight);
+            letter-spacing: -0.03em;
+        }
+
+        .mountain-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-left: 4px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: var(--ridge-blue);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .nav-link:hover {
+            opacity: 0.7;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--deep-ridge), var(--ridge-blue));
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .avatar:hover {
+            transform: scale(1.08);
+        }
+
+        /* ====== SECTION LABEL ====== */
+        .section-label {
+            padding: 40px 40px 0;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--deep-ridge);
+            opacity: 0.6;
+        }
+
+        /* ====== SECTION 1: LANDING/SIGNIN WITH MOUNTAIN ====== */
+        .section {
+            padding: 0;
+        }
+
+        .hero-section {
+            position: relative;
+            background: linear-gradient(135deg, white, var(--mist));
+            padding: 80px 40px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .mountain-silhouette {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            opacity: 0.95;
+        }
+
+        .mountain-layer {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 600px;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--midnight);
+            margin-bottom: 16px;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--deep-ridge);
+            opacity: 0.8;
+            margin-bottom: 32px;
+        }
+
+        .hero-button {
+            display: inline-block;
+            background-color: var(--ridge-blue);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(29, 124, 190, 0.2);
+        }
+
+        .hero-button:hover {
+            background-color: var(--deep-ridge);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(29, 124, 190, 0.3);
+        }
+
+        /* ====== SECTION 2: DASHBOARD ====== */
+        .dashboard-section {
+            background-color: white;
+            padding: 60px 40px;
+        }
+
+        .page-title {
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--midnight);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: var(--deep-ridge);
+            opacity: 0.6;
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .add-race-btn {
+            background-color: var(--ridge-blue);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .add-race-btn:hover {
+            background-color: var(--deep-ridge);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(29, 124, 190, 0.25);
+        }
+
+        .races-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .race-card {
+            background-color: white;
+            border: 1px solid rgba(130, 199, 246, 0.5);
+            border-radius: 10px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border-left: 3px solid transparent;
+        }
+
+        .race-card:hover {
+            background-color: var(--mist);
+            border-color: var(--sky);
+            border-left-color: var(--ridge-blue);
+            border-left-width: 3px;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .race-name {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--midnight);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .race-meta {
+            font-size: 13px;
+            color: var(--deep-ridge);
+            opacity: 0.7;
+            margin-bottom: 12px;
+        }
+
+        .race-distance {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ridge-blue);
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1.5px solid var(--ridge-blue);
+            color: var(--ridge-blue);
+        }
+
+        .badge.completed {
+            border-color: var(--sky);
+            color: var(--sky);
+            background-color: rgba(130, 199, 246, 0.08);
+        }
+
+        /* ====== SECTION 3: RACE DETAIL ====== */
+        .race-detail-section {
+            background-color: white;
+            padding: 60px 40px;
+        }
+
+        .breadcrumb {
+            font-size: 12px;
+            color: var(--ridge-blue);
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .breadcrumb-sep {
+            margin: 0 4px;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .detail-title-group {
+            flex: 1;
+        }
+
+        .detail-title {
+            font-family: var(--font-display);
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--midnight);
+            margin-bottom: 12px;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        .detail-meta {
+            font-size: 15px;
+            color: var(--deep-ridge);
+            opacity: 0.75;
+        }
+
+        .edit-btn {
+            padding: 8px 16px;
+            border: 1.5px solid var(--ridge-blue);
+            color: var(--ridge-blue);
+            background-color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .edit-btn:hover {
+            background-color: rgba(29, 124, 190, 0.05);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--sky);
+            padding-bottom: 0;
+        }
+
+        .tab {
+            padding: 16px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--sky);
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: none;
+            border: none;
+        }
+
+        .tab.active {
+            color: var(--midnight);
+            border-bottom-color: var(--ridge-blue);
+        }
+
+        .tab:hover {
+            color: var(--midnight);
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 220px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--mist), var(--sky), var(--ridge-blue));
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .map-line {
+            stroke: var(--midnight);
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.4;
+        }
+
+        .map-marker {
+            r: 5;
+            fill: var(--ridge-blue);
+            opacity: 0.8;
+        }
+
+        .elevation-card {
+            background-color: white;
+            border: 1px solid var(--sky);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .elevation-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--deep-ridge);
+            margin-bottom: 16px;
+        }
+
+        .elevation-chart {
+            width: 100%;
+            height: 140px;
+        }
+
+        .elevation-path {
+            stroke: var(--ridge-blue);
+            stroke-width: 2.5;
+            fill: var(--mist);
+            opacity: 0.9;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .detail-card {
+            background-color: white;
+            border: 1px solid var(--sky);
+            border-radius: 10px;
+            padding: 24px;
+        }
+
+        .detail-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--deep-ridge);
+            margin-bottom: 20px;
+        }
+
+        .pace-input-group {
+            margin-bottom: 20px;
+        }
+
+        .pace-label {
+            font-size: 12px;
+            color: var(--deep-ridge);
+            opacity: 0.7;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .pace-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid var(--sky);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--midnight);
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .pace-input:focus {
+            outline: none;
+            border-color: var(--ridge-blue);
+            box-shadow: 0 0 0 3px rgba(29, 124, 190, 0.1);
+        }
+
+        .finish-time {
+            font-size: 13px;
+            color: var(--ridge-blue);
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .stations-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stations-table thead {
+            background-color: transparent;
+        }
+
+        .stations-table th {
+            text-align: left;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--sky);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--deep-ridge);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stations-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .stations-table tbody tr:nth-child(odd) {
+            background-color: var(--mist);
+        }
+
+        .stations-table tbody tr:hover {
+            background-color: rgba(130, 199, 246, 0.3);
+        }
+
+        .stations-table td {
+            padding: 12px 0;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(130, 199, 246, 0.3);
+        }
+
+        .station-name {
+            color: var(--midnight);
+            font-weight: 600;
+        }
+
+        .station-distance {
+            color: var(--deep-ridge);
+            opacity: 0.7;
+        }
+
+        .station-time {
+            color: var(--ridge-blue);
+            font-weight: 600;
+        }
+
+        /* ====== COLOR PALETTE ====== */
+        .palette-section {
+            background-color: white;
+            padding: 60px 40px;
+            margin-top: 40px;
+        }
+
+        .palette-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--deep-ridge);
+            margin-bottom: 24px;
+        }
+
+        .color-swatches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+        }
+
+        .swatch {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .swatch-box {
+            width: 100%;
+            height: 100px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .swatch-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--midnight);
+        }
+
+        .swatch-code {
+            font-size: 11px;
+            color: var(--deep-ridge);
+            opacity: 0.6;
+            font-family: var(--font-mono);
+        }
+
+        /* ====== RESPONSIVE ====== */
+        @media (max-width: 768px) {
+            nav {
+                padding: 12px 20px;
+            }
+
+            .nav-right {
+                gap: 16px;
+            }
+
+            .section-label,
+            .dashboard-section,
+            .race-detail-section,
+            .palette-section {
+                padding: 40px 20px;
+            }
+
+            .hero-section {
+                padding: 60px 20px;
+            }
+
+            .hero-title {
+                font-size: 32px;
+                letter-spacing: -0.01em;
+            }
+
+            .page-title {
+                font-size: 28px;
+                letter-spacing: -0.01em;
+            }
+
+            .detail-title {
+                font-size: 28px;
+                letter-spacing: -0.01em;
+            }
+
+            .races-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-row {
+                grid-template-columns: 1fr;
+            }
+
+            .color-swatches {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* ====== ACCESSIBILITY ====== */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ====== NAVIGATION HEADER ====== -->
+<nav>
+    <div class="nav-left">
+        <span class="logo">
+            PlanUltra
+            <svg class="mountain-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="8,2 14,12 2,12" fill="#1D7CBE"/>
+            </svg>
+        </span>
+    </div>
+    <div class="nav-right">
+        <a href="#" class="nav-link">Dashboard</a>
+        <div class="avatar"></div>
+    </div>
+</nav>
+
+<!-- ====== SECTION 1: LANDING / SIGNIN WITH MOUNTAINS ====== -->
+<div class="section-label">Section 1: Hero / Sign In</div>
+
+<section class="hero-section">
+    <svg class="mountain-silhouette" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" style="height: 350px;">
+        <!-- Back mountain: Deep Ridge -->
+        <polygon class="mountain-layer" points="0,300 200,100 400,250 600,80 800,220 1000,120 1200,280 1200,400 0,400" fill="#114574" opacity="0.6"/>
+        
+        <!-- Mid mountain: Ridge Blue -->
+        <polygon class="mountain-layer" points="0,320 150,180 350,280 550,150 750,260 950,160 1100,300 1200,340 1200,400 0,400" fill="#1D7CBE" opacity="0.75"/>
+        
+        <!-- Front mountain: Sky -->
+        <polygon class="mountain-layer" points="0,350 100,220 250,320 400,200 600,300 800,180 950,320 1100,240 1200,360 1200,400 0,400" fill="#82C7F6" opacity="0.85"/>
+    </svg>
+
+    <div class="hero-content">
+        <h1 class="hero-title">Plan Your Ultra</h1>
+        <p class="hero-subtitle">Organize pacework, aid stations, and race logistics in one clean, beautiful place.</p>
+        <button class="hero-button">Get Started</button>
+    </div>
+</section>
+
+<!-- ====== SECTION 2: DASHBOARD ====== -->
+<div class="section-label">Section 2: Dashboard (My Races)</div>
+
+<section class="dashboard-section">
+    <div class="section-header">
+        <div>
+            <h2 class="page-title">My Races</h2>
+            <p class="page-subtitle">Plan and manage your ultra marathon races</p>
+        </div>
+        <button class="add-race-btn">+ Add Race</button>
+    </div>
+
+    <div class="races-grid">
+        <!-- Race Card 1 -->
+        <div class="race-card">
+            <div class="race-name">Hellbender 100</div>
+            <div class="race-meta">June 14, 2026 · 5:00 AM</div>
+            <div class="race-distance">103.4 miles</div>
+            <span class="badge">Upcoming</span>
+        </div>
+
+        <!-- Race Card 2 -->
+        <div class="race-card">
+            <div class="race-name">Barkley Marathons</div>
+            <div class="race-meta">March 21, 2027</div>
+            <div class="race-distance">~130 miles</div>
+            <span class="badge">Upcoming</span>
+        </div>
+
+        <!-- Race Card 3 -->
+        <div class="race-card">
+            <div class="race-name">Hellgate 100k</div>
+            <div class="race-meta">December 6, 2025 · 11:00 PM</div>
+            <div class="race-distance">66.6 miles</div>
+            <span class="badge completed">Completed</span>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 3: RACE DETAIL ====== -->
+<div class="section-label">Section 3: Race Detail (Hellbender 100)</div>
+
+<section class="race-detail-section">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        Races <span class="breadcrumb-sep">›</span> Hellbender 100
+    </div>
+
+    <!-- Header -->
+    <div class="detail-header">
+        <div class="detail-title-group">
+            <h1 class="detail-title">Hellbender 100</h1>
+            <div class="detail-meta">Saturday, June 14, 2026 · Start 5:00 AM · 103.4 miles</div>
+        </div>
+        <button class="edit-btn">Edit</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active">Pace</button>
+        <button class="tab">Plan</button>
+    </div>
+
+    <!-- Map Placeholder -->
+    <div class="map-placeholder">
+        <svg style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+            <!-- Route line -->
+            <polyline class="map-line" points="50,150 150,120 250,160 350,100 450,140 500,130 550,150 600,110 650,160 750,140 850,130 900,150 950,120"/>
+            <!-- Aid station markers -->
+            <circle class="map-marker" cx="100" cy="140"/>
+            <circle class="map-marker" cx="250" cy="150"/>
+            <circle class="map-marker" cx="400" cy="110"/>
+            <circle class="map-marker" cx="550" cy="140"/>
+            <circle class="map-marker" cx="700" cy="130"/>
+            <circle class="map-marker" cx="850" cy="140"/>
+        </svg>
+    </div>
+
+    <!-- Elevation Profile Card -->
+    <div class="elevation-card">
+        <div class="elevation-label">Elevation Profile</div>
+        <svg class="elevation-chart" viewBox="0 0 800 140" preserveAspectRatio="xMidYMid meet">
+            <!-- Elevation path -->
+            <path class="elevation-path" d="M 0,120 L 50,100 L 100,110 L 150,60 L 200,80 L 250,90 L 300,50 L 350,75 L 400,70 L 450,55 L 500,85 L 550,65 L 600,95 L 650,45 L 700,75 L 750,80 L 800,100 L 800,140 L 0,140"/>
+            <!-- Grid lines (subtle) -->
+            <line x1="0" y1="50%" x2="800" y2="50%" stroke="#82C7F6" stroke-width="0.5" opacity="0.3"/>
+        </svg>
+    </div>
+
+    <!-- Two-Column Row: Pace & Aid Stations -->
+    <div class="detail-row">
+        <!-- Pace Card -->
+        <div class="detail-card">
+            <div class="detail-card-title">Set Your Pace</div>
+            <div class="pace-input-group">
+                <label class="pace-label">Target Pace</label>
+                <input type="text" class="pace-input" value="15:00 min/mile" readonly>
+            </div>
+            <div class="finish-time">Est. finish: Sunday 9:32 AM</div>
+        </div>
+
+        <!-- Aid Stations Card -->
+        <div class="detail-card">
+            <div class="detail-card-title">Aid Stations</div>
+            <table class="stations-table">
+                <thead>
+                    <tr>
+                        <th>Station</th>
+                        <th>Distance</th>
+                        <th>Est. Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="station-name">Checkpoint A</td>
+                        <td class="station-distance">15.2 mi</td>
+                        <td class="station-time">3:45 AM</td>
+                    </tr>
+                    <tr>
+                        <td class="station-name">Water Station 1</td>
+                        <td class="station-distance">31.4 mi</td>
+                        <td class="station-time">7:42 AM</td>
+                    </tr>
+                    <tr>
+                        <td class="station-name">Checkpoint B</td>
+                        <td class="station-distance">50.8 mi</td>
+                        <td class="station-time">1:18 PM</td>
+                    </tr>
+                    <tr>
+                        <td class="station-name">Water Station 2</td>
+                        <td class="station-distance">72.1 mi</td>
+                        <td class="station-time">5:52 PM</td>
+                    </tr>
+                    <tr>
+                        <td class="station-name">Final Aid</td>
+                        <td class="station-distance">92.3 mi</td>
+                        <td class="station-time">9:15 PM</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ====== TYPOGRAPHY SPECIMEN ====== -->
+<section class="palette-section" style="border-top: 1px solid var(--sky);">
+    <div class="palette-title">Typography System</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start;">
+        <div>
+            <p style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--deep-ridge); opacity: 0.6; margin-bottom: 20px;">DM Sans — Display &amp; Headings</p>
+            <div style="font-family: var(--font-display); font-size: 48px; font-weight: 800; color: var(--midnight); letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px;">Aa</div>
+            <div style="font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--midnight); letter-spacing: -0.02em; margin-bottom: 8px;">Plan Your Ultra</div>
+            <div style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--midnight); letter-spacing: -0.01em; margin-bottom: 8px;">Hellbender 100</div>
+            <div style="font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--deep-ridge);">Section heading · 600</div>
+            <p style="font-family: var(--font-display); font-size: 11px; color: var(--deep-ridge); opacity: 0.6; margin-top: 16px;">Used for: hero title, page h1, race names, section headings, logo wordmark</p>
+        </div>
+        <div>
+            <p style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--deep-ridge); opacity: 0.6; margin-bottom: 20px;">System UI — Body &amp; UI Chrome</p>
+            <div style="font-family: var(--font-ui); font-size: 48px; font-weight: 400; color: var(--midnight); line-height: 1.1; margin-bottom: 12px;">Aa</div>
+            <div style="font-family: var(--font-ui); font-size: 16px; color: var(--midnight); margin-bottom: 8px;">Body text at 16px regular — legible at density</div>
+            <div style="font-family: var(--font-ui); font-size: 14px; font-weight: 500; color: var(--ridge-blue); margin-bottom: 8px;">Nav link · 14px medium · Ridge Blue</div>
+            <div style="font-family: var(--font-ui); font-size: 13px; color: var(--deep-ridge); opacity: 0.7; margin-bottom: 8px;">Metadata · 13px · Deep Ridge 70%</div>
+            <div style="font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--ridge-blue);">9:32 AM · monospace arrival times</div>
+            <p style="font-family: var(--font-ui); font-size: 11px; color: var(--deep-ridge); opacity: 0.6; margin-top: 16px;">Used for: nav, labels, inputs, table cells, badges, metadata, all UI chrome</p>
+        </div>
+    </div>
+</section>
+
+<!-- ====== COLOR PALETTE ====== -->
+<section class="palette-section" style="border-top: 1px solid var(--sky);">
+    <div class="palette-title">Concept B — Ridge Light Color Palette</div>
+    <div class="color-swatches">
+        <div class="swatch">
+            <div class="swatch-box" style="background-color: #02071E;"></div>
+            <div class="swatch-label">Midnight</div>
+            <div class="swatch-code">#02071E</div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-box" style="background-color: #114574;"></div>
+            <div class="swatch-label">Deep Ridge</div>
+            <div class="swatch-code">#114574</div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-box" style="background-color: #1D7CBE;"></div>
+            <div class="swatch-label">Ridge Blue</div>
+            <div class="swatch-code">#1D7CBE</div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-box" style="background-color: #82C7F6;"></div>
+            <div class="swatch-label">Sky</div>
+            <div class="swatch-code">#82C7F6</div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-box" style="background-color: #DBF1FA;"></div>
+            <div class="swatch-label">Mist</div>
+            <div class="swatch-code">#DBF1FA</div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

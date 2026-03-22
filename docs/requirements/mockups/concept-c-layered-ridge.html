@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanUltra — Concept C: Layered Ridge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #DBF1FA;
+            color: #02071E;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ========== SECTION 1: Navigation Header ========== */
+        .header {
+            background: #02071E;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 16px rgba(1, 7, 30, 0.3);
+            position: relative;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .header-icon {
+            color: #82C7F6;
+            font-size: 1.5rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-nav {
+            color: #82C7F6;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .header-nav:hover {
+            color: #DBF1FA;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #82C7F6;
+            background: linear-gradient(135deg, #1D7CBE, #82C7F6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .avatar:hover {
+            border-color: #DBF1FA;
+            box-shadow: 0 0 12px rgba(130, 199, 246, 0.4);
+        }
+
+        /* ========== SECTION 2: Dashboard ========== */
+        .section-divider-note {
+            background: #114574;
+            padding: 0.75rem 2rem;
+            font-size: 0.85rem;
+            font-style: italic;
+            color: #82C7F6;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .dashboard-band-a {
+            background: #114574;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .dashboard-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .btn-add-race {
+            background: transparent;
+            border: 2px solid #82C7F6;
+            color: #82C7F6;
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-add-race:hover {
+            background: #82C7F6;
+            color: #02071E;
+            box-shadow: 0 4px 12px rgba(130, 199, 246, 0.3);
+        }
+
+        .dashboard-band-b {
+            background: #DBF1FA;
+            padding: 2rem;
+        }
+
+        .race-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .race-card {
+            background: white;
+            border: 1px solid #82C7F6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(29, 124, 190, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .race-card:hover {
+            border-color: #1D7CBE;
+            box-shadow: 0 12px 28px rgba(29, 124, 190, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .race-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #02071E;
+            margin-bottom: 0.5rem;
+        }
+
+        .race-card-date {
+            font-size: 0.95rem;
+            color: #114574;
+            margin-bottom: 1rem;
+        }
+
+        .race-card-distance {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1D7CBE;
+            margin-bottom: 1rem;
+        }
+
+        .race-badge {
+            display: inline-block;
+            padding: 0.5rem 0.875rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .badge-upcoming {
+            background: #1D7CBE;
+            color: white;
+        }
+
+        .badge-completed {
+            background: #82C7F6;
+            color: #02071E;
+        }
+
+        /* ========== SECTION 3: Race Detail ========== */
+        .race-detail {
+            background: #DBF1FA;
+        }
+
+        .race-hero {
+            background: linear-gradient(135deg, #02071E 0%, #114574 40%, #1D7CBE 100%);
+            padding: 3rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .race-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 80% 20%, rgba(130, 199, 246, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .race-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .race-hero-text {
+            color: white;
+        }
+
+        .race-breadcrumb {
+            font-size: 0.9rem;
+            color: #82C7F6;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .race-hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            line-height: 1.1;
+        }
+
+        .race-hero-details {
+            font-size: 1rem;
+            color: #DBF1FA;
+            line-height: 1.8;
+        }
+
+        .race-map {
+            background: linear-gradient(135deg, #114574 0%, #82C7F6 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            aspect-ratio: 1.2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 12px 32px rgba(1, 7, 30, 0.3);
+            overflow: hidden;
+        }
+
+        .race-map svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .race-tabs {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 3;
+            justify-content: flex-start;
+        }
+
+        .race-tab {
+            padding: 1rem 0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #82C7F6;
+            border-bottom: 3px solid transparent;
+            position: relative;
+        }
+
+        .race-tab.active {
+            color: white;
+            border-bottom-color: white;
+        }
+
+        .race-tab:hover:not(.active) {
+            color: #DBF1FA;
+        }
+
+        .race-content {
+            background: #DBF1FA;
+            padding: 2rem;
+        }
+
+        .race-content-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .race-hero-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .race-content-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .race-hero-title {
+                font-size: 2rem;
+            }
+
+            .race-map {
+                max-height: 300px;
+                aspect-ratio: auto;
+            }
+        }
+
+        .elevation-card {
+            background: white;
+            border: 1px solid #82C7F6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(29, 124, 190, 0.1);
+        }
+
+        .elevation-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #02071E;
+            margin-bottom: 1.5rem;
+        }
+
+        .elevation-chart {
+            width: 100%;
+            height: 200px;
+        }
+
+        .pace-card {
+            background: white;
+            border: 1px solid #82C7F6;
+            border-radius: 10px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(29, 124, 190, 0.1);
+        }
+
+        .pace-card-header {
+            background: #82C7F6;
+            padding: 1rem 1.5rem;
+            font-weight: 700;
+            color: #02071E;
+            font-size: 1.1rem;
+        }
+
+        .pace-card-content {
+            padding: 1.5rem;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            font-weight: 600;
+            color: #02071E;
+            font-size: 0.9rem;
+        }
+
+        .input-box {
+            border: 2px solid #1D7CBE;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-box:focus {
+            outline: none;
+            border-color: #114574;
+            box-shadow: 0 0 8px rgba(29, 124, 190, 0.2);
+        }
+
+        .finish-estimate {
+            background: #f0f7ff;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #82C7F6;
+        }
+
+        .finish-estimate-label {
+            font-size: 0.85rem;
+            color: #114574;
+            margin-bottom: 0.5rem;
+        }
+
+        .finish-estimate-time {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1D7CBE;
+        }
+
+        .aid-stations-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .aid-stations-table thead {
+            background: #f0f7ff;
+        }
+
+        .aid-stations-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            color: #02071E;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #82C7F6;
+        }
+
+        .aid-stations-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e8f0;
+            font-size: 0.95rem;
+        }
+
+        .aid-stations-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .station-name {
+            font-weight: 600;
+            color: #02071E;
+        }
+
+        .station-distance {
+            color: #114574;
+        }
+
+        .station-time {
+            font-weight: 700;
+            color: #1D7CBE;
+        }
+
+        /* ========== COLOR PALETTE SECTION ========== */
+        .palette-section {
+            background: white;
+            padding: 3rem 2rem;
+            border-top: 1px solid #82C7F6;
+        }
+
+        .palette-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .palette-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #02071E;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .palette-swatches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .swatch {
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(1, 7, 30, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .swatch:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(1, 7, 30, 0.2);
+        }
+
+        .swatch-color {
+            height: 120px;
+            width: 100%;
+        }
+
+        .swatch-info {
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+
+        .swatch-name {
+            font-weight: 700;
+            color: #02071E;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .swatch-hex {
+            font-family: 'Courier New', monospace;
+            color: #114574;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .swatch-description {
+            font-size: 0.8rem;
+            color: #82C7F6;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== SECTION 1: Navigation Header ========== -->
+    <header class="header">
+        <div class="header-left">
+            <span class="header-icon">▲</span>
+            PlanUltra
+        </div>
+        <div class="header-right">
+            <div class="header-nav">Dashboard</div>
+            <div class="avatar">U</div>
+        </div>
+    </header>
+
+    <!-- ========== SECTION 2: Dashboard ========== -->
+    <div class="section-divider-note">
+        ↑ Dark band (Midnight #02071E) → lighter content bands → Mist (#DBF1FA) — mirroring ridgeline recession
+    </div>
+
+    <div class="dashboard-band-a">
+        <h1 class="dashboard-title">My Races</h1>
+        <button class="btn-add-race">+ Add Race</button>
+    </div>
+
+    <div class="dashboard-band-b">
+        <div class="race-cards-grid">
+            <!-- Card 1: Hellbender 100 -->
+            <div class="race-card">
+                <div class="race-card-title">Hellbender 100</div>
+                <div class="race-card-date">June 14, 2026 · 5:00 AM</div>
+                <div class="race-card-distance">103.4 mi</div>
+                <span class="race-badge badge-upcoming">Upcoming</span>
+            </div>
+
+            <!-- Card 2: Barkley Marathons -->
+            <div class="race-card">
+                <div class="race-card-title">Barkley Marathons</div>
+                <div class="race-card-date">March 21, 2027</div>
+                <div class="race-card-distance">≈100 mi</div>
+                <span class="race-badge badge-upcoming">Upcoming</span>
+            </div>
+
+            <!-- Card 3: Hellgate 100k -->
+            <div class="race-card">
+                <div class="race-card-title">Hellgate 100k</div>
+                <div class="race-card-date">December 6, 2025</div>
+                <div class="race-card-distance">62.1 mi</div>
+                <span class="race-badge badge-completed">Completed</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SECTION 3: Race Detail ========== -->
+    <div class="race-detail">
+        <div class="race-hero">
+            <div class="race-hero-content">
+                <div class="race-hero-text">
+                    <div class="race-breadcrumb">Races / Hellbender 100</div>
+                    <h1 class="race-hero-title">Hellbender 100</h1>
+                    <div class="race-hero-details">
+                        Saturday, June 14, 2026<br>
+                        Start 5:00 AM<br>
+                        103.4 miles
+                    </div>
+                </div>
+
+                <div class="race-map">
+                    <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                        <!-- Terrain gradient background -->
+                        <defs>
+                            <linearGradient id="terrain" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#1D7CBE;stop-opacity:0.8" />
+                                <stop offset="50%" style="stop-color:#82C7F6;stop-opacity:0.6" />
+                                <stop offset="100%" style="stop-color:#DBF1FA;stop-opacity:0.4" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Mountain terrain shape -->
+                        <path d="M 0 300 Q 50 250 100 200 T 200 150 T 300 180 T 400 120 L 400 300 Z" fill="url(#terrain)" stroke="none"/>
+
+                        <!-- Course route (dashed) -->
+                        <path d="M 20 240 Q 80 200 150 180 T 280 160 T 380 100" stroke="white" stroke-width="3" fill="none" stroke-dasharray="8,4" stroke-linecap="round"/>
+
+                        <!-- Aid stations -->
+                        <circle cx="80" cy="200" r="5" fill="#82C7F6" stroke="white" stroke-width="2"/>
+                        <circle cx="150" cy="180" r="5" fill="#82C7F6" stroke="white" stroke-width="2"/>
+                        <circle cx="240" cy="165" r="5" fill="#82C7F6" stroke="white" stroke-width="2"/>
+                        <circle cx="320" cy="145" r="5" fill="#82C7F6" stroke="white" stroke-width="2"/>
+
+                        <!-- Start/Finish markers -->
+                        <rect x="10" y="235" width="20" height="20" fill="white" stroke="#82C7F6" stroke-width="2" rx="2"/>
+                        <text x="15" y="248" font-size="12" fill="#1D7CBE" font-weight="bold" text-anchor="middle">S</text>
+
+                        <rect x="360" y="90" width="20" height="20" fill="white" stroke="#82C7F6" stroke-width="2" rx="2"/>
+                        <text x="365" y="103" font-size="12" fill="#1D7CBE" font-weight="bold" text-anchor="middle">F</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="race-tabs">
+                <div class="race-tab active">Pace</div>
+                <div class="race-tab">Plan</div>
+            </div>
+        </div>
+
+        <div class="race-content">
+            <div class="race-content-inner">
+                <!-- Elevation Profile Card -->
+                <div class="elevation-card">
+                    <div class="elevation-card-title">Elevation Profile</div>
+                    <svg class="elevation-chart" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                        <defs>
+                            <linearGradient id="elevGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#1D7CBE;stop-opacity:0.6" />
+                                <stop offset="100%" style="stop-color:#82C7F6;stop-opacity:0.2" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Grid lines -->
+                        <line x1="0" y1="50" x2="400" y2="50" stroke="#e0e8f0" stroke-width="1"/>
+                        <line x1="0" y1="100" x2="400" y2="100" stroke="#e0e8f0" stroke-width="1"/>
+                        <line x1="0" y1="150" x2="400" y2="150" stroke="#e0e8f0" stroke-width="1"/>
+
+                        <!-- Elevation path with fill -->
+                        <path d="M 0 160 L 40 140 L 80 90 L 120 110 L 160 70 L 200 80 L 240 120 L 280 95 L 320 85 L 360 100 L 400 120 L 400 200 L 0 200 Z" fill="url(#elevGradient)" stroke="none"/>
+
+                        <!-- Elevation line -->
+                        <path d="M 0 160 L 40 140 L 80 90 L 120 110 L 160 70 L 200 80 L 240 120 L 280 95 L 320 85 L 360 100 L 400 120" stroke="#1D7CBE" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+                        <!-- Axis labels -->
+                        <text x="10" y="195" font-size="11" fill="#02071E" font-weight="600">0 mi</text>
+                        <text x="370" y="195" font-size="11" fill="#02071E" font-weight="600">103 mi</text>
+                        <text x="5" y="35" font-size="11" fill="#02071E" font-weight="600">Elev</text>
+                    </svg>
+                </div>
+
+                <!-- Pace Input Card -->
+                <div class="pace-card">
+                    <div class="pace-card-header">Pace Input</div>
+                    <div class="pace-card-content">
+                        <div class="input-field">
+                            <label class="input-label">Target Pace (min/mile)</label>
+                            <input type="text" class="input-box" value="21:30" />
+                        </div>
+
+                        <div class="input-field">
+                            <label class="input-label">Aid Stop Duration (min)</label>
+                            <input type="text" class="input-box" value="8" />
+                        </div>
+
+                        <div class="finish-estimate">
+                            <div class="finish-estimate-label">Estimated Finish</div>
+                            <div class="finish-estimate-time">37:52</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aid Stations Table (full width) -->
+            <div style="max-width: 1200px; margin: 2rem auto 0;">
+                <div class="elevation-card">
+                    <div class="elevation-card-title">Aid Stations</div>
+                    <table class="aid-stations-table">
+                        <thead>
+                            <tr>
+                                <th>Station</th>
+                                <th>Distance</th>
+                                <th>Est. Arrival</th>
+                                <th>Supplies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="station-name">Laurel Fork</td>
+                                <td class="station-distance">8.2 miles</td>
+                                <td class="station-time">3:08 AM</td>
+                                <td>Water, Electrolytes, Gels</td>
+                            </tr>
+                            <tr>
+                                <td class="station-name">Switzer Lake</td>
+                                <td class="station-distance">18.5 miles</td>
+                                <td class="station-time">6:42 AM</td>
+                                <td>Water, Food, Medical</td>
+                            </tr>
+                            <tr>
+                                <td class="station-name">Brush Mountain</td>
+                                <td class="station-distance">32.1 miles</td>
+                                <td class="station-time">12:07 PM</td>
+                                <td>Water, Hot Food, Rest</td>
+                            </tr>
+                            <tr>
+                                <td class="station-name">High Knob</td>
+                                <td class="station-distance">52.7 miles</td>
+                                <td class="station-time">7:34 PM</td>
+                                <td>Water, Food, Headlamp Check</td>
+                            </tr>
+                            <tr>
+                                <td class="station-name">Keying Ridge</td>
+                                <td class="station-distance">73.4 miles</td>
+                                <td class="station-time">1:42 AM (+1 day)</td>
+                                <td>Water, Food, Medical</td>
+                            </tr>
+                            <tr>
+                                <td class="station-name">Laurel Fork (Return)</td>
+                                <td class="station-distance">94.9 miles</td>
+                                <td class="station-time">7:22 AM</td>
+                                <td>Water, Final Supplies</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== COLOR PALETTE SECTION ========== -->
+    <div class="palette-section">
+        <div class="palette-container">
+            <h2 class="palette-title">Concept C — Layered Ridge Color Palette</h2>
+            <div class="palette-swatches">
+                <div class="swatch">
+                    <div class="swatch-color" style="background: #02071E;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Midnight</div>
+                        <div class="swatch-hex">#02071E</div>
+                        <div class="swatch-description">Header band, deepest layer</div>
+                    </div>
+                </div>
+
+                <div class="swatch">
+                    <div class="swatch-color" style="background: #114574;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Deep Ridge</div>
+                        <div class="swatch-hex">#114574</div>
+                        <div class="swatch-description">Sub-header, sidebar layer</div>
+                    </div>
+                </div>
+
+                <div class="swatch">
+                    <div class="swatch-color" style="background: #1D7CBE;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Ridge Blue</div>
+                        <div class="swatch-hex">#1D7CBE</div>
+                        <div class="swatch-description">Mid layer, primary accent</div>
+                    </div>
+                </div>
+
+                <div class="swatch">
+                    <div class="swatch-color" style="background: #82C7F6;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Sky</div>
+                        <div class="swatch-hex">#82C7F6</div>
+                        <div class="swatch-description">Lighter layer, borders, secondary UI</div>
+                    </div>
+                </div>
+
+                <div class="swatch">
+                    <div class="swatch-color" style="background: #DBF1FA;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Mist</div>
+                        <div class="swatch-hex">#DBF1FA</div>
+                        <div class="swatch-description">Lightest layer, content background</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlanUltra — Condition Cards</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --midnight: #02071E;
+      --deep-ridge: #114574;
+      --ridge-blue: #1D7CBE;
+      --sky: #82C7F6;
+      --mist: #DBF1FA;
+      --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'Monaco', 'Menlo', 'Courier New', monospace;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      background: #e8f0f7;
+      color: var(--midnight);
+      line-height: 1.5;
+      padding: 0 0 80px;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--midnight);
+      color: white;
+      padding: 28px 32px 20px;
+      margin-bottom: 0;
+    }
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.45;
+      margin-bottom: 3px;
+    }
+    .page-header h2 {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .page-header p {
+      font-size: 13px;
+      opacity: 0.5;
+      margin-top: 4px;
+    }
+
+    /* ── Section header ── */
+    .section-label {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--deep-ridge);
+      padding: 28px 32px 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(130,199,246,0.4);
+    }
+    .section-note {
+      font-size: 13px;
+      color: #64748b;
+      padding: 0 32px 16px;
+      max-width: 680px;
+      line-height: 1.6;
+    }
+
+    /* ── Cards grid ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      padding: 0 32px;
+      max-width: 1100px;
+    }
+
+    /* ── Base info card ── */
+    .info-card {
+      border-radius: 10px;
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .info-card-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+    .info-card-val {
+      font-family: var(--font-mono);
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+    .info-card-sub {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+    .card-icon {
+      position: absolute;
+      right: 12px;
+      top: 10px;
+      font-size: 28px;
+      opacity: 0.18;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    /* ════════════════════════════════════
+       NIGHT RUNNING
+       ════════════════════════════════════ */
+
+    /* Option 1: Deep navy with star field */
+    .night-v1 {
+      background: linear-gradient(145deg, #0a0e2a 0%, #1a1f4e 50%, #0d1235 100%);
+      border: 1px solid rgba(99,102,241,0.3);
+      box-shadow: 0 2px 12px rgba(10,14,42,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .night-v1 .info-card-lbl { color: rgba(167,139,250,0.8); }
+    .night-v1 .info-card-val { color: #e2e8ff; }
+    .night-v1 .info-card-sub { color: rgba(196,181,253,0.65); }
+    /* Pseudo star dots via box-shadow on a tiny element */
+    .stars {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(1px 1px at 20% 25%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 70% 35%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 55%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 10% 45%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 85%, rgba(255,255,255,0.4) 0%, transparent 100%);
+    }
+
+    /* Option 2: Slightly warmer indigo, moon glow */
+    .night-v2 {
+      background: linear-gradient(135deg, #1e1b4b 0%, #2d2a6e 60%, #1a184a 100%);
+      border: 1px solid rgba(139,92,246,0.25);
+      box-shadow: 0 2px 12px rgba(30,27,75,0.5);
+    }
+    .night-v2::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(196,181,253,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .night-v2 .info-card-lbl { color: rgba(196,181,253,0.75); }
+    .night-v2 .info-card-val { color: #f0eeff; }
+    .night-v2 .info-card-sub { color: rgba(196,181,253,0.6); }
+
+    /* Option 3: Dark teal-navy — more "mountain night" than "space" */
+    .night-v3 {
+      background: linear-gradient(150deg, #0c1f3a 0%, #112b4a 55%, #071628 100%);
+      border: 1px solid rgba(30,100,160,0.3);
+      box-shadow: 0 2px 12px rgba(7,22,40,0.5);
+    }
+    .night-v3 .info-card-lbl { color: rgba(130,199,246,0.7); }
+    .night-v3 .info-card-val { color: #cce8f8; }
+    .night-v3 .info-card-sub { color: rgba(130,199,246,0.55); }
+
+
+    /* ════════════════════════════════════
+       SUNRISE
+       ════════════════════════════════════ */
+
+    /* Option 1: Orange-pink warm dawn */
+    .sunrise-v1 {
+      background: linear-gradient(145deg, #fff1e6 0%, #fde4c8 40%, #fbc89a 100%);
+      border: 1px solid rgba(251,146,60,0.35);
+      box-shadow: 0 2px 10px rgba(251,146,60,0.15);
+    }
+    .sunrise-v1::before {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 60px;
+      background: radial-gradient(ellipse, rgba(253,186,116,0.5) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .sunrise-v1 .info-card-lbl { color: #9a3412; }
+    .sunrise-v1 .info-card-val { color: #7c2d12; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .sunrise-v1 .info-card-sub { color: #c2410c; }
+
+    /* Option 2: Purple-to-amber — captures the sky gradient before sunrise */
+    .sunrise-v2 {
+      background: linear-gradient(135deg, #3b1f5c 0%, #7c3aed 30%, #f97316 70%, #fbbf24 100%);
+      border: 1px solid rgba(249,115,22,0.3);
+      box-shadow: 0 2px 12px rgba(124,58,237,0.25);
+    }
+    .sunrise-v2 .info-card-lbl { color: rgba(254,215,170,0.9); }
+    .sunrise-v2 .info-card-val { color: white; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .sunrise-v2 .info-card-sub { color: rgba(254,243,199,0.85); }
+
+    /* Option 3: Muted peach — softer, less dramatic */
+    .sunrise-v3 {
+      background: linear-gradient(145deg, #fef9f0 0%, #fde8c8 50%, #fcd5a0 100%);
+      border: 1px solid rgba(253,186,116,0.5);
+      box-shadow: 0 2px 8px rgba(253,186,116,0.2);
+    }
+    .sunrise-v3 .info-card-lbl { color: #92400e; }
+    .sunrise-v3 .info-card-val { color: #78350f; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .sunrise-v3 .info-card-sub { color: #b45309; }
+
+
+    /* ════════════════════════════════════
+       SUNSET
+       ════════════════════════════════════ */
+
+    /* Option 1: Deep amber-crimson — dramatic late-day glow */
+    .sunset-v1 {
+      background: linear-gradient(145deg, #431407 0%, #9a3412 35%, #dc2626 65%, #f97316 100%);
+      border: 1px solid rgba(220,38,38,0.3);
+      box-shadow: 0 2px 14px rgba(154,52,18,0.3);
+    }
+    .sunset-v1 .info-card-lbl { color: rgba(254,215,170,0.85); }
+    .sunset-v1 .info-card-val { color: white; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .sunset-v1 .info-card-sub { color: rgba(253,186,116,0.85); }
+
+    /* Option 2: Purple-orange — classic ridge sunset sky */
+    .sunset-v2 {
+      background: linear-gradient(145deg, #7c2d12 0%, #c2410c 30%, #ea580c 55%, #fb923c 75%, #fbbf24 100%);
+      border: 1px solid rgba(249,115,22,0.35);
+      box-shadow: 0 2px 12px rgba(194,65,12,0.25);
+    }
+    .sunset-v2::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 70px;
+      height: 70px;
+      background: radial-gradient(circle, rgba(251,191,36,0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .sunset-v2 .info-card-lbl { color: rgba(254,243,199,0.85); }
+    .sunset-v2 .info-card-val { color: white; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .sunset-v2 .info-card-sub { color: rgba(254,215,170,0.8); }
+
+    /* Option 3: Dusk purple — after the sun is gone, that indigo sky */
+    .sunset-v3 {
+      background: linear-gradient(145deg, #fde68a 0%, #fb923c 30%, #9333ea 70%, #4c1d95 100%);
+      border: 1px solid rgba(147,51,234,0.3);
+      box-shadow: 0 2px 12px rgba(76,29,149,0.2);
+    }
+    .sunset-v3 .info-card-lbl { color: rgba(233,213,255,0.9); }
+    .sunset-v3 .info-card-val { color: white; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .sunset-v3 .info-card-sub { color: rgba(221,214,254,0.8); }
+
+
+    /* ════════════════════════════════════
+       WEATHER — CLEAR
+       ════════════════════════════════════ */
+    .weather-clear {
+      background: linear-gradient(145deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%);
+      border: 1px solid rgba(96,165,250,0.4);
+      box-shadow: 0 2px 8px rgba(96,165,250,0.15);
+    }
+    .weather-clear .info-card-lbl { color: #1d4ed8; }
+    .weather-clear .info-card-val { color: #1e3a8a; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .weather-clear .info-card-sub { color: #3b82f6; }
+
+    /* ════════════════════════════════════
+       WEATHER — RAIN
+       ════════════════════════════════════ */
+    .weather-rain {
+      background: linear-gradient(145deg, #f0f4f8 0%, #cbd5e1 40%, #94a3b8 100%);
+      border: 1px solid rgba(100,116,139,0.4);
+      box-shadow: 0 2px 10px rgba(71,85,105,0.2);
+    }
+    /* Subtle rain streak lines */
+    .rain-streaks {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(170deg, transparent 45%, rgba(148,163,184,0.4) 45%, rgba(148,163,184,0.4) 46%, transparent 46%),
+        linear-gradient(170deg, transparent 30%, rgba(148,163,184,0.3) 30%, rgba(148,163,184,0.3) 31%, transparent 31%),
+        linear-gradient(170deg, transparent 60%, rgba(148,163,184,0.35) 60%, rgba(148,163,184,0.35) 61%, transparent 61%),
+        linear-gradient(170deg, transparent 75%, rgba(148,163,184,0.25) 75%, rgba(148,163,184,0.25) 76%, transparent 76%),
+        linear-gradient(170deg, transparent 15%, rgba(148,163,184,0.3) 15%, rgba(148,163,184,0.3) 16%, transparent 16%);
+      background-size: 30px 100%, 45px 100%, 25px 100%, 38px 100%, 52px 100%;
+    }
+    .weather-rain .info-card-lbl { color: #334155; }
+    .weather-rain .info-card-val { color: #0f172a; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .weather-rain .info-card-sub { color: #475569; }
+
+    /* ════════════════════════════════════
+       WEATHER — STORM / LIGHTNING
+       ════════════════════════════════════ */
+    .weather-storm {
+      background: linear-gradient(145deg, #1c1917 0%, #292524 50%, #44403c 100%);
+      border: 1px solid rgba(234,179,8,0.35);
+      box-shadow: 0 2px 14px rgba(28,25,23,0.5), inset 0 0 40px rgba(234,179,8,0.05);
+    }
+    .weather-storm .info-card-lbl { color: rgba(253,224,71,0.8); }
+    .weather-storm .info-card-val { color: #fef08a; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .weather-storm .info-card-sub { color: rgba(253,224,71,0.6); }
+    .lightning-glow {
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      background: radial-gradient(ellipse at 75% 20%, rgba(253,224,71,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* ════════════════════════════════════
+       WEATHER — SNOW
+       ════════════════════════════════════ */
+    .weather-snow {
+      background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 40%, #cbd5e1 100%);
+      border: 1px solid rgba(148,163,184,0.5);
+      box-shadow: 0 2px 10px rgba(148,163,184,0.2);
+    }
+    .snow-dots {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(2px 2px at 15% 20%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 35% 10%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(2px 2px at 55% 30%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 72% 15%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(2px 2px at 88% 25%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 25% 55%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(2px 2px at 48% 65%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 68% 50%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(2px 2px at 82% 70%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 10% 80%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(2px 2px at 42% 85%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 62% 88%, rgba(255,255,255,0.6) 0%, transparent 100%);
+    }
+    .weather-snow .info-card-lbl { color: #334155; }
+    .weather-snow .info-card-val { color: #0f172a; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .weather-snow .info-card-sub { color: #475569; }
+
+    /* ════════════════════════════════════
+       WEATHER — FOG
+       ════════════════════════════════════ */
+    .weather-fog {
+      background: linear-gradient(145deg, #f1f5f9 0%, #e2e8f0 35%, #f8fafc 65%, #e9edf2 100%);
+      border: 1px solid rgba(148,163,184,0.35);
+      box-shadow: 0 2px 8px rgba(148,163,184,0.15);
+    }
+    .fog-layers {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.5) 30%, transparent 60%, rgba(255,255,255,0.4) 80%, transparent 100%),
+        linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 20%, transparent 50%, rgba(255,255,255,0.4) 70%, transparent 100%);
+    }
+    .weather-fog .info-card-lbl { color: #475569; }
+    .weather-fog .info-card-val { color: #334155; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .weather-fog .info-card-sub { color: #64748b; }
+
+    /* ════════════════════════════════════
+       WEATHER — WIND
+       ════════════════════════════════════ */
+    .weather-wind {
+      background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 40%, #a7f3d0 100%);
+      border: 1px solid rgba(52,211,153,0.4);
+      box-shadow: 0 2px 10px rgba(52,211,153,0.15);
+    }
+    .wind-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(8deg, transparent 20%, rgba(52,211,153,0.2) 20%, rgba(52,211,153,0.2) 21%, transparent 21%),
+        linear-gradient(8deg, transparent 38%, rgba(52,211,153,0.15) 38%, rgba(52,211,153,0.15) 39%, transparent 39%),
+        linear-gradient(8deg, transparent 55%, rgba(52,211,153,0.2) 55%, rgba(52,211,153,0.2) 56%, transparent 56%),
+        linear-gradient(8deg, transparent 72%, rgba(52,211,153,0.15) 72%, rgba(52,211,153,0.15) 73%, transparent 73%);
+      background-size: 100% 30px, 100% 45px, 100% 25px, 100% 38px;
+    }
+    .weather-wind .info-card-lbl { color: #065f46; }
+    .weather-wind .info-card-val { color: #064e3b; font-size: 14px; font-family: var(--font-ui); font-weight: 700; }
+    .weather-wind .info-card-sub { color: #059669; }
+
+
+    /* ── Context strip (shows card in context of a section card) ── */
+    .context-section {
+      background: white;
+      border: 1px solid rgba(130,199,246,0.55);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 0 32px;
+      max-width: 760px;
+    }
+    .context-header {
+      background: var(--mist);
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(130,199,246,0.4);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .mile-badge {
+      background: var(--deep-ridge);
+      color: white;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+    .time-badge {
+      background: var(--mist);
+      border: 1px solid rgba(130,199,246,0.5);
+      color: var(--deep-ridge);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+    .section-name {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--midnight);
+      flex: 1;
+    }
+    .context-body {
+      padding: 14px 16px;
+    }
+    .context-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    /* Standard info card (for context) */
+    .info-card-std {
+      background: var(--mist);
+      border: 1px solid rgba(130,199,246,0.5);
+      border-radius: 8px;
+      padding: 10px 12px;
+      min-height: 80px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .info-card-std .info-card-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin-bottom: 3px; }
+    .info-card-std .info-card-val { font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: var(--midnight); line-height: 1.2; }
+    .info-card-std .info-card-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    /* Sizing for condition cards inside the grid */
+    .context-info-grid .info-card { border-radius: 8px; min-height: 80px; }
+    .context-info-grid .info-card .info-card-val { font-size: 14px; }
+
+    /* ── Variant label ── */
+    .variant-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #94a3b8;
+      padding: 20px 32px 6px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>PlanUltra — Design Exploration</h1>
+  <h2>Condition Cards</h2>
+  <p>Three design options for each condition · review in-context at the bottom</p>
+</div>
+
+
+<!-- ════════════════════════════════════
+     NIGHT RUNNING
+     ════════════════════════════════════ -->
+<div class="section-label">Night Running</div>
+<div class="section-note">Shown when a segment starts before sunrise or ends after sunset. The card communicates that the runner will be in the dark for some portion of this leg and needs their headlamp.</div>
+
+<div class="variant-label">Option 1 — Deep space navy with star field</div>
+<div class="cards-grid" style="padding-bottom:4px;">
+  <div class="info-card night-v1">
+    <div class="stars"></div>
+    <div>
+      <div class="info-card-lbl">🌙 Night running</div>
+      <div class="info-card-val">Start → ~mile 4</div>
+    </div>
+    <div class="info-card-sub">Sunrise 5:48 AM · headlamp required</div>
+  </div>
+  <div class="info-card night-v1">
+    <div class="stars"></div>
+    <div>
+      <div class="info-card-lbl">🌙 Night running</div>
+      <div class="info-card-val">~mile 52 → end</div>
+    </div>
+    <div class="info-card-sub">Sunset 8:24 PM · full night finish</div>
+  </div>
+  <div class="info-card night-v1">
+    <div class="stars"></div>
+    <div>
+      <div class="info-card-lbl">🌙 Night running</div>
+      <div class="info-card-val">Full segment</div>
+    </div>
+    <div class="info-card-sub">Entire leg in darkness</div>
+  </div>
+</div>
+
+<div class="variant-label">Option 2 — Warm indigo with moon glow</div>
+<div class="cards-grid" style="padding-bottom:4px;">
+  <div class="info-card night-v2">
+    <div>
+      <div class="info-card-lbl">🌙 Night running</div>
+      <div class="info-card-val">Start → ~mile 4</div>
+    </div>
+    <div class="info-card-sub">Sunrise 5:48 AM · headlamp required</div>
+    <div class="card-icon">🌕</div>
+  </div>
+  <div class="info-card night-v2">
+    <div>
+      <div class="info-card-lbl">🌙 Night running</div>
+      <div class="info-card-val">~mile 52 → end</div>
+    </div>
+    <div class="info-card-sub">Sunset 8:24 PM · full night finish</div>
+    <div class="card-icon">🌕</div>
+  </div>
+  <div class="info-card night-v2">
+    <div>
+      <div class="info-card-lbl">🌙 Night running</div>
+      <div class="info-card-val">Full segment</div>
+    </div>
+    <div class="info-card-sub">Entire leg in darkness</div>
+    <div class="card-icon">🌕</div>
+  </div>
+</div>
+
+<div class="variant-label">Option 3 — Dark teal-navy (mountain night sky)</div>
+<div class="cards-grid" style="padding-bottom:4px;">
+  <div class="info-card night-v3">
+    <div class="stars"></div>
+    <div>
+      <div class="info-card-lbl">🌙 Night running</div>
+      <div class="info-card-val">Start → ~mile 4</div>
+    </div>
+    <div class="info-card-sub">Sunrise 5:48 AM · headlamp required</div>
+  </div>
+  <div class="info-card night-v3">
+    <div class="stars"></div>
+    <div>
+      <div class="info-card-lbl">🌙 Night running</div>
+      <div class="info-card-val">~mile 52 → end</div>
+    </div>
+    <div class="info-card-sub">Sunset 8:24 PM · full night finish</div>
+  </div>
+  <div class="info-card night-v3">
+    <div class="stars"></div>
+    <div>
+      <div class="info-card-lbl">🌙 Night running</div>
+      <div class="info-card-val">Full segment</div>
+    </div>
+    <div class="info-card-sub">Entire leg in darkness</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     SUNRISE
+     ════════════════════════════════════ -->
+<div class="section-label">Sunrise</div>
+<div class="section-note">Shown when the sun rises during this segment. Key information for the runner: approximately what mile they'll see the sunrise, and whether they need a headlamp for the start of the leg.</div>
+
+<div class="variant-label">Option 1 — Warm orange dawn</div>
+<div class="cards-grid" style="padding-bottom:4px;">
+  <div class="info-card sunrise-v1">
+    <div>
+      <div class="info-card-lbl">🌅 Sunrise</div>
+      <div class="info-card-val">~mile 4 · 5:48 AM</div>
+    </div>
+    <div class="info-card-sub">Starts dark · light by mile 4</div>
+    <div class="card-icon">🌄</div>
+  </div>
+  <div class="info-card sunrise-v1">
+    <div>
+      <div class="info-card-lbl">🌅 Sunrise</div>
+      <div class="info-card-val">~mile 88 · 6:02 AM</div>
+    </div>
+    <div class="info-card-sub">Sunrise near end of segment</div>
+    <div class="card-icon">🌄</div>
+  </div>
+</div>
+
+<div class="variant-label">Option 2 — Purple-to-amber sky gradient</div>
+<div class="cards-grid" style="padding-bottom:4px;">
+  <div class="info-card sunrise-v2">
+    <div>
+      <div class="info-card-lbl">🌅 Sunrise</div>
+      <div class="info-card-val">~mile 4 · 5:48 AM</div>
+    </div>
+    <div class="info-card-sub">Starts dark · light by mile 4</div>
+  </div>
+  <div class="info-card sunrise-v2">
+    <div>
+      <div class="info-card-lbl">🌅 Sunrise</div>
+      <div class="info-card-val">~mile 88 · 6:02 AM</div>
+    </div>
+    <div class="info-card-sub">Sunrise near end of segment</div>
+  </div>
+</div>
+
+<div class="variant-label">Option 3 — Soft peach (subtle)</div>
+<div class="cards-grid" style="padding-bottom:4px;">
+  <div class="info-card sunrise-v3">
+    <div>
+      <div class="info-card-lbl">🌅 Sunrise</div>
+      <div class="info-card-val">~mile 4 · 5:48 AM</div>
+    </div>
+    <div class="info-card-sub">Starts dark · light by mile 4</div>
+    <div class="card-icon">☀️</div>
+  </div>
+  <div class="info-card sunrise-v3">
+    <div>
+      <div class="info-card-lbl">🌅 Sunrise</div>
+      <div class="info-card-val">~mile 88 · 6:02 AM</div>
+    </div>
+    <div class="info-card-sub">Sunrise near end of segment</div>
+    <div class="card-icon">☀️</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     SUNSET
+     ════════════════════════════════════ -->
+<div class="section-label">Sunset</div>
+<div class="section-note">Shown when the sun sets during this segment. The runner needs to know approximately when they lose daylight, and if they haven't already picked up their headlamp they may need to at the previous station.</div>
+
+<div class="variant-label">Option 1 — Deep amber-crimson glow</div>
+<div class="cards-grid" style="padding-bottom:4px;">
+  <div class="info-card sunset-v1">
+    <div>
+      <div class="info-card-lbl">🌇 Sunset</div>
+      <div class="info-card-val">~mile 52 · 8:24 PM</div>
+    </div>
+    <div class="info-card-sub">Headlamp needed from ~mile 52</div>
+  </div>
+  <div class="info-card sunset-v1">
+    <div>
+      <div class="info-card-lbl">🌇 Sunset</div>
+      <div class="info-card-val">~mile 67 · 8:24 PM</div>
+    </div>
+    <div class="info-card-sub">Gets dark near end of segment</div>
+  </div>
+</div>
+
+<div class="variant-label">Option 2 — Orange ridge sunset</div>
+<div class="cards-grid" style="padding-bottom:4px;">
+  <div class="info-card sunset-v2">
+    <div>
+      <div class="info-card-lbl">🌇 Sunset</div>
+      <div class="info-card-val">~mile 52 · 8:24 PM</div>
+    </div>
+    <div class="info-card-sub">Headlamp needed from ~mile 52</div>
+  </div>
+  <div class="info-card sunset-v2">
+    <div>
+      <div class="info-card-lbl">🌇 Sunset</div>
+      <div class="info-card-val">~mile 67 · 8:24 PM</div>
+    </div>
+    <div class="info-card-sub">Gets dark near end of segment</div>
+  </div>
+</div>
+
+<div class="variant-label">Option 3 — Dusk purple (post-sunset sky)</div>
+<div class="cards-grid" style="padding-bottom:4px;">
+  <div class="info-card sunset-v3">
+    <div>
+      <div class="info-card-lbl">🌇 Sunset</div>
+      <div class="info-card-val">~mile 52 · 8:24 PM</div>
+    </div>
+    <div class="info-card-sub">Headlamp needed from ~mile 52</div>
+  </div>
+  <div class="info-card sunset-v3">
+    <div>
+      <div class="info-card-lbl">🌇 Sunset</div>
+      <div class="info-card-val">~mile 67 · 8:24 PM</div>
+    </div>
+    <div class="info-card-sub">Gets dark near end of segment</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     WEATHER CONDITIONS
+     ════════════════════════════════════ -->
+<div class="section-label">Weather Conditions</div>
+<div class="section-note">One weather card per segment. The card style changes based on the dominant condition for that leg. Each card shows the temperature range and a short condition summary.</div>
+
+<div class="variant-label">Clear · Rain · Storm · Snow · Fog · Wind</div>
+<div class="cards-grid">
+
+  <div class="info-card weather-clear">
+    <div>
+      <div class="info-card-lbl">☀️ Weather</div>
+      <div class="info-card-val">38°F → 56°F</div>
+    </div>
+    <div class="info-card-sub">Clear · light wind</div>
+    <div class="card-icon">☀️</div>
+  </div>
+
+  <div class="info-card weather-rain">
+    <div class="rain-streaks"></div>
+    <div>
+      <div class="info-card-lbl">🌧 Weather</div>
+      <div class="info-card-val">52°F → 48°F</div>
+    </div>
+    <div class="info-card-sub">Light rain · 80% chance</div>
+    <div class="card-icon">🌧</div>
+  </div>
+
+  <div class="info-card weather-storm">
+    <div class="lightning-glow"></div>
+    <div>
+      <div class="info-card-lbl">⚡ Weather</div>
+      <div class="info-card-val">62°F → 44°F</div>
+    </div>
+    <div class="info-card-sub">Afternoon storm · 2–5 PM risk</div>
+    <div class="card-icon">⚡</div>
+  </div>
+
+  <div class="info-card weather-snow">
+    <div class="snow-dots"></div>
+    <div>
+      <div class="info-card-lbl">❄️ Weather</div>
+      <div class="info-card-val">28°F → 24°F</div>
+    </div>
+    <div class="info-card-sub">Snow possible · 40% chance</div>
+    <div class="card-icon">❄️</div>
+  </div>
+
+  <div class="info-card weather-fog">
+    <div class="fog-layers"></div>
+    <div>
+      <div class="info-card-lbl">🌫 Weather</div>
+      <div class="info-card-val">44°F → 48°F</div>
+    </div>
+    <div class="info-card-sub">Dense fog · low visibility</div>
+    <div class="card-icon">🌫</div>
+  </div>
+
+  <div class="info-card weather-wind">
+    <div class="wind-lines"></div>
+    <div>
+      <div class="info-card-lbl">💨 Weather</div>
+      <div class="info-card-val">58°F → 52°F</div>
+    </div>
+    <div class="info-card-sub">Gusty · 35–50 mph exposed ridge</div>
+    <div class="card-icon">💨</div>
+  </div>
+
+</div>
+
+
+<!-- ════════════════════════════════════
+     IN-CONTEXT EXAMPLE
+     ════════════════════════════════════ -->
+<div class="section-label">In-Context — Plan Tab Section Card</div>
+<div class="section-note">How these cards look inside an expanded segment card alongside the standard info cards. This example uses Night option 1, Sunrise option 2, and the Storm weather card.</div>
+
+<div class="context-section">
+  <div class="context-header">
+    <div><div class="mile-badge">Mile 0</div></div>
+    <div><div class="time-badge">5:00 AM</div></div>
+    <div class="section-name">Start → Chicken Out Ridge</div>
+  </div>
+  <div class="context-body">
+    <div class="context-info-grid">
+
+      <!-- Standard cards -->
+      <div class="info-card-std">
+        <div class="info-card-lbl">Start</div>
+        <div class="info-card-val">Mile 0</div>
+        <div class="info-card-sub">Jun 28 · 5:00 AM</div>
+      </div>
+      <div class="info-card-std">
+        <div class="info-card-lbl">Distance</div>
+        <div class="info-card-val">23.1 mi</div>
+        <div class="info-card-sub">+3,200 / −1,800 ft</div>
+      </div>
+      <div class="info-card-std">
+        <div class="info-card-lbl">Duration</div>
+        <div class="info-card-val">~4h 22m</div>
+        <div class="info-card-sub">~1,225 kcal</div>
+      </div>
+
+      <!-- Night card — Option 1 -->
+      <div class="info-card night-v1" style="border-radius:8px; min-height:80px;">
+        <div class="stars"></div>
+        <div>
+          <div class="info-card-lbl">🌙 Night running</div>
+          <div class="info-card-val" style="font-size:13px;">Start → ~mile 4</div>
+        </div>
+        <div class="info-card-sub">Sunrise 5:48 AM</div>
+      </div>
+
+      <!-- Sunrise card — Option 2 -->
+      <div class="info-card sunrise-v2" style="border-radius:8px; min-height:80px;">
+        <div>
+          <div class="info-card-lbl">🌅 Sunrise</div>
+          <div class="info-card-val" style="font-size:13px;">~mile 4 · 5:48 AM</div>
+        </div>
+        <div class="info-card-sub">Light from mile 4 onward</div>
+      </div>
+
+      <!-- Weather card — Storm -->
+      <div class="info-card weather-clear" style="border-radius:8px; min-height:80px;">
+        <div class="card-icon" style="font-size:22px;">☀️</div>
+        <div>
+          <div class="info-card-lbl">☀️ Weather</div>
+          <div class="info-card-val" style="font-size:13px;">38°F → 56°F</div>
+        </div>
+        <div class="info-card-sub">Clear start · warming</div>
+      </div>
+
+    </div>
+
+    <!-- Input area hint -->
+    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; color:#94a3b8; font-size:13px; font-style:italic;">
+      Plan inputs (drink mixes, packing list, notes) appear here below the info cards…
+    </div>
+  </div>
+</div>
+
+<!-- Second in-context: night segment with storm -->
+<div class="section-note" style="margin-top:12px;">Segment with full-night running and incoming storm.</div>
+<div class="context-section">
+  <div class="context-header">
+    <div><div class="mile-badge">Mile 43.6</div></div>
+    <div><div class="time-badge">3:07 PM</div></div>
+    <div class="section-name">Big Mountain → Pole Canyon</div>
+  </div>
+  <div class="context-body">
+    <div class="context-info-grid">
+
+      <div class="info-card-std">
+        <div class="info-card-lbl">Start</div>
+        <div class="info-card-val">Mile 43.6</div>
+        <div class="info-card-sub">Jun 28 · 3:07 PM</div>
+      </div>
+      <div class="info-card-std">
+        <div class="info-card-lbl">Distance</div>
+        <div class="info-card-val">16.5 mi</div>
+        <div class="info-card-sub">+1,800 / −2,100 ft</div>
+      </div>
+      <div class="info-card-std">
+        <div class="info-card-lbl">Duration</div>
+        <div class="info-card-val">~4h 37m</div>
+        <div class="info-card-sub">~1,295 kcal</div>
+      </div>
+
+      <!-- Sunset -->
+      <div class="info-card sunset-v2" style="border-radius:8px; min-height:80px;">
+        <div>
+          <div class="info-card-lbl">🌇 Sunset</div>
+          <div class="info-card-val" style="font-size:13px;">~mile 52 · 8:24 PM</div>
+        </div>
+        <div class="info-card-sub">Headlamp from ~mile 52</div>
+      </div>
+
+      <!-- Storm weather -->
+      <div class="info-card weather-storm" style="border-radius:8px; min-height:80px; grid-column: span 2;">
+        <div class="lightning-glow"></div>
+        <div>
+          <div class="info-card-lbl">⚡ Weather</div>
+          <div class="info-card-val" style="font-size:13px;">62°F → 44°F · Storm risk 2–5 PM</div>
+        </div>
+        <div class="info-card-sub">Rain gear recommended for this leg</div>
+        <div class="card-icon" style="font-size:22px;">⚡</div>
+      </div>
+
+    </div>
+    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; color:#94a3b8; font-size:13px; font-style:italic;">
+      Plan inputs appear here…
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

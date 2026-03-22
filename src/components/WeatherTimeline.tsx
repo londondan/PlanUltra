@@ -15,536 +15,409 @@ interface WeatherTimelineProps {
   unavailableReason?: string
 }
 
-// Design system colors
-const COLORS = {
-  // Temperature gradient: cool (sky blue) → warm (amber)
-  tempCool: '#82C7F6',
-  tempWarm: '#E8722A',
-  // Daylight
-  night: '#114574',
-  day: '#DBF1FA',
-  // Precipitation
-  precipLight: '#1D7CBE',
-  precipHeavy: '#114574',
-  precipThreshold: 30,
-  // Text / structure
-  label: '#444',
-  labelMuted: '#888',
-  gridLine: '#E8E8E8',
-  ruleLine: '#CCC',
-  // Aid station
-  stationDot: '#1D7CBE',
-  stationText: '#02071E',
+// Design system tokens (PRD-003)
+const C = {
+  ridgeBlue: '#1D7CBE',
+  deepRidge: '#114574',
+  sky: '#82C7F6',
+  midnight: '#02071E',
 }
 
-const MARGINS = { top: 12, right: 16, bottom: 8, left: 8 }
-const ROW_HEIGHTS = {
-  timeAxis: 28,
-  tempBar: 40,
-  daylightBar: 20,
-  precipBar: 44,
-  aidStations: 48,
-  gap: 8,
+// Chart layout (Section 11.8)
+const ML = 36   // left margin — y-axis labels
+const MR = 16   // right margin
+const MT = 12   // top margin
+const MB = 8    // bottom margin
+const CHART_H = 130    // total chart area height
+const DAY_BAND_H = 28  // bottom slice of chart area for daylight
+const TEMP_H = CHART_H - DAY_BAND_H  // 102px for temperature
+const XAXIS_H = 24
+const AID_H = 48
+
+function totalH() {
+  return MT + CHART_H + XAXIS_H + AID_H + MB  // 222
 }
 
-function totalSvgHeight(): number {
-  return (
-    MARGINS.top +
-    ROW_HEIGHTS.timeAxis +
-    ROW_HEIGHTS.gap +
-    ROW_HEIGHTS.tempBar +
-    ROW_HEIGHTS.gap +
-    ROW_HEIGHTS.daylightBar +
-    ROW_HEIGHTS.gap +
-    ROW_HEIGHTS.precipBar +
-    ROW_HEIGHTS.gap +
-    ROW_HEIGHTS.aidStations +
-    MARGINS.bottom
-  )
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+function cardinalSpline(pts: [number, number][], tension = 0.4): string {
+  if (pts.length < 2) return ''
+  const out: string[] = [`M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`]
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i - 1)]
+    const p1 = pts[i]
+    const p2 = pts[i + 1]
+    const p3 = pts[Math.min(pts.length - 1, i + 2)]
+    const cp1x = p1[0] + (p2[0] - p0[0]) * tension / 3
+    const cp1y = p1[1] + (p2[1] - p0[1]) * tension / 3
+    const cp2x = p2[0] - (p3[0] - p1[0]) * tension / 3
+    const cp2y = p2[1] - (p3[1] - p1[1]) * tension / 3
+    out.push(
+      `C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)} ${cp2x.toFixed(1)} ${cp2y.toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`
+    )
+  }
+  return out.join(' ')
 }
 
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t
+function niceTicks(min: number, max: number, target = 4): number[] {
+  const range = max - min
+  if (range === 0) return [Math.round(min)]
+  const raw = range / target
+  const step = raw <= 5 ? 5 : raw <= 10 ? 10 : raw <= 15 ? 15 : 20
+  const first = Math.ceil(min / step) * step
+  const ticks: number[] = []
+  for (let t = first; t <= max; t += step) ticks.push(t)
+  return ticks
 }
 
-function hexToRgb(hex: string): [number, number, number] {
-  const n = parseInt(hex.slice(1), 16)
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
-}
-
-function lerpColor(hexA: string, hexB: string, t: number): string {
-  const [r1, g1, b1] = hexToRgb(hexA)
-  const [r2, g2, b2] = hexToRgb(hexB)
-  const r = Math.round(lerp(r1, r2, t))
-  const g = Math.round(lerp(g1, g2, t))
-  const b = Math.round(lerp(b1, b2, t))
-  return `rgb(${r},${g},${b})`
-}
-
-function formatHourLabel(isoTime: string): string {
-  const d = new Date(isoTime)
-  const h = d.getHours()
+function fmtHour(ms: number): string {
+  const h = new Date(ms).getHours()
   if (h === 0) return '12a'
   if (h < 12) return `${h}a`
   if (h === 12) return '12p'
   return `${h - 12}p`
 }
 
-function formatDateLabel(isoTime: string): string {
-  const d = new Date(isoTime)
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+function fmtWeekday(ms: number): string {
+  return new Date(ms).toLocaleDateString('en-US', { weekday: 'short' })
 }
 
-function formatAidTime(date: Date): string {
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+function fmtAidTime(d: Date): string {
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
 }
 
-// Filter to stations worth showing in this view
+function fmtTransitionTime(ms: number): string {
+  const d = new Date(ms)
+  const h = d.getHours()
+  const m = d.getMinutes()
+  const hh = h % 12 || 12
+  const mm = m > 0 ? `:${m.toString().padStart(2, '0')}` : ''
+  return `${hh}${mm}${h < 12 ? 'a' : 'p'}`
+}
+
 function majorStations(stations: AidStation[]): AidStation[] {
-  return stations.filter(
-    (s) => s.isStart || s.isFinish || s.hasDropBag || s.hasCrewAccess
-  )
+  return stations.filter(s => s.isStart || s.isFinish || s.hasDropBag || s.hasCrewAccess)
 }
 
-interface RaceOverviewSVGProps {
+// ── RaceOverviewSVG ────────────────────────────────────────────────────────
+
+interface SVGProps {
   entries: RaceWeatherEntry[]
   aidStations: AidStation[]
   arrivalEstimates: ArrivalEstimate[]
   raceStart: Date
-  totalDistanceMiles: number
   width: number
 }
 
-function RaceOverviewSVG({
-  entries,
-  aidStations,
-  arrivalEstimates,
-  raceStart,
-  totalDistanceMiles,
-  width,
-}: RaceOverviewSVGProps) {
-  const svgWidth = width
-  const drawWidth = svgWidth - MARGINS.left - MARGINS.right
-  const svgHeight = totalSvgHeight()
+function RaceOverviewSVG({ entries, aidStations, arrivalEstimates, raceStart, width }: SVGProps) {
+  const drawWidth = width - ML - MR
+  const svgH = totalH()
 
   const startMs = raceStart.getTime()
   const endMs =
     arrivalEstimates.length > 0
       ? arrivalEstimates[arrivalEstimates.length - 1].estimatedArrival.getTime()
-      : startMs + entries.length * 3600_000
+      : startMs + entries.length * 3_600_000
+  const spanMs = endMs - startMs
 
-  const totalMs = endMs - startMs
-  const xScale = (ms: number) => MARGINS.left + ((ms - startMs) / totalMs) * drawWidth
+  const xScale = (ms: number) => ML + ((ms - startMs) / spanMs) * drawWidth
 
-  // Temperature range
-  const temps = entries.map((e) => e.temperature)
+  // Y positions
+  const chartY = MT
+  const dayBandY = chartY + TEMP_H    // 114
+  const xAxisY = chartY + CHART_H     // 142
+  const aidY = xAxisY + XAXIS_H       // 166
+
+  // Temperature y-scale (padded range)
+  const temps = entries.map(e => e.temperature)
   const minTemp = Math.min(...temps)
   const maxTemp = Math.max(...temps)
-  const tempRange = maxTemp - minTemp || 1
+  const tMin = minTemp - 5
+  const tMax = maxTemp + 5
+  const tRange = tMax - tMin  // always >= 10
+  const yTemp = (t: number) => chartY + TEMP_H - ((t - tMin) / tRange) * TEMP_H
 
-  // Row y-positions
-  let y = MARGINS.top
-  const timeAxisY = y
-  y += ROW_HEIGHTS.timeAxis + ROW_HEIGHTS.gap
-  const tempBarY = y
-  y += ROW_HEIGHTS.tempBar + ROW_HEIGHTS.gap
-  const daylightBarY = y
-  y += ROW_HEIGHTS.daylightBar + ROW_HEIGHTS.gap
-  const precipBarY = y
-  y += ROW_HEIGHTS.precipBar + ROW_HEIGHTS.gap
-  const aidStationY = y
+  // Temperature line points
+  const tempPts: [number, number][] = entries.map(e => [
+    xScale(new Date(e.hour).getTime()),
+    yTemp(e.temperature),
+  ])
 
-  // Time axis ticks — every 2 or 4 hours depending on race length
-  const raceDurationHours = totalMs / 3600_000
-  const tickIntervalHours = raceDurationHours <= 24 ? 2 : raceDurationHours <= 48 ? 4 : 6
+  // Y-axis grid ticks
+  const tempTicks = niceTicks(tMin, tMax, 4)
 
-  const ticks: { ms: number; label: string; isDateChange: boolean; dateLabel: string }[] = []
-  {
-    const startHour = new Date(startMs)
-    startHour.setMinutes(0, 0, 0)
-    // Start from next full tick after race start
-    let tickHour = startHour.getTime()
-    while (tickHour <= startMs) tickHour += tickIntervalHours * 3600_000
+  // Min/max annotation entries
+  const minE = entries.reduce((a, b) => a.temperature <= b.temperature ? a : b)
+  const maxE = entries.reduce((a, b) => a.temperature >= b.temperature ? a : b)
+  const minX = xScale(new Date(minE.hour).getTime())
+  const maxX = xScale(new Date(maxE.hour).getTime())
+  const minY = yTemp(minE.temperature)
+  const maxY = yTemp(maxE.temperature)
+  const tooClose = Math.abs(minX - maxX) < 60
 
-    let prevDate = new Date(startMs).toDateString()
-    while (tickHour <= endMs) {
-      const d = new Date(tickHour)
-      const thisDate = d.toDateString()
-      const isDateChange = thisDate !== prevDate
-      ticks.push({
-        ms: tickHour,
-        label: formatHourLabel(d.toISOString()),
-        isDateChange,
-        dateLabel: isDateChange ? formatDateLabel(d.toISOString()) : '',
+  // Daylight step-line points
+  const dayTop = dayBandY + 4
+  const dayBot = dayBandY + DAY_BAND_H - 4
+  const dayPts: [number, number][] = entries.map(e => [
+    xScale(new Date(e.hour).getTime()),
+    e.isNight ? dayBot : dayTop,
+  ])
+  const dayPath = dayPts.length > 0
+    ? 'M ' + dayPts.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' L ')
+    : ''
+
+  // Sunrise / sunset transitions
+  const transitions: { x: number; isSunrise: boolean; label: string }[] = []
+  for (let i = 1; i < entries.length; i++) {
+    if (entries[i].isNight !== entries[i - 1].isNight) {
+      const msA = new Date(entries[i - 1].hour).getTime()
+      const msB = new Date(entries[i].hour).getTime()
+      const midMs = (msA + msB) / 2
+      transitions.push({
+        x: xScale(midMs),
+        isSunrise: entries[i - 1].isNight,
+        label: fmtTransitionTime(midMs),
       })
-      prevDate = thisDate
-      tickHour += tickIntervalHours * 3600_000
     }
   }
 
-  // Build temperature gradient stops
-  const tempGradientStops: { offset: string; color: string }[] = entries.map((e) => {
-    const t = (e.temperature - minTemp) / tempRange
-    return {
-      offset: `${(((new Date(e.hour).getTime() - startMs) / totalMs) * 100).toFixed(2)}%`,
-      color: lerpColor(COLORS.tempCool, COLORS.tempWarm, t),
-    }
-  })
+  // Precip: pixel width of one hour
+  const hourPx =
+    entries.length > 1
+      ? xScale(new Date(entries[1].hour).getTime()) - xScale(new Date(entries[0].hour).getTime())
+      : drawWidth / 24
 
-  // Min/max temp label positions
-  const minTempEntry = entries.reduce((a, b) => (a.temperature <= b.temperature ? a : b), entries[0])
-  const maxTempEntry = entries.reduce((a, b) => (a.temperature >= b.temperature ? a : b), entries[0])
-
-  // Daylight segments — merge contiguous day/night runs
-  const daylightSegments: { x1: number; x2: number; isNight: boolean }[] = []
-  if (entries.length > 0) {
-    let segStart = new Date(entries[0].hour).getTime()
-    let segIsNight = entries[0].isNight
-    for (let i = 1; i < entries.length; i++) {
-      const ms = new Date(entries[i].hour).getTime()
-      if (entries[i].isNight !== segIsNight) {
-        daylightSegments.push({
-          x1: xScale(segStart),
-          x2: xScale(ms),
-          isNight: segIsNight,
-        })
-        segStart = ms
-        segIsNight = entries[i].isNight
-      }
+  // X-axis ticks
+  const raceHours = spanMs / 3_600_000
+  const tickInterval = raceHours <= 24 ? 2 : raceHours <= 48 ? 4 : 6
+  const ticks: { ms: number; isDateChange: boolean }[] = []
+  {
+    let t = Math.ceil(startMs / (tickInterval * 3_600_000)) * tickInterval * 3_600_000
+    while (t <= startMs) t += tickInterval * 3_600_000
+    let prevDate = new Date(startMs).toDateString()
+    while (t <= endMs) {
+      const isDateChange = new Date(t).toDateString() !== prevDate
+      ticks.push({ ms: t, isDateChange })
+      prevDate = new Date(t).toDateString()
+      t += tickInterval * 3_600_000
     }
-    // Last segment extends to end of race
-    daylightSegments.push({
-      x1: xScale(segStart),
-      x2: xScale(endMs),
-      isNight: segIsNight,
+  }
+
+  // Aid stations — iterate estimates to preserve per-visit ordering for loops/out-and-backs
+  const stationPositions = arrivalEstimates
+    .map(est => {
+      const station =
+        aidStations.find(s => s.order === est.order) ??
+        aidStations.find(s => s.name === est.name)
+      if (!station) return null
+      if (!station.isStart && !station.isFinish && !station.hasDropBag && !station.hasCrewAccess) return null
+      return { station, x: xScale(est.estimatedArrival.getTime()), arrivalTime: est.estimatedArrival }
     })
-  }
+    .filter(Boolean) as { station: AidStation; x: number; arrivalTime: Date }[]
 
-  // Precip bars — one per hour entry
-  const precipMaxHeight = ROW_HEIGHTS.precipBar - 6 // leave 6px for top label room
-  const precipBarWidth = entries.length > 1
-    ? Math.max(2, (drawWidth / entries.length) * 0.8)
-    : 8
-
-  // Major aid stations with x positions
-  const KM_TO_MI = 0.621371
-  const stationsForDisplay = majorStations(aidStations)
-  const stationPositions = stationsForDisplay
-    .map((s) => {
-      // Find matching arrival estimate by order or name
-      const estimate = arrivalEstimates.find(
-        (e) => e.order === s.order || e.name === s.name
-      )
-      return { station: s, estimate }
-    })
-    .filter((sp) => sp.estimate !== undefined)
-    .map((sp) => ({
-      station: sp.station,
-      x: xScale(sp.estimate!.estimatedArrival.getTime()),
-      arrivalTime: sp.estimate!.estimatedArrival,
-    }))
-
-  // Also add Start (race start)
-  const startPosition = {
-    station: aidStations.find((s) => s.isStart) ?? { name: 'Start', distanceFromStart: 0 } as AidStation,
-    x: xScale(startMs),
-    arrivalTime: raceStart,
-  }
-
-  const allStationPositions = [
-    startPosition,
-    ...stationPositions.filter((sp) => !sp.station.isStart),
+  const startStation = aidStations.find(s => s.isStart) ?? ({ name: 'Start', distanceFromStart: 0, isStart: true } as AidStation)
+  const allStations = [
+    { station: startStation, x: xScale(startMs), arrivalTime: raceStart },
+    ...stationPositions.filter(sp => !sp.station.isStart),
   ]
 
-  const gradientId = 'tempGradient'
-
   return (
-    <svg
-      width={svgWidth}
-      height={svgHeight}
-      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-      style={{ display: 'block', overflow: 'visible' }}
-    >
+    <svg width={width} height={svgH} viewBox={`0 0 ${width} ${svgH}`} style={{ display: 'block', overflow: 'visible' }}>
       <defs>
-        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-          {tempGradientStops.map((stop, i) => (
-            <stop key={i} offset={stop.offset} stopColor={stop.color} />
-          ))}
-        </linearGradient>
-        <clipPath id="tempClip">
-          <rect x={MARGINS.left} y={tempBarY} width={drawWidth} height={ROW_HEIGHTS.tempBar} />
+        <clipPath id="wt-chart">
+          <rect x={ML} y={chartY} width={drawWidth} height={CHART_H} />
         </clipPath>
-        <clipPath id="daylightClip">
-          <rect x={MARGINS.left} y={daylightBarY} width={drawWidth} height={ROW_HEIGHTS.daylightBar} />
+        <clipPath id="wt-temp">
+          <rect x={ML} y={chartY} width={drawWidth} height={TEMP_H} />
         </clipPath>
-        <clipPath id="precipClip">
-          <rect x={MARGINS.left} y={precipBarY} width={drawWidth} height={ROW_HEIGHTS.precipBar} />
+        <clipPath id="wt-day">
+          <rect x={ML} y={dayBandY} width={drawWidth} height={DAY_BAND_H} />
         </clipPath>
       </defs>
 
-      {/* ── Row labels (left side) ── */}
-      <text x={MARGINS.left} y={tempBarY - 3} fontSize={9} fill={COLORS.labelMuted} fontFamily="inherit">
-        TEMP
-      </text>
-      <text x={MARGINS.left} y={daylightBarY - 3} fontSize={9} fill={COLORS.labelMuted} fontFamily="inherit">
-        LIGHT
-      </text>
-      <text x={MARGINS.left} y={precipBarY - 3} fontSize={9} fill={COLORS.labelMuted} fontFamily="inherit">
-        PRECIP
+      {/* ── Layer 1: Precipitation background wash ── */}
+      {entries.map((e, i) => {
+        if (e.precipitationProbability === 0) return null
+        const opacity = (e.precipitationProbability / 100) * 0.25
+        const x = xScale(new Date(e.hour).getTime()) - hourPx / 2
+        return (
+          <rect
+            key={i}
+            x={x}
+            y={chartY}
+            width={hourPx}
+            height={CHART_H}
+            fill={C.ridgeBlue}
+            opacity={opacity}
+            clipPath="url(#wt-chart)"
+          />
+        )
+      })}
+
+      {/* ── Y-axis: grid lines + tick labels ── */}
+      {tempTicks.map((t, i) => {
+        const y = yTemp(t)
+        if (y < chartY - 1 || y > chartY + TEMP_H + 1) return null
+        return (
+          <g key={i}>
+            <line
+              x1={ML} y1={y} x2={ML + drawWidth} y2={y}
+              stroke={C.sky} strokeWidth={1} opacity={0.2}
+            />
+            <text
+              x={ML - 4} y={y + 4}
+              fontSize={10} fill={C.deepRidge} opacity={0.7}
+              fontFamily="inherit" textAnchor="end"
+            >
+              {Math.round(t)}°
+            </text>
+          </g>
+        )
+      })}
+
+      {/* ── Layer 2: Temperature line ── */}
+      {tempPts.length > 1 && (
+        <path
+          d={cardinalSpline(tempPts)}
+          fill="none"
+          stroke={C.ridgeBlue}
+          strokeWidth={2.5}
+          clipPath="url(#wt-temp)"
+        />
+      )}
+
+      {/* Min annotation */}
+      <circle cx={minX} cy={minY} r={4} fill={C.ridgeBlue} clipPath="url(#wt-temp)" />
+      <text
+        x={minX}
+        y={tooClose ? minY + 26 : minY + 16}
+        fontSize={11} fill={C.ridgeBlue} fontFamily="monospace" textAnchor="middle"
+      >
+        {Math.round(minE.temperature)}°
       </text>
 
-      {/* ── Time axis ── */}
+      {/* Max annotation (only if different hour from min) */}
+      {minE.hour !== maxE.hour && (
+        <>
+          <circle cx={maxX} cy={maxY} r={4} fill={C.ridgeBlue} clipPath="url(#wt-temp)" />
+          <text
+            x={maxX}
+            y={maxY - 8}
+            fontSize={11} fill={C.ridgeBlue} fontFamily="monospace" textAnchor="middle"
+          >
+            {Math.round(maxE.temperature)}°
+          </text>
+        </>
+      )}
+
+      {/* ── Daylight band separator ── */}
+      <line
+        x1={ML} y1={dayBandY} x2={ML + drawWidth} y2={dayBandY}
+        stroke={C.sky} strokeWidth={1} opacity={0.3}
+      />
+
+      {/* ── Layer 3: Daylight step line ── */}
+      {dayPath && (
+        <path
+          d={dayPath}
+          fill="none"
+          stroke={C.sky}
+          strokeWidth={2}
+          clipPath="url(#wt-day)"
+        />
+      )}
+
+      {/* Sunrise / sunset labels */}
+      {transitions.map((tr, i) => {
+        const lx = Math.max(ML + 2, Math.min(tr.x, ML + drawWidth - 2))
+        return (
+          <g key={i}>
+            <line
+              x1={tr.x} y1={dayBandY + 2} x2={tr.x} y2={dayBandY + DAY_BAND_H - 2}
+              stroke={C.sky} strokeWidth={1} opacity={0.6}
+            />
+            <text
+              x={lx} y={dayBandY - 3}
+              fontSize={10} fill={C.midnight} fontFamily="inherit" textAnchor="start"
+            >
+              {tr.isSunrise ? `☀️ ${tr.label}` : `🌙 ${tr.label}`}
+            </text>
+          </g>
+        )
+      })}
+
+      {/* ── X-axis ── */}
       {ticks.map((tick, i) => {
         const x = xScale(tick.ms)
         return (
           <g key={i}>
             <line
-              x1={x}
-              y1={timeAxisY + 14}
-              x2={x}
-              y2={timeAxisY + 20}
-              stroke={COLORS.gridLine}
-              strokeWidth={1}
+              x1={x} y1={xAxisY} x2={x} y2={xAxisY + 5}
+              stroke={C.sky} strokeWidth={1} opacity={0.5}
             />
             {tick.isDateChange ? (
               <>
                 <text
-                  x={x}
-                  y={timeAxisY + 10}
-                  fontSize={9}
-                  fill={COLORS.label}
-                  fontFamily="inherit"
-                  fontWeight="600"
-                  textAnchor="middle"
+                  x={x} y={xAxisY + 9}
+                  fontSize={9} fill={C.ridgeBlue} fontWeight="600"
+                  fontFamily="inherit" textAnchor="middle"
                 >
-                  {tick.dateLabel}
+                  {fmtWeekday(tick.ms)}
                 </text>
                 <text
-                  x={x}
-                  y={timeAxisY + 22}
-                  fontSize={9}
-                  fill={COLORS.labelMuted}
-                  fontFamily="inherit"
-                  textAnchor="middle"
+                  x={x} y={xAxisY + 20}
+                  fontSize={9} fill={C.deepRidge} opacity={0.7}
+                  fontFamily="inherit" textAnchor="middle"
                 >
-                  {tick.label}
+                  {fmtHour(tick.ms)}
                 </text>
               </>
             ) : (
               <text
-                x={x}
-                y={timeAxisY + 20}
-                fontSize={9}
-                fill={COLORS.labelMuted}
-                fontFamily="inherit"
-                textAnchor="middle"
+                x={x} y={xAxisY + 16}
+                fontSize={9} fill={C.deepRidge} opacity={0.7}
+                fontFamily="inherit" textAnchor="middle"
               >
-                {tick.label}
+                {fmtHour(tick.ms)}
               </text>
             )}
           </g>
         )
       })}
 
-      {/* ── Temperature gradient bar ── */}
-      {tempGradientStops.length > 0 && (
-        <>
-          <rect
-            x={MARGINS.left}
-            y={tempBarY}
-            width={drawWidth}
-            height={ROW_HEIGHTS.tempBar}
-            fill={`url(#${gradientId})`}
-            rx={4}
-            clipPath="url(#tempClip)"
-          />
-          {/* Min temp label */}
-          {minTempEntry && (() => {
-            const x = xScale(new Date(minTempEntry.hour).getTime())
-            const anchor = x < MARGINS.left + 30 ? 'start' : x > svgWidth - 30 ? 'end' : 'middle'
-            return (
-              <text
-                x={Math.max(MARGINS.left + 4, Math.min(x, svgWidth - MARGINS.right - 4))}
-                y={tempBarY + ROW_HEIGHTS.tempBar / 2 + 4}
-                fontSize={10}
-                fill="rgba(255,255,255,0.9)"
-                fontFamily="inherit"
-                fontWeight="600"
-                textAnchor={anchor}
-              >
-                {Math.round(minTempEntry.temperature)}°F
-              </text>
-            )
-          })()}
-          {/* Max temp label */}
-          {maxTempEntry && minTempEntry.hour !== maxTempEntry.hour && (() => {
-            const x = xScale(new Date(maxTempEntry.hour).getTime())
-            const anchor = x < MARGINS.left + 30 ? 'start' : x > svgWidth - 30 ? 'end' : 'middle'
-            return (
-              <text
-                x={Math.max(MARGINS.left + 4, Math.min(x, svgWidth - MARGINS.right - 4))}
-                y={tempBarY + ROW_HEIGHTS.tempBar / 2 + 4}
-                fontSize={10}
-                fill="rgba(255,255,255,0.9)"
-                fontFamily="inherit"
-                fontWeight="600"
-                textAnchor={anchor}
-              >
-                {Math.round(maxTempEntry.temperature)}°F
-              </text>
-            )
-          })()}
-        </>
-      )}
-
-      {/* ── Daylight bar ── */}
-      {daylightSegments.map((seg, i) => (
-        <rect
-          key={i}
-          x={seg.x1}
-          y={daylightBarY}
-          width={Math.max(0, seg.x2 - seg.x1)}
-          height={ROW_HEIGHTS.daylightBar}
-          fill={seg.isNight ? COLORS.night : COLORS.day}
-          clipPath="url(#daylightClip)"
-        />
-      ))}
-      {/* Daylight segment icons */}
-      {daylightSegments.map((seg, i) => {
-        const segWidth = seg.x2 - seg.x1
-        if (segWidth < 16) return null
-        const iconX = seg.x1 + 4
-        const iconY = daylightBarY + ROW_HEIGHTS.daylightBar / 2 + 4
-        return (
-          <text
-            key={`icon-${i}`}
-            x={iconX}
-            y={iconY}
-            fontSize={11}
-            fontFamily="inherit"
-          >
-            {seg.isNight ? '🌙' : '☀️'}
-          </text>
-        )
-      })}
-      {/* Daylight bar border */}
-      <rect
-        x={MARGINS.left}
-        y={daylightBarY}
-        width={drawWidth}
-        height={ROW_HEIGHTS.daylightBar}
-        fill="none"
-        stroke={COLORS.gridLine}
-        strokeWidth={1}
-        rx={2}
-      />
-
-      {/* ── Precipitation bars ── */}
-      {entries.map((entry, i) => {
-        if (entry.precipitationProbability === 0) return null
-        const entryMs = new Date(entry.hour).getTime()
-        const x = xScale(entryMs) - precipBarWidth / 2
-        const barH = (entry.precipitationProbability / 100) * precipMaxHeight
-        const barY = precipBarY + ROW_HEIGHTS.precipBar - barH
-        const isHeavy = entry.precipitationProbability >= COLORS.precipThreshold
-        return (
-          <rect
-            key={i}
-            x={x}
-            y={barY}
-            width={precipBarWidth}
-            height={barH}
-            fill={isHeavy ? COLORS.precipHeavy : COLORS.precipLight}
-            opacity={isHeavy ? 0.85 : 0.55}
-            rx={1}
-            clipPath="url(#precipClip)"
-          />
-        )
-      })}
-      {/* Threshold line at 30% */}
-      {(() => {
-        const thresholdY = precipBarY + ROW_HEIGHTS.precipBar - (COLORS.precipThreshold / 100) * precipMaxHeight
-        return (
-          <line
-            x1={MARGINS.left}
-            x2={MARGINS.left + drawWidth}
-            y1={thresholdY}
-            y2={thresholdY}
-            stroke={COLORS.precipLight}
-            strokeWidth={1}
-            strokeDasharray="3,3"
-            opacity={0.5}
-          />
-        )
-      })()}
-
       {/* ── Aid station rule + markers ── */}
       <line
-        x1={MARGINS.left}
-        x2={MARGINS.left + drawWidth}
-        y1={aidStationY}
-        y2={aidStationY}
-        stroke={COLORS.ruleLine}
-        strokeWidth={1}
+        x1={ML} y1={aidY} x2={ML + drawWidth} y2={aidY}
+        stroke={C.sky} strokeWidth={1} opacity={0.5}
       />
-      {allStationPositions.map((sp, i) => {
+      {allStations.map((sp, i) => {
         const x = sp.x
         const distMi = (sp.station.distanceFromStart * 0.621371).toFixed(1)
-        const timeStr = formatAidTime(sp.arrivalTime)
+        const timeStr = fmtAidTime(sp.arrivalTime)
         const isStart = sp.station.isStart || (i === 0 && sp.station.distanceFromStart === 0)
         const isFinish = sp.station.isFinish
-
-        // Alternate label placement to avoid collision: even above, odd below
         const labelAbove = i % 2 === 0
-        const tickTop = aidStationY - 4
-        const tickBottom = aidStationY + 4
-        const dotY = aidStationY
-        const labelY = labelAbove
-          ? aidStationY - 8
-          : aidStationY + 18
-
-        const shortName = isStart ? 'Start' : isFinish ? 'Finish' : sp.station.name.length > 12
-          ? sp.station.name.slice(0, 11) + '…'
-          : sp.station.name
-
+        const labelY = labelAbove ? aidY - 8 : aidY + 18
+        const shortName = isStart
+          ? 'Start'
+          : isFinish
+            ? 'Finish'
+            : sp.station.name.length > 12
+              ? sp.station.name.slice(0, 11) + '…'
+              : sp.station.name
         return (
           <g key={i}>
-            {/* Vertical tick */}
-            <line
-              x1={x}
-              y1={tickTop}
-              x2={x}
-              y2={tickBottom}
-              stroke={COLORS.stationDot}
-              strokeWidth={1.5}
-            />
-            {/* Dot */}
-            <circle
-              cx={x}
-              cy={dotY}
-              r={3}
-              fill={COLORS.stationDot}
-            />
-            {/* Station name */}
+            <line x1={x} y1={aidY - 4} x2={x} y2={aidY + 4} stroke={C.ridgeBlue} strokeWidth={1.5} />
+            <circle cx={x} cy={aidY} r={3} fill={C.ridgeBlue} />
             <text
-              x={x}
-              y={labelY}
-              fontSize={9}
-              fill={COLORS.stationText}
-              fontFamily="inherit"
-              fontWeight="600"
-              textAnchor="middle"
+              x={x} y={labelY}
+              fontSize={9} fill={C.midnight} fontFamily="inherit" fontWeight="600" textAnchor="middle"
             >
               {shortName}
             </text>
-            {/* Distance + time */}
             <text
-              x={x}
-              y={labelY + (labelAbove ? -9 : 9)}
-              fontSize={8}
-              fill={COLORS.labelMuted}
-              fontFamily="inherit"
-              textAnchor="middle"
+              x={x} y={labelY + (labelAbove ? -9 : 9)}
+              fontSize={8} fill={C.deepRidge} opacity={0.7} fontFamily="inherit" textAnchor="middle"
             >
               {isStart ? timeStr : `${distMi}mi · ${timeStr}`}
             </text>
@@ -555,39 +428,21 @@ function RaceOverviewSVG({
   )
 }
 
-// ── Placeholder rows (no pace set) ──────────────────────────────────────────
+// ── Placeholder (no pace set) ──────────────────────────────────────────────
 
 function PlaceholderRows({ width }: { width: number }) {
-  const drawWidth = width - MARGINS.left - MARGINS.right
-  const svgHeight = totalSvgHeight()
-
-  let y = MARGINS.top
-  const timeAxisY = y
-  y += ROW_HEIGHTS.timeAxis + ROW_HEIGHTS.gap
-  const tempBarY = y
-  y += ROW_HEIGHTS.tempBar + ROW_HEIGHTS.gap
-  const daylightBarY = y
-  y += ROW_HEIGHTS.daylightBar + ROW_HEIGHTS.gap
-  const precipBarY = y
+  const drawWidth = width - ML - MR
+  const svgH = totalH()
+  const chartY = MT
+  const dayBandY = chartY + TEMP_H
 
   return (
-    <svg width={width} height={svgHeight} viewBox={`0 0 ${width} ${svgHeight}`} style={{ display: 'block' }}>
-      {/* Time axis placeholder */}
-      <rect x={MARGINS.left} y={timeAxisY + 8} width={drawWidth * 0.7} height={10} rx={3} fill="#F0F0F0" />
-      {/* Temp bar placeholder */}
-      <rect x={MARGINS.left} y={tempBarY} width={drawWidth} height={ROW_HEIGHTS.tempBar} rx={4} fill="#F0F0F0" />
-      {/* Daylight bar placeholder */}
-      <rect x={MARGINS.left} y={daylightBarY} width={drawWidth} height={ROW_HEIGHTS.daylightBar} rx={2} fill="#F0F0F0" />
-      {/* Precip bar placeholder */}
-      <rect x={MARGINS.left} y={precipBarY} width={drawWidth} height={ROW_HEIGHTS.precipBar} rx={2} fill="#F0F0F0" />
-      {/* Message */}
+    <svg width={width} height={svgH} viewBox={`0 0 ${width} ${svgH}`} style={{ display: 'block' }}>
+      <rect x={ML} y={chartY} width={drawWidth} height={TEMP_H} rx={4} fill="#F0F0F0" />
+      <rect x={ML} y={dayBandY} width={drawWidth} height={DAY_BAND_H} rx={0} fill="#E8E8E8" />
       <text
-        x={MARGINS.left + drawWidth / 2}
-        y={tempBarY + ROW_HEIGHTS.tempBar / 2 + 4}
-        fontSize={12}
-        fill="#999"
-        fontFamily="inherit"
-        textAnchor="middle"
+        x={ML + drawWidth / 2} y={chartY + TEMP_H / 2 + 4}
+        fontSize={12} fill="#999" fontFamily="inherit" textAnchor="middle"
       >
         Set your pace above to see weather aligned to your race
       </text>
@@ -595,7 +450,7 @@ function PlaceholderRows({ width }: { width: number }) {
   )
 }
 
-// ── Main component ───────────────────────────────────────────────────────────
+// ── Main component ─────────────────────────────────────────────────────────
 
 export function WeatherTimeline({
   entries,
@@ -611,21 +466,20 @@ export function WeatherTimeline({
 
   useEffect(() => {
     if (!containerRef.current) return
-    const observer = new ResizeObserver((entries) => {
-      if (entries[0]) setContainerWidth(entries[0].contentRect.width)
+    const ro = new ResizeObserver(es => {
+      if (es[0]) setContainerWidth(es[0].contentRect.width)
     })
-    observer.observe(containerRef.current)
+    ro.observe(containerRef.current)
     setContainerWidth(containerRef.current.clientWidth)
-    return () => observer.disconnect()
+    return () => ro.disconnect()
   }, [])
 
-  const raceEndTime =
+  const raceEnd =
     arrivalEstimates.length > 0
       ? arrivalEstimates[arrivalEstimates.length - 1].estimatedArrival
       : null
-
-  const raceDurationHours = raceEndTime
-    ? (raceEndTime.getTime() - raceStart.getTime()) / 3_600_000
+  const raceHours = raceEnd
+    ? (raceEnd.getTime() - raceStart.getTime()) / 3_600_000
     : null
 
   const header = (
@@ -633,15 +487,14 @@ export function WeatherTimeline({
       <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         Weather Overview
       </span>
-      {raceDurationHours !== null && (
+      {raceHours !== null && (
         <span className="text-xs text-muted-foreground">
-          {totalDistanceMiles.toFixed(1)} mi · ~{Math.round(raceDurationHours)}h
+          {totalDistanceMiles.toFixed(1)} mi · ~{Math.round(raceHours)}h
         </span>
       )}
     </div>
   )
 
-  // Unavailable state (race too far out or fetch error)
   if (!forecastAvailable) {
     return (
       <div className="rounded-lg border p-5">
@@ -654,17 +507,10 @@ export function WeatherTimeline({
             Weather forecasts are available up to 16 days before the race.
           </p>
         </div>
-        {/* Still render aid station row if we have estimates */}
-        {aidStations.length > 0 && arrivalEstimates.length > 0 && containerWidth > 0 && (
-          <div ref={containerRef} className="mt-4">
-            {/* minimal aid station only view omitted for brevity — full viz handles this */}
-          </div>
-        )}
       </div>
     )
   }
 
-  // No pace set — show shell with placeholder bars
   if (entries.length === 0) {
     return (
       <div className="rounded-lg border p-5">
@@ -676,7 +522,6 @@ export function WeatherTimeline({
     )
   }
 
-  // Full visualization
   return (
     <div className="rounded-lg border p-5">
       {header}
@@ -687,7 +532,6 @@ export function WeatherTimeline({
             aidStations={aidStations}
             arrivalEstimates={arrivalEstimates}
             raceStart={raceStart}
-            totalDistanceMiles={totalDistanceMiles}
             width={containerWidth}
           />
         )}

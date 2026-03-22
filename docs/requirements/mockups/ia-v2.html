@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlanUltra — IA v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --midnight: #02071E;
+      --deep-ridge: #114574;
+      --ridge-blue: #1D7CBE;
+      --sky: #82C7F6;
+      --mist: #DBF1FA;
+      --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'Monaco', 'Menlo', 'Courier New', monospace;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      background: var(--mist);
+      color: var(--midnight);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: white;
+      border-bottom: 1px solid rgba(130,199,246,0.5);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .logo {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--midnight);
+      letter-spacing: -0.03em;
+      margin-right: 8px;
+    }
+    .back-link {
+      font-size: 12px;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .race-name-nav {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--midnight);
+    }
+
+    /* ── Main page max-width ── */
+    .page-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 16px 60px;
+    }
+
+    /* ── Elevation strip (always visible) ── */
+    .elev-strip {
+      background: white;
+      border: 1px solid rgba(130,199,246,0.55);
+      border-radius: 10px;
+      margin: 14px 0 0;
+      overflow: hidden;
+    }
+    .elev-strip-inner {
+      padding: 12px 16px 8px;
+    }
+    .elev-strip-stats {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .stat-item { text-align: left; }
+    .stat-val {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--midnight);
+    }
+    .stat-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+    }
+    .stat-divider { width: 1px; height: 28px; background: rgba(130,199,246,0.5); }
+
+    /* ── Map collapsible ── */
+    .map-toggle {
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 12px;
+      color: #94a3b8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-top: 1px solid rgba(130,199,246,0.3);
+      font-family: var(--font-ui);
+    }
+    .map-toggle:hover { background: var(--mist); color: var(--deep-ridge); }
+    .map-collapsed { display: none; }
+    .map-expanded {
+      height: 160px;
+      background: linear-gradient(135deg, #d4e9f7 0%, #b8dff0 50%, #cce8f5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--deep-ridge);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-top: 1px solid rgba(130,199,246,0.3);
+    }
+
+    /* ── Tab strip ── */
+    .tab-strip {
+      display: flex;
+      background: white;
+      border: 1px solid rgba(130,199,246,0.55);
+      border-radius: 10px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px 8px;
+      border: none;
+      background: none;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--deep-ridge);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .tab-btn:hover { background: var(--mist); }
+    .tab-btn.active {
+      color: var(--ridge-blue);
+      border-bottom-color: var(--ridge-blue);
+      font-weight: 700;
+    }
+    .tab-icon { font-size: 14px; }
+
+    /* ── Tab content ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Card base ── */
+    .card {
+      background: white;
+      border: 1px solid rgba(130,199,246,0.55);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(29,124,190,0.06);
+    }
+
+    /* ── Section header (collapsed) ── */
+    .section-header {
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: background 0.15s;
+    }
+    .section-header:hover { background: rgba(219,241,250,0.5); }
+    .section-header.expanded { background: var(--mist); border-bottom: 1px solid rgba(130,199,246,0.4); }
+
+    .section-mile-badge {
+      background: var(--deep-ridge);
+      color: white;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+      white-space: nowrap;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+    .section-time-badge {
+      background: var(--mist);
+      color: var(--deep-ridge);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 5px;
+      white-space: nowrap;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    .section-title-group { flex: 1; min-width: 0; }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--midnight);
+    }
+    .section-summary {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 2px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .summary-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+    }
+
+    .expand-icon {
+      color: #94a3b8;
+      font-size: 12px;
+      margin-top: 2px;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .expanded .expand-icon { transform: rotate(90deg); }
+
+    /* ── Section body (expanded) ── */
+    .section-body { padding: 14px 16px; }
+
+    /* ── Info cards grid (segment facts) ── */
+    .info-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .info-card {
+      background: var(--mist);
+      border: 1px solid rgba(130,199,246,0.5);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .info-card-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #64748b;
+      margin-bottom: 3px;
+    }
+    .info-card-val {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--midnight);
+      line-height: 1.2;
+    }
+    .info-card-sub {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .info-card.weather-card {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border-color: rgba(96,165,250,0.4);
+    }
+    .info-card.night-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+      border-color: rgba(99,102,241,0.4);
+    }
+    .night-card .info-card-lbl { color: rgba(196,181,253,0.8); }
+    .night-card .info-card-val { color: white; font-size: 13px; }
+    .night-card .info-card-sub { color: rgba(196,181,253,0.6); }
+    .info-card.sunrise-card {
+      background: linear-gradient(135deg, #fff7ed, #fed7aa);
+      border-color: rgba(251,146,60,0.4);
+    }
+    .sunrise-card .info-card-lbl { color: #9a3412; }
+    .sunrise-card .info-card-val { color: #c2410c; font-size: 13px; }
+
+    /* ── Plan inputs ── */
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    @media (max-width: 480px) {
+      .input-grid { grid-template-columns: 1fr; }
+    }
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .fake-input {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 13px;
+      color: var(--midnight);
+      width: 100%;
+    }
+    .fake-input.auto {
+      color: var(--ridge-blue);
+      font-family: var(--font-mono);
+    }
+    .fake-textarea {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 12px;
+      color: #64748b;
+      width: 100%;
+      height: 52px;
+      font-style: italic;
+      resize: none;
+    }
+    .fake-textarea.filled {
+      color: var(--midnight);
+      font-style: normal;
+    }
+
+    /* ── Gear pills ── */
+    .gear-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+    .pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .pill-blue  { background: var(--mist); color: var(--deep-ridge); }
+    .pill-night { background: #e0e7ff; color: #3730a3; }
+    .pill-amber { background: #fef3c7; color: #92400e; }
+    .pill-gray  { background: #f1f5f9; color: #475569; }
+
+    .input-full { grid-column: 1 / -1; }
+
+    /* ── Section divider label ── */
+    .divider-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--deep-ridge);
+      margin: 20px 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .divider-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(130,199,246,0.4);
+    }
+
+    /* ── Pace tab ── */
+    .pace-settings {
+      background: white;
+      border: 1px solid rgba(130,199,246,0.55);
+      border-radius: 10px;
+      padding: 18px 16px;
+      margin-bottom: 12px;
+    }
+    .pace-settings h3 {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--midnight);
+      margin-bottom: 14px;
+    }
+    .pace-input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .pace-input-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--deep-ridge);
+      min-width: 100px;
+    }
+    .fake-input-lg {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 15px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--midnight);
+      width: 120px;
+    }
+    .pace-hint { font-size: 12px; color: #94a3b8; }
+
+    .pace-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .pace-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #64748b;
+      padding: 6px 10px;
+      border-bottom: 1px solid rgba(130,199,246,0.4);
+      background: var(--mist);
+    }
+    .pace-table th:first-child { border-radius: 6px 0 0 0; }
+    .pace-table th:last-child { border-radius: 0 6px 0 0; }
+    .pace-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(130,199,246,0.2);
+    }
+    .pace-table tr:nth-child(odd) td { background: rgba(219,241,250,0.3); }
+    .pace-table tr:last-child td { border-bottom: none; }
+    .pace-table .mono { font-family: var(--font-mono); font-size: 12px; }
+    .pace-table .arrive { font-family: var(--font-mono); font-weight: 700; color: var(--deep-ridge); font-size: 12px; }
+
+    /* ── Pack tab ── */
+    .bag-card {
+      background: white;
+      border: 1px solid rgba(130,199,246,0.55);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(29,124,190,0.06);
+    }
+    .bag-header {
+      background: var(--deep-ridge);
+      color: white;
+      padding: 12px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      user-select: none;
+    }
+    .bag-header:hover { background: #0d3a63; }
+    .bag-name-group { flex: 1; }
+    .bag-name {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .bag-subtitle {
+      font-size: 12px;
+      opacity: 0.65;
+      margin-top: 2px;
+    }
+    .bag-collapsed-hint {
+      font-size: 11px;
+      opacity: 0.6;
+      text-align: right;
+      line-height: 1.4;
+    }
+    .bag-expand-icon { opacity: 0.6; font-size: 12px; margin-top: 2px; flex-shrink: 0; transition: transform 0.2s; }
+    .bag-body { padding: 14px 16px; }
+    .bag-body.hidden { display: none; }
+
+    /* What's packed */
+    .pack-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--deep-ridge);
+      margin-bottom: 8px;
+      margin-top: 12px;
+    }
+    .pack-section-label:first-child { margin-top: 0; }
+
+    .gear-checklist {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .baggie {
+      background: var(--mist);
+      border: 1px solid rgba(130,199,246,0.5);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+    }
+    .baggie-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .baggie-dest {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--midnight);
+    }
+    .baggie-meta {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: #64748b;
+    }
+    .baggie-items {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    /* When am I here */
+    .visit-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(130,199,246,0.2);
+      flex-wrap: wrap;
+    }
+    .visit-row:last-child { border-bottom: none; }
+    .visit-mile {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--deep-ridge);
+      min-width: 68px;
+    }
+    .visit-time {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #64748b;
+      flex: 1;
+    }
+    .visit-leg {
+      font-size: 12px;
+      color: #475569;
+    }
+
+    /* ── Crew tab ── */
+    .crew-placeholder {
+      background: white;
+      border: 1px dashed rgba(130,199,246,0.7);
+      border-radius: 10px;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .crew-placeholder h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--midnight);
+      margin-bottom: 8px;
+    }
+    .crew-placeholder p {
+      font-size: 13px;
+      color: #64748b;
+      max-width: 400px;
+      margin: 0 auto 16px;
+      line-height: 1.6;
+    }
+    .btn-primary {
+      background: var(--ridge-blue);
+      color: white;
+      border: none;
+      border-radius: 7px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-ui);
+    }
+
+    /* ── Settings row (cal/hr) ── */
+    .settings-row {
+      background: white;
+      border: 1px solid rgba(130,199,246,0.4);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .settings-row label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--deep-ridge);
+      white-space: nowrap;
+    }
+    .fake-input-sm {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--midnight);
+      width: 80px;
+    }
+    .settings-hint { font-size: 11px; color: #94a3b8; }
+    .save-badge {
+      margin-left: auto;
+      font-size: 11px;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 560px) {
+      .elev-strip-stats { gap: 12px; }
+      .stat-val { font-size: 13px; }
+      .tab-btn { font-size: 12px; padding: 11px 4px; }
+      .tab-icon { font-size: 12px; }
+      .info-cards { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <span class="logo">PlanUltra ▲</span>
+  <span class="back-link">← My races /</span>
+  <span class="race-name-nav">Wasatch 100</span>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- ══════════════════════════════════════════
+       ELEVATION STRIP — always visible
+       ══════════════════════════════════════════ -->
+  <div class="elev-strip">
+    <div class="elev-strip-inner">
+
+      <div class="elev-strip-stats">
+        <div class="stat-item">
+          <div class="stat-val">100.0</div>
+          <div class="stat-lbl">Miles</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-val">26,800</div>
+          <div class="stat-lbl">Ft gain</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-val">22,400</div>
+          <div class="stat-lbl">Ft loss</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-val">Jun 28</div>
+          <div class="stat-lbl">Race day</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-val">5:00 AM</div>
+          <div class="stat-lbl">Start</div>
+        </div>
+      </div>
+
+      <!-- Elevation SVG -->
+      <svg viewBox="0 0 760 72" style="width:100%; height:64px; display:block;" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="eg" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#82C7F6" stop-opacity="0.04"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,68 L40,58 L80,46 L120,34 L160,24 L190,14 L215,20 L240,32 L270,44 L300,28 L330,18 L360,6 L385,9 L410,16 L440,24 L470,36 L500,48 L520,38 L545,28 L570,18 L595,24 L620,32 L650,20 L680,30 L710,40 L740,52 L760,68 Z" fill="url(#eg)"/>
+        <path d="M0,68 L40,58 L80,46 L120,34 L160,24 L190,14 L215,20 L240,32 L270,44 L300,28 L330,18 L360,6 L385,9 L410,16 L440,24 L470,36 L500,48 L520,38 L545,28 L570,18 L595,24 L620,32 L650,20 L680,30 L710,40 L740,52 L760,68" fill="none" stroke="#1D7CBE" stroke-width="1.5"/>
+        <!-- Aid station markers with drop bag highlighted -->
+        <circle cx="190" cy="14" r="4" fill="#114574"/>
+        <circle cx="360" cy="6" r="4" fill="#114574"/>
+        <circle cx="500" cy="48" r="4" fill="#114574"/>
+        <circle cx="650" cy="20" r="4" fill="#114574"/>
+        <!-- Labels -->
+        <text x="190" y="9" text-anchor="middle" font-size="8" fill="#114574" font-family="system-ui" font-weight="600">COR</text>
+        <text x="360" y="2" text-anchor="middle" font-size="8" fill="#114574" font-family="system-ui" font-weight="600">Big M</text>
+        <text x="500" y="43" text-anchor="middle" font-size="8" fill="#114574" font-family="system-ui" font-weight="600">Pole</text>
+        <text x="650" y="15" text-anchor="middle" font-size="8" fill="#114574" font-family="system-ui" font-weight="600">Ant K</text>
+      </svg>
+      <div style="display:flex; justify-content:space-between; font-size:10px; color:#94a3b8; padding: 2px 0 4px;">
+        <span>Start</span>
+        <span>● Drop bag stations</span>
+        <span>Finish</span>
+      </div>
+    </div>
+
+    <!-- Map toggle -->
+    <button class="map-toggle" onclick="toggleMap(this)">
+      <span>▸</span> <span>Course map</span> <span style="margin-left:auto; font-size:10px;">Collapsed · tap to expand</span>
+    </button>
+    <div class="map-collapsed" id="map-area">
+      <div class="map-expanded">Course Map (GPX)</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB STRIP
+       ══════════════════════════════════════════ -->
+  <div class="tab-strip">
+    <button class="tab-btn" onclick="switchTab('pace')" id="tab-pace">
+      <span class="tab-icon">⏱</span> Pace
+    </button>
+    <button class="tab-btn active" onclick="switchTab('plan')" id="tab-plan">
+      <span class="tab-icon">📋</span> Plan
+    </button>
+    <button class="tab-btn" onclick="switchTab('pack')" id="tab-pack">
+      <span class="tab-icon">🎒</span> Pack
+    </button>
+    <button class="tab-btn" onclick="switchTab('crew')" id="tab-crew">
+      <span class="tab-icon">👥</span> Crew
+    </button>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PACE TAB
+       ══════════════════════════════════════════ -->
+  <div id="panel-pace" class="tab-panel">
+
+    <div class="pace-settings">
+      <h3>Pace settings</h3>
+
+      <div class="pace-input-row">
+        <label>Target finish time</label>
+        <div class="fake-input-lg">28:00</div>
+        <span class="pace-hint">hours : minutes</span>
+      </div>
+      <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">
+        We calculate a flat pace from your finish time and apply it uniformly across all segments. You can adjust per-segment effort in the Plan tab later.
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="padding:12px 16px 0;">
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--deep-ridge); margin-bottom:10px;">Projected split table</div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="pace-table" style="margin-bottom:4px;">
+          <thead>
+            <tr>
+              <th>Segment</th>
+              <th>Start mile</th>
+              <th>Dist</th>
+              <th>Est. pace</th>
+              <th>Arrive at</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Start → COR</strong></td>
+              <td class="mono">Mile 0</td>
+              <td class="mono">23.1 mi</td>
+              <td class="mono">16:50 /mi</td>
+              <td class="arrive">9:22 AM</td>
+            </tr>
+            <tr>
+              <td>COR → Big Mountain</td>
+              <td class="mono">Mile 23.1</td>
+              <td class="mono">20.5 mi</td>
+              <td class="mono">16:50 /mi</td>
+              <td class="arrive">3:14 PM</td>
+            </tr>
+            <tr>
+              <td>Big M → Pole Canyon</td>
+              <td class="mono">Mile 43.6</td>
+              <td class="mono">16.5 mi</td>
+              <td class="mono">16:50 /mi</td>
+              <td class="arrive">7:51 PM</td>
+            </tr>
+            <tr>
+              <td>Pole → Ant Knolls</td>
+              <td class="mono">Mile 60.1</td>
+              <td class="mono">16.0 mi</td>
+              <td class="mono">16:50 /mi</td>
+              <td class="arrive">12:21 AM</td>
+            </tr>
+            <tr>
+              <td>Ant Knolls → Finish</td>
+              <td class="mono">Mile 76.1</td>
+              <td class="mono">23.9 mi</td>
+              <td class="mono">16:50 /mi</td>
+              <td class="arrive">9:00 AM</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PLAN TAB
+       ══════════════════════════════════════════ -->
+  <div id="panel-plan" class="tab-panel active">
+
+    <!-- Calorie setting -->
+    <div class="settings-row">
+      <label>Calories / hr</label>
+      <div class="fake-input-sm">280</div>
+      <span class="settings-hint">Applied to all segments · override per-segment below</span>
+      <span class="save-badge">✓ Saved</span>
+    </div>
+
+    <!-- ── SECTION 1 — expanded ── -->
+    <div class="card">
+      <div class="section-header expanded" onclick="toggleSection(this)">
+        <div>
+          <div class="section-mile-badge">Mile 0</div>
+        </div>
+        <div>
+          <div class="section-time-badge">5:00 AM</div>
+        </div>
+        <div class="section-title-group">
+          <div class="section-title">Start → Chicken Out Ridge</div>
+          <div class="section-summary">
+            <span class="summary-chip">23.1 mi</span>
+            <span class="summary-chip">+3,200 ft</span>
+            <span class="summary-chip">~4h 22m</span>
+            <span class="summary-chip">🌙 starts in dark</span>
+            <span class="summary-chip">🌅 sunrise at mile ~4</span>
+          </div>
+        </div>
+        <span class="expand-icon">▸</span>
+      </div>
+      <div class="section-body">
+
+        <!-- Info cards: segment facts -->
+        <div class="info-cards">
+          <div class="info-card">
+            <div class="info-card-lbl">Start</div>
+            <div class="info-card-val">Mile 0</div>
+            <div class="info-card-sub">Jun 28 · 5:00 AM</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-lbl">End</div>
+            <div class="info-card-val">Mile 23.1</div>
+            <div class="info-card-sub">Est. 9:22 AM</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-lbl">Distance</div>
+            <div class="info-card-val">23.1 mi</div>
+            <div class="info-card-sub">+3,200 / −1,800 ft</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-lbl">Duration</div>
+            <div class="info-card-val">~4h 22m</div>
+            <div class="info-card-sub">~1,225 kcal</div>
+          </div>
+          <div class="info-card night-card">
+            <div class="info-card-lbl">🌙 Night running</div>
+            <div class="info-card-val">Start → ~mile 4</div>
+            <div class="info-card-sub">Sunrise 5:48 AM</div>
+          </div>
+          <div class="info-card weather-card">
+            <div class="info-card-lbl">☀️ Weather</div>
+            <div class="info-card-val" style="font-size:13px; font-family:var(--font-ui);">38°F → 56°F</div>
+            <div class="info-card-sub">Clear · rising temp</div>
+          </div>
+        </div>
+
+        <!-- Plan inputs -->
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Drink mixes</label>
+            <div class="fake-input">3</div>
+          </div>
+          <div class="input-group">
+            <label>Calories (auto)</label>
+            <div class="fake-input auto">~1,225 kcal</div>
+          </div>
+          <div class="input-group input-full">
+            <label>Gear at Chicken Out Ridge (drop bag)</label>
+            <div class="gear-row">
+              <span class="pill pill-night">Headlamp (exchange)</span>
+              <span class="pill pill-gray">Extra layer</span>
+              <span style="font-size:12px; color:#94a3b8; align-self:center;">+ add</span>
+            </div>
+          </div>
+          <div class="input-group input-full">
+            <label>Packing list — food for this leg</label>
+            <div class="fake-textarea filled">4× gel, 2× bar, 1× rice ball</div>
+          </div>
+          <div class="input-group input-full">
+            <label>Notes for crew</label>
+            <div class="fake-textarea filled">Crew meets at COR. Dan needs headlamp swap and warm layer ready at bag.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SECTION 2 — collapsed ── -->
+    <div class="card">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div>
+          <div class="section-mile-badge">Mile 23.1</div>
+        </div>
+        <div>
+          <div class="section-time-badge">9:22 AM</div>
+        </div>
+        <div class="section-title-group">
+          <div class="section-title">Chicken Out Ridge → Big Mountain</div>
+          <div class="section-summary">
+            <span class="summary-chip">20.5 mi</span>
+            <span class="summary-chip">+2,400 ft</span>
+            <span class="summary-chip">~5h 45m</span>
+            <span class="summary-chip">⛅ 58°F → 78°F</span>
+            <span class="summary-chip" style="color:#f59e0b;">⚡ Storm risk 2–4 PM</span>
+          </div>
+        </div>
+        <span class="expand-icon">▸</span>
+      </div>
+      <!-- collapsed: body hidden -->
+    </div>
+
+    <!-- ── SECTION 3 — collapsed, night segment ── -->
+    <div class="card">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div>
+          <div class="section-mile-badge">Mile 43.6</div>
+        </div>
+        <div>
+          <div class="section-time-badge">3:07 PM</div>
+        </div>
+        <div class="section-title-group">
+          <div class="section-title">Big Mountain → Pole Canyon</div>
+          <div class="section-summary">
+            <span class="summary-chip">16.5 mi</span>
+            <span class="summary-chip">+1,800 ft</span>
+            <span class="summary-chip">~4h 37m</span>
+            <span class="summary-chip">🌙 sunset mile ~52</span>
+          </div>
+        </div>
+        <span class="expand-icon">▸</span>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4 — collapsed ── -->
+    <div class="card">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div>
+          <div class="section-mile-badge">Mile 60.1</div>
+        </div>
+        <div>
+          <div class="section-time-badge">7:44 PM</div>
+        </div>
+        <div class="section-title-group">
+          <div class="section-title">Pole Canyon → Ant Knolls</div>
+          <div class="section-summary">
+            <span class="summary-chip">16.0 mi</span>
+            <span class="summary-chip">+2,200 ft</span>
+            <span class="summary-chip">~4h 30m</span>
+            <span class="summary-chip">🌙 full night segment</span>
+          </div>
+        </div>
+        <span class="expand-icon">▸</span>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5 — collapsed ── -->
+    <div class="card">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div>
+          <div class="section-mile-badge">Mile 76.1</div>
+        </div>
+        <div>
+          <div class="section-time-badge">12:14 AM</div>
+        </div>
+        <div class="section-title-group">
+          <div class="section-title">Ant Knolls → Finish</div>
+          <div class="section-summary">
+            <span class="summary-chip">23.9 mi</span>
+            <span class="summary-chip">+2,400 ft</span>
+            <span class="summary-chip">~6h 46m</span>
+            <span class="summary-chip">🌅 sunrise ~mile 88</span>
+            <span class="summary-chip" style="color:#10b981;">🏁 finish ~9:00 AM</span>
+          </div>
+        </div>
+        <span class="expand-icon">▸</span>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PACK TAB
+       ══════════════════════════════════════════ -->
+  <div id="panel-pack" class="tab-panel">
+
+    <div style="font-size:13px; color:#64748b; margin-bottom:14px; line-height:1.6;">
+      Each drop bag listed once. Expand to see what to pack and when you'll reach it during the race.
+    </div>
+
+    <!-- ── BAG 1: START — expanded ── -->
+    <div class="bag-card">
+      <div class="bag-header" onclick="toggleBag(this)">
+        <div class="bag-name-group">
+          <div class="bag-name">Start bag</div>
+          <div class="bag-subtitle">Carried from the start line · mile 0 · Jun 28, 5:00 AM</div>
+        </div>
+        <div>
+          <span class="bag-expand-icon">▾</span>
+        </div>
+      </div>
+      <div class="bag-body" id="bag-start">
+
+        <div class="pack-section-label">What to pack</div>
+        <div class="gear-checklist">
+          <span class="pill pill-night">☐ Headlamp</span>
+          <span class="pill pill-gray">☐ Extra layer</span>
+        </div>
+
+        <div class="baggie">
+          <div class="baggie-header">
+            <span class="baggie-dest">🥡 Baggie → Chicken Out Ridge</span>
+            <span class="baggie-meta">23.1 mi · ~4h 22m from start</span>
+          </div>
+          <div class="baggie-items">
+            3× drink mix &nbsp;·&nbsp; ~1,225 kcal<br>
+            4× gel, 2× bar, 1× rice ball
+          </div>
+        </div>
+
+        <div class="pack-section-label" style="margin-top:14px;">When do I reach this bag?</div>
+        <div class="visit-row">
+          <span class="visit-mile">Mile 0</span>
+          <span class="visit-time">Jun 28 · 5:00 AM</span>
+          <span class="visit-leg">Race start — pick up bag here</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── BAG 2: COR ── -->
+    <div class="bag-card">
+      <div class="bag-header" onclick="toggleBag(this)">
+        <div class="bag-name-group">
+          <div class="bag-name">Chicken Out Ridge</div>
+          <div class="bag-subtitle">Mile 23.1 · first drop bag</div>
+        </div>
+        <div class="bag-collapsed-hint">
+          Headlamp · Extra layer · Rain gear<br>
+          2 baggies packed
+        </div>
+        <span class="bag-expand-icon">▸</span>
+      </div>
+      <div class="bag-body hidden" id="bag-cor">
+
+        <div class="pack-section-label">What to pack</div>
+        <div class="gear-checklist">
+          <span class="pill pill-night">☐ Headlamp (spare)</span>
+          <span class="pill pill-amber">☐ Rain gear</span>
+          <span class="pill pill-gray">☐ Extra layer</span>
+        </div>
+
+        <div class="baggie">
+          <div class="baggie-header">
+            <span class="baggie-dest">🥡 Baggie → Big Mountain</span>
+            <span class="baggie-meta">20.5 mi · ~5h 45m leg</span>
+          </div>
+          <div class="baggie-items">
+            2× drink mix &nbsp;·&nbsp; ~1,610 kcal<br>
+            5× gel, 2× bar, 1× wrap
+          </div>
+        </div>
+
+        <div class="baggie">
+          <div class="baggie-header">
+            <span class="baggie-dest" style="font-size:12px; color:#94a3b8;">Note: no further legs from this bag</span>
+          </div>
+        </div>
+
+        <div class="pack-section-label" style="margin-top:14px;">When do I reach this bag?</div>
+        <div class="visit-row">
+          <span class="visit-mile">Mile 23.1</span>
+          <span class="visit-time">~9:22 AM</span>
+          <span class="visit-leg">Arriving from Start</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── BAG 3: Big Mountain ── -->
+    <div class="bag-card">
+      <div class="bag-header" onclick="toggleBag(this)">
+        <div class="bag-name-group">
+          <div class="bag-name">Big Mountain</div>
+          <div class="bag-subtitle">Mile 43.6 · drop bag + crew access</div>
+        </div>
+        <div class="bag-collapsed-hint">
+          Headlamp · Poles<br>
+          1 baggie packed
+        </div>
+        <span class="bag-expand-icon">▸</span>
+      </div>
+      <div class="bag-body hidden" id="bag-bigm">
+
+        <div class="pack-section-label">What to pack</div>
+        <div class="gear-checklist">
+          <span class="pill pill-night">☐ Headlamp</span>
+          <span class="pill pill-gray">☐ Poles</span>
+          <span class="pill pill-gray">☐ Shoe change</span>
+        </div>
+        <div style="font-size:12px; color:#f59e0b; margin-bottom:8px; margin-top:4px;">⚠ Shoe change at mile 43.6 — note in crew plan</div>
+
+        <div class="baggie">
+          <div class="baggie-header">
+            <span class="baggie-dest">🥡 Baggie → Pole Canyon</span>
+            <span class="baggie-meta">16.5 mi · ~4h 37m leg</span>
+          </div>
+          <div class="baggie-items">
+            2× drink mix &nbsp;·&nbsp; ~1,295 kcal<br>
+            4× gel, 2× bar
+          </div>
+        </div>
+
+        <div class="pack-section-label" style="margin-top:14px;">When do I reach this bag?</div>
+        <div class="visit-row">
+          <span class="visit-mile">Mile 43.6</span>
+          <span class="visit-time">~3:07 PM</span>
+          <span class="visit-leg">Arriving from COR</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── BAG 4: Pole Canyon — visited twice (loops) ── -->
+    <div class="bag-card">
+      <div class="bag-header" onclick="toggleBag(this)">
+        <div class="bag-name-group">
+          <div class="bag-name">Pole Canyon</div>
+          <div class="bag-subtitle">Miles 60.1 &amp; 75.4 · visited twice</div>
+        </div>
+        <div class="bag-collapsed-hint">
+          Headlamp · Poles<br>
+          2 visits · 2 baggies
+        </div>
+        <span class="bag-expand-icon">▸</span>
+      </div>
+      <div class="bag-body hidden" id="bag-pole">
+
+        <div class="pack-section-label">What to pack</div>
+        <div class="gear-checklist">
+          <span class="pill pill-night">☐ Headlamp</span>
+          <span class="pill pill-gray">☐ Warm gloves</span>
+        </div>
+
+        <div class="baggie">
+          <div class="baggie-header">
+            <span class="baggie-dest">🥡 Baggie → Ant Knolls (first pass)</span>
+            <span class="baggie-meta">16.0 mi · ~4h 30m leg</span>
+          </div>
+          <div class="baggie-items">
+            2× drink mix &nbsp;·&nbsp; ~1,260 kcal<br>
+            4× gel, 1× bar, 1× real food
+          </div>
+        </div>
+
+        <div class="baggie">
+          <div class="baggie-header">
+            <span class="baggie-dest">🥡 Baggie → Finish (second pass)</span>
+            <span class="baggie-meta">24.6 mi · ~6h 50m leg</span>
+          </div>
+          <div class="baggie-items">
+            3× drink mix &nbsp;·&nbsp; ~1,910 kcal<br>
+            6× gel, 2× bar, 1× wrap
+          </div>
+        </div>
+
+        <div class="pack-section-label" style="margin-top:14px;">When do I reach this bag?</div>
+        <div class="visit-row">
+          <span class="visit-mile">Mile 60.1</span>
+          <span class="visit-time">~7:44 PM</span>
+          <span class="visit-leg">1st pass — pick up Ant Knolls baggie</span>
+        </div>
+        <div class="visit-row">
+          <span class="visit-mile">Mile 75.4</span>
+          <span class="visit-time">~12:14 AM</span>
+          <span class="visit-leg">2nd pass — pick up Finish baggie</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       CREW TAB
+       ══════════════════════════════════════════ -->
+  <div id="panel-crew" class="tab-panel">
+    <div class="crew-placeholder">
+      <div style="font-size:48px; margin-bottom:12px;">👥</div>
+      <h3>Crew sheet</h3>
+      <p>When your plan is ready, publish a read-only crew view. Anyone with the link can see your packing plan, arrival times, and notes — no login required.</p>
+      <button class="btn-primary">Publish crew sheet</button>
+      <div style="margin-top:14px; font-size:12px; color:#94a3b8;">Your plan is not yet published. Complete your Plan and Pack tabs first.</div>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function toggleSection(header) {
+    const card = header.parentElement;
+    const body = card.querySelector('.section-body');
+    const isExpanded = header.classList.contains('expanded');
+
+    if (isExpanded) {
+      header.classList.remove('expanded');
+      if (body) body.style.display = 'none';
+    } else {
+      header.classList.add('expanded');
+      if (body) body.style.display = 'block';
+    }
+  }
+
+  // Init: hide collapsed section bodies
+  document.querySelectorAll('.section-header:not(.expanded)').forEach(h => {
+    const body = h.parentElement.querySelector('.section-body');
+    if (body) body.style.display = 'none';
+  });
+
+  function toggleBag(header) {
+    const card = header.parentElement;
+    const body = card.querySelector('.bag-body');
+    const icon = header.querySelector('.bag-expand-icon');
+    if (!body) return;
+    const isHidden = body.classList.contains('hidden');
+    if (isHidden) {
+      body.classList.remove('hidden');
+      icon.textContent = '▾';
+    } else {
+      body.classList.add('hidden');
+      icon.textContent = '▸';
+    }
+  }
+
+  function toggleMap(btn) {
+    const area = document.getElementById('map-area');
+    const isCollapsed = area.classList.contains('map-collapsed');
+    if (isCollapsed) {
+      area.classList.remove('map-collapsed');
+      area.classList.add('map-expanded');
+      btn.querySelector('span:first-child').textContent = '▾';
+      btn.querySelector('span:last-child').textContent = 'Expanded · tap to collapse';
+    } else {
+      area.classList.remove('map-expanded');
+      area.classList.add('map-collapsed');
+      btn.querySelector('span:first-child').textContent = '▸';
+      btn.querySelector('span:last-child').textContent = 'Collapsed · tap to expand';
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlanUltra — IA Exploration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --midnight: #02071E;
+      --deep-ridge: #114574;
+      --ridge-blue: #1D7CBE;
+      --sky: #82C7F6;
+      --mist: #DBF1FA;
+      --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'Monaco', 'Menlo', monospace;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      background: #f0f4f8;
+      color: var(--midnight);
+      line-height: 1.5;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--midnight);
+      color: white;
+      padding: 32px 40px 24px;
+    }
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 4px;
+    }
+    .page-header h2 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .page-header p {
+      font-size: 13px;
+      opacity: 0.55;
+      margin-top: 4px;
+    }
+
+    /* ── Option selector ── */
+    .option-selector {
+      background: white;
+      border-bottom: 1px solid var(--sky);
+      padding: 0 40px;
+      display: flex;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .option-btn {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 16px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--deep-ridge);
+      border-bottom: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    .option-btn:hover { color: var(--ridge-blue); background: var(--mist); }
+    .option-btn.active { color: var(--ridge-blue); border-bottom-color: var(--ridge-blue); font-weight: 600; }
+
+    /* ── Main layout ── */
+    .concept-wrapper {
+      display: none;
+      padding: 32px 40px 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .concept-wrapper.active { display: block; }
+
+    .concept-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--midnight);
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+    .concept-subtitle {
+      font-size: 13px;
+      color: var(--ridge-blue);
+      margin-bottom: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .concept-rationale {
+      font-size: 14px;
+      color: #4a5568;
+      max-width: 640px;
+      margin-bottom: 28px;
+      line-height: 1.6;
+      border-left: 3px solid var(--sky);
+      padding-left: 14px;
+    }
+
+    /* ── Generic card ── */
+    .card {
+      background: white;
+      border: 1px solid rgba(130,199,246,0.6);
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(29,124,190,0.07);
+    }
+    .card-header {
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid rgba(130,199,246,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--deep-ridge);
+    }
+    .card-body { padding: 16px 18px; }
+
+    /* ── Section label / pill ── */
+    .pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .pill-blue { background: var(--mist); color: var(--deep-ridge); }
+    .pill-green { background: #d1fae5; color: #065f46; }
+    .pill-amber { background: #fef3c7; color: #92400e; }
+    .pill-gray  { background: #f1f5f9; color: #475569; }
+    .pill-red   { background: #fee2e2; color: #991b1b; }
+
+    /* ── Fake elevation SVG ── */
+    .elev-svg { width: 100%; height: 80px; display: block; }
+
+    /* ── Fake weather bar ── */
+    .weather-bar {
+      height: 48px;
+      background: linear-gradient(90deg, #93c5fd 0%, #fdba74 30%, #fde68a 55%, #6ee7b7 75%, #c4b5fd 100%);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+    .weather-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.12));
+    }
+
+    /* ── Station row ── */
+    .station-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(130,199,246,0.25);
+    }
+    .station-row:last-child { border-bottom: none; }
+    .station-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ridge-blue);
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .station-dot.drop { background: var(--deep-ridge); border: 2px solid var(--ridge-blue); }
+    .station-name { font-size: 14px; font-weight: 600; color: var(--midnight); }
+    .station-meta { font-size: 12px; color: #64748b; margin-top: 1px; }
+
+    /* ── Segment card (plan view) ── */
+    .segment-card {
+      border: 1px solid rgba(130,199,246,0.55);
+      border-radius: 8px;
+      background: white;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .segment-card-header {
+      background: var(--mist);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .segment-from-to {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--midnight);
+      flex: 1;
+    }
+    .segment-stats {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--deep-ridge);
+      display: flex;
+      gap: 12px;
+    }
+    .segment-card-body {
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .fake-input {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: var(--midnight);
+      width: 100%;
+    }
+    .fake-textarea {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #94a3b8;
+      width: 100%;
+      height: 52px;
+      font-style: italic;
+    }
+
+    /* ── Packing card ── */
+    .pack-card {
+      border: 1px solid rgba(130,199,246,0.55);
+      border-radius: 8px;
+      background: white;
+      margin-bottom: 10px;
+    }
+    .pack-header {
+      background: var(--deep-ridge);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 7px 7px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pack-header-name {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .pack-header-dist {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      opacity: 0.7;
+    }
+    .pack-body { padding: 12px 14px; }
+    .gear-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .baggie {
+      background: var(--mist);
+      border: 1px solid rgba(130,199,246,0.6);
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+    }
+    .baggie-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--deep-ridge);
+      margin-bottom: 4px;
+    }
+    .baggie-items {
+      font-size: 12px;
+      color: var(--midnight);
+      display: flex;
+      gap: 10px;
+    }
+
+    /* ── Tab strip (inside concept) ── */
+    .inner-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid rgba(130,199,246,0.5);
+      margin-bottom: 0;
+    }
+    .inner-tab {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 18px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--deep-ridge);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .inner-tab:hover { background: var(--mist); }
+    .inner-tab.active { color: var(--ridge-blue); border-bottom-color: var(--ridge-blue); font-weight: 600; }
+
+    /* ── Grid layouts ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-sidebar { display: grid; grid-template-columns: 260px 1fr; gap: 16px; align-items: start; }
+    .grid-3col { display: grid; grid-template-columns: 220px 1fr 220px; gap: 16px; align-items: start; }
+
+    /* ── Annotation callout ── */
+    .annotation {
+      font-size: 12px;
+      color: #64748b;
+      font-style: italic;
+      margin-top: 6px;
+    }
+    .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .pros, .cons {
+      background: white;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .pros { border-left: 3px solid #10b981; }
+    .cons { border-left: 3px solid #f59e0b; }
+    .pros h4, .cons h4 {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 6px;
+    }
+    .pros h4 { color: #065f46; }
+    .cons h4 { color: #92400e; }
+    .pros li, .cons li { margin-left: 14px; margin-bottom: 2px; }
+
+    /* ── Section divider ── */
+    .section-divider {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--deep-ridge);
+      margin: 24px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(130,199,246,0.5);
+    }
+
+    /* ── Timeline connector ── */
+    .timeline { position: relative; padding-left: 24px; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 10px;
+      bottom: 10px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--sky), var(--mist));
+    }
+    .tl-item { position: relative; margin-bottom: 6px; }
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 10px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ridge-blue);
+      border: 2px solid white;
+      box-shadow: 0 0 0 1px var(--sky);
+    }
+    .tl-item.drop-bag::before { background: var(--deep-ridge); }
+
+    /* ── Mode badge ── */
+    .mode-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 4px 10px;
+      border-radius: 99px;
+    }
+    .mode-plan { background: #dbeafe; color: #1e40af; }
+    .mode-prep { background: #d1fae5; color: #065f46; }
+    .mode-crew { background: #fef3c7; color: #92400e; }
+
+    /* ── Sticky course strip ── */
+    .course-strip {
+      background: white;
+      border-bottom: 1px solid rgba(130,199,246,0.5);
+      padding: 10px 18px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .course-strip-stat {
+      text-align: center;
+    }
+    .course-strip-stat .val {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--midnight);
+    }
+    .course-strip-stat .lbl {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+    }
+    .course-strip-divider { width: 1px; height: 32px; background: rgba(130,199,246,0.5); }
+
+    /* ── Map placeholder ── */
+    .map-placeholder {
+      background: linear-gradient(135deg, #e2f0fb 0%, #c9e8f5 40%, #b8dff0 100%);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--deep-ridge);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ── Collapsible indicator ── */
+    .collapse-hint {
+      font-size: 11px;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    hr.light { border: none; border-top: 1px solid rgba(130,199,246,0.4); margin: 20px 0; }
+
+    /* ── Tooltip-style note ── */
+    .design-note {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #78350f;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Page header -->
+<div class="page-header">
+  <h1>PlanUltra — Information Architecture Exploration</h1>
+  <h2>Race Dashboard Layout Options</h2>
+  <p>Four structural approaches for organising course data, plan inputs, and packing across the Plan and Prep/Pack views</p>
+</div>
+
+<!-- Concept selector -->
+<div class="option-selector">
+  <button class="option-btn active" onclick="show('a')">A — Scrolling Single Page</button>
+  <button class="option-btn" onclick="show('b')">B — Job-Aware Tabs</button>
+  <button class="option-btn" onclick="show('c')">C — Persistent Sidebar</button>
+  <button class="option-btn" onclick="show('d')">D — Course Strip + Focus Mode</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONCEPT A — Scrolling Single Page with Collapsible Sections
+     ════════════════════════════════════════════════════════════ -->
+<div id="concept-a" class="concept-wrapper active">
+
+  <div class="concept-subtitle">Concept A</div>
+  <div class="concept-title">Scrolling Single Page with Collapsible Sections</div>
+  <div class="concept-rationale">
+    Everything lives on one page in a deliberate vertical order. Sections the user rarely revisits (map) start collapsed.
+    The elevation graph is always visible as a compact sticky strip. Section planning is the main body. Packing Plan is prominent
+    at the bottom — a natural destination after planning is done.
+  </div>
+
+  <div class="design-note">
+    ⚠ The map is collapsed by default after first visit. Elevation is pinned as a thin strip. Packing plan scrolls into view at the bottom once planning is complete.
+  </div>
+
+  <!-- Sticky elevation strip -->
+  <div style="background:white; border:1px solid rgba(130,199,246,0.55); border-radius:10px; margin-bottom:14px; overflow:hidden;">
+    <div class="card-header">
+      <span class="card-title">Elevation Profile</span>
+      <span style="font-size:11px; color:#94a3b8;">Always visible · 9,200ft gain · 8,100ft loss</span>
+    </div>
+    <div style="padding:8px 18px 12px;">
+      <svg class="elev-svg" viewBox="0 0 800 80" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="elevGrad" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#82C7F6" stop-opacity="0.05"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,70 L60,60 L120,45 L180,30 L220,20 L260,35 L300,50 L340,30 L380,10 L420,15 L460,25 L500,40 L540,55 L580,40 L620,25 L660,30 L720,45 L760,60 L800,70 Z" fill="url(#elevGrad)" stroke="none"/>
+        <path d="M0,70 L60,60 L120,45 L180,30 L220,20 L260,35 L300,50 L340,30 L380,10 L420,15 L460,25 L500,40 L540,55 L580,40 L620,25 L660,30 L720,45 L760,60 L800,70" fill="none" stroke="#1D7CBE" stroke-width="2"/>
+        <!-- Aid station markers -->
+        <circle cx="180" cy="30" r="4" fill="#114574"/>
+        <circle cx="380" cy="10" r="4" fill="#114574"/>
+        <circle cx="540" cy="55" r="4" fill="#114574"/>
+        <circle cx="720" cy="45" r="4" fill="#114574"/>
+      </svg>
+      <div style="display:flex; gap:24px; margin-top:2px;">
+        <span style="font-size:11px; color:#94a3b8;">Start</span>
+        <span style="font-size:11px; color:#114574;">● Aid stations (drop bag)</span>
+        <span style="font-size:11px; color:#94a3b8; margin-left:auto;">Finish</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map — collapsed -->
+  <div style="background:white; border:1px solid rgba(130,199,246,0.55); border-radius:10px; margin-bottom:14px; overflow:hidden;">
+    <div class="card-header" style="cursor:pointer; user-select:none;">
+      <span class="card-title">Course Map</span>
+      <span class="collapse-hint">▸ Expand · Last viewed 2 days ago</span>
+    </div>
+    <!-- Collapsed: just a thin strip hint -->
+    <div style="padding:10px 18px; background:var(--mist); display:flex; align-items:center; gap:10px;">
+      <div class="map-placeholder" style="height:36px; flex:1; font-size:11px;">Tap to expand course map</div>
+    </div>
+  </div>
+
+  <!-- Weather -->
+  <div style="background:white; border:1px solid rgba(130,199,246,0.55); border-radius:10px; margin-bottom:14px; overflow:hidden;">
+    <div class="card-header">
+      <span class="card-title">Weather Forecast</span>
+      <span style="font-size:11px; color:#94a3b8;">Race day · Jun 28</span>
+    </div>
+    <div style="padding:14px 18px;">
+      <div class="weather-bar"></div>
+      <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:#64748b;">
+        <span>Start 5:00 AM · 38°F</span>
+        <span>Mid-race high · 78°F</span>
+        <span>Night low · 44°F</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Race-level cal rate -->
+  <div style="background:white; border:1px solid rgba(130,199,246,0.55); border-radius:10px; padding:12px 18px; margin-bottom:14px; display:flex; align-items:center; gap:16px;">
+    <span style="font-size:13px; font-weight:600; color:var(--deep-ridge);">Race settings</span>
+    <span style="font-size:12px; color:#64748b;">Calories / hr</span>
+    <div class="fake-input" style="width:80px;">280</div>
+    <span style="font-size:12px; color:#94a3b8;">Applied across all sections · override per-segment below</span>
+  </div>
+
+  <!-- Section cards -->
+  <div class="section-divider">Section Plan</div>
+
+  <!-- Section 1 -->
+  <div class="segment-card">
+    <div class="segment-card-header">
+      <div class="segment-from-to">Start → Chicken Out Ridge</div>
+      <div class="segment-stats">
+        <span>23.1 mi</span>
+        <span>+3,200ft</span>
+        <span>~4h 20m</span>
+        <span>~1,200 kcal</span>
+      </div>
+    </div>
+    <div class="segment-card-body">
+      <div class="input-group">
+        <label>Drink mixes</label>
+        <div class="fake-input">3</div>
+      </div>
+      <div class="input-group">
+        <label>Gear at next station</label>
+        <div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:4px;">
+          <span class="pill pill-blue">Headlamp</span>
+          <span class="pill pill-gray">Extra layer</span>
+        </div>
+      </div>
+      <div class="input-group" style="grid-column:1/-1;">
+        <label>Packing list (food for this leg)</label>
+        <div class="fake-textarea">4× gel, 2× bar, 1× rice ball</div>
+      </div>
+      <div class="input-group" style="grid-column:1/-1;">
+        <label>Notes</label>
+        <div class="fake-textarea">Watch your footing on the descent — loose rock. Crew meets at COR.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2 (compact) -->
+  <div class="segment-card">
+    <div class="segment-card-header">
+      <div class="segment-from-to">Chicken Out Ridge → Pole Canyon</div>
+      <div class="segment-stats">
+        <span>18.4 mi</span>
+        <span>+2,100ft</span>
+        <span>~3h 45m</span>
+        <span>~1,050 kcal</span>
+      </div>
+    </div>
+    <div style="padding:8px 14px; font-size:12px; color:#94a3b8; font-style:italic;">Click to expand planning inputs…</div>
+  </div>
+
+  <!-- Section 3 (compact) -->
+  <div class="segment-card">
+    <div class="segment-card-header">
+      <div class="segment-from-to">Pole Canyon → Finish</div>
+      <div class="segment-stats">
+        <span>12.0 mi</span>
+        <span>+800ft</span>
+        <span>~2h 30m</span>
+        <span>~700 kcal</span>
+      </div>
+    </div>
+    <div style="padding:8px 14px; font-size:12px; color:#94a3b8; font-style:italic;">Click to expand planning inputs…</div>
+  </div>
+
+  <!-- Packing Plan -->
+  <div class="section-divider" style="margin-top:28px;">Packing Plan</div>
+
+  <div class="pack-card">
+    <div class="pack-header">
+      <span class="pack-header-name">⬛ START BAG</span>
+      <span class="pack-header-dist">Mile 0</span>
+    </div>
+    <div class="pack-body">
+      <div class="gear-row">
+        <span class="pill pill-blue">Headlamp</span>
+        <span class="pill pill-gray">Extra layer</span>
+      </div>
+      <div class="baggie">
+        <div class="baggie-label">🥡 Baggie → Chicken Out Ridge (23.1 mi)</div>
+        <div class="baggie-items">
+          <span>3× drink mix</span>
+          <span>~1,200 kcal</span>
+        </div>
+        <div style="margin-top:5px; font-size:12px; color:#475569;">4× gel, 2× bar, 1× rice ball</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pack-card">
+    <div class="pack-header">
+      <span class="pack-header-name">🎒 Chicken Out Ridge</span>
+      <span class="pack-header-dist">Mile 23.1</span>
+    </div>
+    <div class="pack-body">
+      <div class="gear-row">
+        <span class="pill pill-blue">Headlamp</span>
+        <span class="pill pill-amber">Rain gear</span>
+      </div>
+      <div class="baggie">
+        <div class="baggie-label">🥡 Baggie → Pole Canyon (18.4 mi)</div>
+        <div class="baggie-items">
+          <span>2× drink mix</span>
+          <span>~1,050 kcal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Works well when…</h4>
+      <ul>
+        <li>User wants one continuous surface to scroll through</li>
+        <li>No mode-switching friction</li>
+        <li>Packing plan is a natural "reward" at the end</li>
+        <li>Elevation always visible as reference</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Watch out for…</h4>
+      <ul>
+        <li>Long scroll distances for 8–10 section races</li>
+        <li>Packing plan is far from section inputs — hard to cross-reference</li>
+        <li>No distinct "prep mode" vs "plan mode" context</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONCEPT B — Job-Aware Tabs: Plan / Pack / Crew
+     ════════════════════════════════════════════════════════════ -->
+<div id="concept-b" class="concept-wrapper">
+
+  <div class="concept-subtitle">Concept B</div>
+  <div class="concept-title">Job-Aware Tabs: Plan · Pack · Crew</div>
+  <div class="concept-rationale">
+    Three tabs, each matching a distinct runner job. <strong>Plan</strong> (weeks out): course reference + section inputs.
+    <strong>Pack</strong> (week before): packing plan front-and-center, sections collapsed for review.
+    <strong>Crew</strong>: a published view with a share link. Elevation lives in a compact sticky banner across all tabs.
+  </div>
+
+  <div class="design-note">
+    💡 The current "Plan" tab splits into three context-aware tabs. This matches how the runner actually uses the app over time — the same data, different views.
+  </div>
+
+  <!-- Compact course banner (shared across tabs) -->
+  <div style="background:white; border:1px solid rgba(130,199,246,0.55); border-radius:10px; margin-bottom:12px; overflow:hidden;">
+    <div style="padding:10px 18px 4px;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+        <span style="font-family:var(--font-display); font-size:15px; font-weight:800; color:var(--midnight);">Wasatch 100</span>
+        <span class="pill pill-blue">100 mi · 26,800ft gain</span>
+        <span style="font-size:12px; color:#94a3b8; margin-left:auto;">Jun 28, 2025 · 5:00 AM start</span>
+      </div>
+      <svg class="elev-svg" viewBox="0 0 800 70" preserveAspectRatio="none" style="height:56px;">
+        <defs>
+          <linearGradient id="elevGrad2" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#82C7F6" stop-opacity="0.05"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,65 L60,55 L120,40 L180,25 L220,15 L260,30 L300,45 L340,25 L380,5 L420,10 L460,20 L500,35 L540,50 L580,35 L620,20 L660,25 L720,40 L760,55 L800,65 Z" fill="url(#elevGrad2)"/>
+        <path d="M0,65 L60,55 L120,40 L180,25 L220,15 L260,30 L300,45 L340,25 L380,5 L420,10 L460,20 L500,35 L540,50 L580,35 L620,20 L660,25 L720,40 L760,55 L800,65" fill="none" stroke="#1D7CBE" stroke-width="1.5"/>
+        <circle cx="180" cy="25" r="3.5" fill="#114574"/>
+        <text x="180" y="20" text-anchor="middle" font-size="8" fill="#114574" font-family="system-ui">COR</text>
+        <circle cx="380" cy="5" r="3.5" fill="#114574"/>
+        <text x="380" y="1" text-anchor="middle" font-size="8" fill="#114574" font-family="system-ui">Big M</text>
+        <circle cx="540" cy="50" r="3.5" fill="#114574"/>
+        <text x="540" y="46" text-anchor="middle" font-size="8" fill="#114574" font-family="system-ui">Pole</text>
+        <circle cx="720" cy="40" r="3.5" fill="#114574"/>
+        <text x="720" y="36" text-anchor="middle" font-size="8" fill="#114574" font-family="system-ui">Ant Knoll</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Tab strip with job mode indicators -->
+  <div style="background:white; border:1px solid rgba(130,199,246,0.55); border-radius:10px; margin-bottom:16px; overflow:hidden;">
+    <div class="inner-tabs" style="padding:0 4px;">
+      <button class="inner-tab active">📋 Plan <span class="pill pill-gray" style="margin-left:6px; font-size:10px;">Editing</span></button>
+      <button class="inner-tab">🎒 Pack <span class="pill pill-green" style="margin-left:6px; font-size:10px;">2 days before</span></button>
+      <button class="inner-tab">👥 Crew <span class="pill pill-amber" style="margin-left:6px; font-size:10px;">Not published</span></button>
+    </div>
+
+    <div style="padding:16px 18px;">
+
+      <!-- Plan tab content -->
+      <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; padding:10px 14px; background:var(--mist); border-radius:8px;">
+        <span style="font-size:13px; color:var(--deep-ridge); font-weight:600;">Calorie target</span>
+        <div class="fake-input" style="width:80px;">280 kcal/hr</div>
+        <span style="font-size:12px; color:#94a3b8;">Auto-applied to all sections</span>
+        <span style="margin-left:auto; font-size:12px; color:#10b981; font-weight:600;">✓ Saved</span>
+      </div>
+
+      <!-- Section inputs (one expanded, others collapsed) -->
+      <div class="segment-card" style="margin-bottom:8px;">
+        <div class="segment-card-header" style="border-left:3px solid var(--ridge-blue);">
+          <div class="segment-from-to">Start → Chicken Out Ridge</div>
+          <div class="segment-stats">
+            <span>23.1 mi</span>
+            <span>+3,200ft</span>
+            <span>~4h 20m</span>
+            <span style="color:var(--ridge-blue); font-weight:700;">~1,210 kcal</span>
+          </div>
+        </div>
+        <div class="segment-card-body">
+          <div class="input-group">
+            <label>Drink mixes</label>
+            <div class="fake-input">3</div>
+          </div>
+          <div class="input-group">
+            <label>Calorie total</label>
+            <div class="fake-input" style="color:var(--ridge-blue);">~1,210 kcal <span style="font-size:10px; color:#94a3b8;">(auto)</span></div>
+          </div>
+          <div class="input-group" style="grid-column:1/-1;">
+            <label>Packing list</label>
+            <div class="fake-textarea">4× gel, 2× bar, 1× rice ball</div>
+          </div>
+          <div class="input-group" style="grid-column:1/-1;">
+            <label>Notes for crew</label>
+            <div class="fake-textarea" style="color:#475569; font-style:normal;">Crew meets here. Dan needs headlamp and extra layer in drop bag.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="segment-card" style="margin-bottom:8px;">
+        <div class="segment-card-header">
+          <div class="segment-from-to">Chicken Out Ridge → Big Mountain</div>
+          <div class="segment-stats"><span>20.5 mi</span><span>+2,400ft</span><span>~4h 10m</span><span>~1,160 kcal</span></div>
+        </div>
+        <div style="padding:8px 14px 10px; font-size:12px; color:#94a3b8;">Drink mixes: 2 · Packing list: 3× gel, 2× wrap · No notes</div>
+      </div>
+
+      <div class="segment-card">
+        <div class="segment-card-header">
+          <div class="segment-from-to">Big Mountain → Pole Canyon</div>
+          <div class="segment-stats"><span>16.2 mi</span><span>+1,800ft</span><span>~3h 20m</span><span>~930 kcal</span></div>
+        </div>
+        <div style="padding:8px 14px 10px; font-size:12px; color:#94a3b8;">Not yet planned</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Works well when…</h4>
+      <ul>
+        <li>Different jobs deserve different visual hierarchies</li>
+        <li>Pack tab can re-order content around packing, not planning</li>
+        <li>Crew tab can be published independently</li>
+        <li>Elevation stays as a shared reference above all tabs</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Watch out for…</h4>
+      <ul>
+        <li>More tabs = more navigation decisions for users</li>
+        <li>Duplication: packing plan must exist in Pack tab AND be derivable from Plan tab</li>
+        <li>Where do you put weather? It's relevant to both Plan and Pack</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONCEPT C — Persistent Sidebar (Course) + Scrollable Main
+     ════════════════════════════════════════════════════════════ -->
+<div id="concept-c" class="concept-wrapper">
+
+  <div class="concept-subtitle">Concept C</div>
+  <div class="concept-title">Persistent Sidebar with Scrollable Main Content</div>
+  <div class="concept-rationale">
+    The course is a fixed reference — it doesn't change. Pin it to the left as a persistent sidebar: station list, elevation thumbnail,
+    and weather summary. The right panel is the working area, scrolling through section inputs then packing plan.
+    The runner always knows where they are on the course while editing.
+  </div>
+
+  <div class="design-note">
+    💡 This is the most common layout in logistics apps (e.g., Google Maps, route planners) where the map/reference is persistent. Works best on wider screens.
+  </div>
+
+  <div class="grid-sidebar">
+
+    <!-- Sidebar -->
+    <div style="position:sticky; top:60px;">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Wasatch 100</span>
+          <span class="pill pill-blue">100 mi</span>
+        </div>
+        <div class="card-body" style="padding:12px 14px;">
+          <!-- Mini elevation -->
+          <svg viewBox="0 0 260 60" style="width:100%; height:50px; display:block; margin-bottom:8px;" preserveAspectRatio="none">
+            <path d="M0,55 L30,45 L60,30 L90,18 L110,10 L130,22 L150,16 L170,4 L190,8 L210,18 L230,30 L250,40 L260,55 Z" fill="rgba(130,199,246,0.2)"/>
+            <path d="M0,55 L30,45 L60,30 L90,18 L110,10 L130,22 L150,16 L170,4 L190,8 L210,18 L230,30 L250,40 L260,55" fill="none" stroke="#1D7CBE" stroke-width="1.5"/>
+            <circle cx="90" cy="18" r="3" fill="#114574"/>
+            <circle cx="170" cy="4" r="3" fill="#114574"/>
+            <circle cx="230" cy="30" r="3" fill="#114574"/>
+          </svg>
+
+          <div class="timeline">
+            <div class="tl-item drop-bag">
+              <div class="segment-card" style="margin-bottom:6px; border:none; box-shadow:none; background:transparent;">
+                <div style="padding:4px 0;">
+                  <div class="station-name">Start</div>
+                  <div class="station-meta">Mile 0 · Jun 28, 5:00 AM</div>
+                </div>
+              </div>
+            </div>
+            <div class="tl-item drop-bag">
+              <div style="padding:4px 0 6px;">
+                <div class="station-name">Chicken Out Ridge</div>
+                <div class="station-meta">Mile 23.1 · ~4h 20m · Drop bag ✓</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div style="padding:4px 0 6px;">
+                <div class="station-name">Francis Peak</div>
+                <div class="station-meta">Mile 31.5 · ~6h 10m · Refill only</div>
+              </div>
+            </div>
+            <div class="tl-item drop-bag">
+              <div style="padding:4px 0 6px;">
+                <div class="station-name">Big Mountain</div>
+                <div class="station-meta">Mile 43.6 · ~8h 30m · Drop bag ✓</div>
+              </div>
+            </div>
+            <div class="tl-item drop-bag">
+              <div style="padding:4px 0 6px;">
+                <div class="station-name">Pole Canyon</div>
+                <div class="station-meta">Mile 60.1 · ~12h 15m · Drop bag ✓</div>
+              </div>
+            </div>
+            <div class="tl-item drop-bag" style="opacity:0.5;">
+              <div style="padding:4px 0 6px;">
+                <div class="station-name">Finish</div>
+                <div class="station-meta">Mile 100 · ~24h est.</div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="light">
+
+          <!-- Weather summary in sidebar -->
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--deep-ridge); margin-bottom:6px;">Weather</div>
+          <div style="font-size:12px; color:#475569; line-height:1.6;">
+            🌤 38°F start · High 78°F · Overnight 44°F<br>
+            <span style="color:#f59e0b; font-weight:600;">⚡ Afternoon storm risk (2–5 PM)</span>
+          </div>
+
+          <hr class="light">
+
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--deep-ridge); margin-bottom:8px;">View</div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <button style="font-size:12px; font-weight:600; padding:7px 10px; border-radius:6px; background:var(--ridge-blue); color:white; border:none; cursor:pointer; text-align:left;">📋 Section Plan</button>
+            <button style="font-size:12px; font-weight:500; padding:7px 10px; border-radius:6px; background:transparent; color:var(--deep-ridge); border:1px solid rgba(130,199,246,0.5); cursor:pointer; text-align:left;">🎒 Packing Plan</button>
+            <button style="font-size:12px; font-weight:500; padding:7px 10px; border-radius:6px; background:transparent; color:var(--deep-ridge); border:1px solid rgba(130,199,246,0.5); cursor:pointer; text-align:left;">👥 Crew Sheet ↗</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main scrollable area -->
+    <div>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; padding:10px 14px; background:white; border-radius:8px; border:1px solid rgba(130,199,246,0.4);">
+        <span style="font-size:13px; font-weight:600; color:var(--deep-ridge);">Cal target</span>
+        <div class="fake-input" style="width:80px;">280</div>
+        <span style="font-size:11px; color:#94a3b8;">kcal/hr · auto-applied</span>
+      </div>
+
+      <div class="segment-card" style="margin-bottom:10px;">
+        <div class="segment-card-header" style="border-left:3px solid var(--ridge-blue);">
+          <div class="segment-from-to">Start → Chicken Out Ridge</div>
+          <div class="segment-stats">
+            <span>23.1 mi</span><span>~4h 20m</span><span style="color:var(--ridge-blue);">~1,210 kcal</span>
+          </div>
+        </div>
+        <div class="segment-card-body">
+          <div class="input-group"><label>Drink mixes</label><div class="fake-input">3</div></div>
+          <div class="input-group"><label>Gear at COR</label><div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:4px;"><span class="pill pill-blue">Headlamp</span></div></div>
+          <div class="input-group" style="grid-column:1/-1;"><label>Packing list</label><div class="fake-textarea">4× gel, 2× bar</div></div>
+          <div class="input-group" style="grid-column:1/-1;"><label>Notes</label><div class="fake-textarea">Meet crew at COR. Get headlamp and warm layer.</div></div>
+        </div>
+      </div>
+
+      <div class="segment-card" style="margin-bottom:10px;">
+        <div class="segment-card-header">
+          <div class="segment-from-to">Chicken Out Ridge → Big Mountain</div>
+          <div class="segment-stats"><span>20.5 mi</span><span>~4h 10m</span><span>~1,160 kcal</span></div>
+        </div>
+        <div style="padding:8px 14px 10px; font-size:12px; color:#94a3b8;">Click to expand…</div>
+      </div>
+
+      <div class="segment-card" style="margin-bottom:10px;">
+        <div class="segment-card-header">
+          <div class="segment-from-to">Big Mountain → Pole Canyon</div>
+          <div class="segment-stats"><span>16.2 mi</span><span>~3h 20m</span><span>~930 kcal</span></div>
+        </div>
+        <div style="padding:8px 14px 10px; font-size:12px; color:#94a3b8;">Not yet planned</div>
+      </div>
+
+      <!-- Packing Plan inline below -->
+      <div class="section-divider" style="margin-top:24px;">Packing Plan</div>
+      <div class="pack-card">
+        <div class="pack-header">
+          <span class="pack-header-name">⬛ START BAG</span>
+          <span class="pack-header-dist">Mile 0 · Jun 28 5:00 AM</span>
+        </div>
+        <div class="pack-body">
+          <div class="gear-row"><span class="pill pill-blue">Headlamp</span><span class="pill pill-gray">Extra layer</span></div>
+          <div class="baggie">
+            <div class="baggie-label">🥡 → Chicken Out Ridge</div>
+            <div class="baggie-items"><span>3× drink mix</span><span>~1,210 kcal</span></div>
+            <div style="margin-top:4px; font-size:12px; color:#475569;">4× gel, 2× bar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Works well when…</h4>
+      <ul>
+        <li>Course is always visible as spatial reference</li>
+        <li>Station list + elevation in sidebar aids recall</li>
+        <li>View switching (plan/pack/crew) in sidebar nav feels lightweight</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Watch out for…</h4>
+      <ul>
+        <li>Narrow main column on laptop screens</li>
+        <li>Sidebar takes up real estate on mobile</li>
+        <li>Course map has no good home in this layout</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONCEPT D — Course Strip + Expandable Focus Sections
+     ════════════════════════════════════════════════════════════ -->
+<div id="concept-d" class="concept-wrapper">
+
+  <div class="concept-subtitle">Concept D</div>
+  <div class="concept-title">Course Strip + Sequential Focus Sections</div>
+  <div class="concept-rationale">
+    The elevation profile is permanently pinned at the top as a clickable strip — clicking a station on the strip jumps to that section card.
+    Below it, one active section is in "focus" at a time, showing full plan inputs and the packing card for that station simultaneously.
+    A horizontal stepper lets you move through sections. Weather and map collapse into a single "Course info" accordion.
+    This mimics how runners actually think: one section at a time.
+  </div>
+
+  <div class="design-note">
+    💡 Key insight: you rarely need to see all sections at once. You're always thinking about one leg at a time. This design collapses the vertical list into a horizontal stepper.
+  </div>
+
+  <!-- Pinned course strip with clickable stations -->
+  <div style="background:white; border:1px solid rgba(130,199,246,0.55); border-radius:10px; margin-bottom:12px; overflow:hidden;">
+    <div style="padding:10px 18px 4px;">
+      <!-- Race stats row -->
+      <div class="course-strip" style="padding:0 0 8px; border-bottom:none; margin-bottom:4px;">
+        <div class="course-strip-stat"><div class="val">100</div><div class="lbl">Miles</div></div>
+        <div class="course-strip-divider"></div>
+        <div class="course-strip-stat"><div class="val">26.8K</div><div class="lbl">Ft gain</div></div>
+        <div class="course-strip-divider"></div>
+        <div class="course-strip-stat"><div class="val">~24h</div><div class="lbl">Est. finish</div></div>
+        <div class="course-strip-divider"></div>
+        <div class="course-strip-stat"><div class="val">280</div><div class="lbl">Cal/hr</div></div>
+        <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+          <span class="pill pill-green" style="font-size:10px;">3/5 sections planned</span>
+          <span class="pill pill-amber" style="font-size:10px;">2/5 bags packed</span>
+        </div>
+      </div>
+
+      <!-- Elevation with clickable station markers -->
+      <div style="position:relative;">
+        <svg viewBox="0 0 800 70" style="width:100%; height:62px; display:block;" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="elevGrad3" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#82C7F6" stop-opacity="0.05"/>
+            </linearGradient>
+            <!-- Active section highlight -->
+            <linearGradient id="activeHighlight" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#1D7CBE" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#1D7CBE" stop-opacity="0.05"/>
+            </linearGradient>
+          </defs>
+          <!-- Active section background (Start → COR, 0–22%) -->
+          <rect x="0" y="0" width="176" height="70" fill="url(#activeHighlight)" rx="0"/>
+          <path d="M0,65 L60,55 L120,40 L176,25 L220,15 L260,30 L300,45 L340,25 L380,5 L420,10 L460,20 L500,35 L540,50 L580,35 L620,20 L660,25 L720,40 L760,55 L800,65 Z" fill="url(#elevGrad3)"/>
+          <path d="M0,65 L60,55 L120,40 L176,25 L220,15 L260,30 L300,45 L340,25 L380,5 L420,10 L460,20 L500,35 L540,50 L580,35 L620,20 L660,25 L720,40 L760,55 L800,65" fill="none" stroke="#1D7CBE" stroke-width="1.5"/>
+          <!-- Station markers -->
+          <circle cx="0" cy="65" r="5" fill="white" stroke="#114574" stroke-width="2"/>
+          <circle cx="176" cy="25" r="5" fill="#114574"/>
+          <circle cx="380" cy="5" r="5" fill="#114574"/>
+          <circle cx="540" cy="50" r="5" fill="#114574"/>
+          <circle cx="720" cy="40" r="5" fill="#114574"/>
+          <circle cx="800" cy="65" r="5" fill="white" stroke="#114574" stroke-width="2"/>
+          <!-- Active station ring -->
+          <circle cx="0" cy="65" r="8" fill="none" stroke="#1D7CBE" stroke-width="1.5" stroke-dasharray="3,2"/>
+        </svg>
+        <!-- Station labels below -->
+        <div style="display:flex; font-size:10px; color:#94a3b8; padding:2px 0 4px; font-weight:500;">
+          <span style="position:absolute; left:0; color:var(--ridge-blue); font-weight:700;">Start ▾</span>
+          <span style="position:absolute; left:calc(176/800 * 100%);">COR</span>
+          <span style="position:absolute; left:calc(380/800 * 100%);">Big M</span>
+          <span style="position:absolute; left:calc(540/800 * 100%);">Pole</span>
+          <span style="position:absolute; left:calc(720/800 * 100%);">Ant Knoll</span>
+          <span style="position:absolute; right:0;">Finish</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section stepper nav -->
+  <div style="background:white; border:1px solid rgba(130,199,246,0.55); border-radius:10px; padding:10px 18px; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+    <button style="padding:6px 12px; border-radius:6px; background:var(--mist); border:1px solid var(--sky); font-size:12px; color:#94a3b8; cursor:pointer;">← Prev</button>
+    <div style="flex:1; display:flex; gap:4px; justify-content:center;">
+      <button style="padding:6px 14px; border-radius:6px; background:var(--ridge-blue); border:none; font-size:12px; font-weight:700; color:white; cursor:pointer;">Start → COR</button>
+      <button style="padding:6px 14px; border-radius:6px; background:var(--mist); border:1px solid var(--sky); font-size:12px; color:var(--deep-ridge); cursor:pointer;">COR → Big M</button>
+      <button style="padding:6px 14px; border-radius:6px; background:var(--mist); border:1px solid var(--sky); font-size:12px; color:var(--deep-ridge); cursor:pointer;">Big M → Pole</button>
+      <button style="padding:6px 14px; border-radius:6px; background:#f1f5f9; border:1px solid #e2e8f0; font-size:12px; color:#94a3b8; cursor:pointer;">Pole → Ant Knoll</button>
+      <button style="padding:6px 14px; border-radius:6px; background:#f1f5f9; border:1px solid #e2e8f0; font-size:12px; color:#94a3b8; cursor:pointer;">Ant Knoll → Finish</button>
+    </div>
+    <button style="padding:6px 12px; border-radius:6px; background:var(--mist); border:1px solid var(--sky); font-size:12px; color:var(--deep-ridge); cursor:pointer; font-weight:600;">Next →</button>
+  </div>
+
+  <!-- Focus: section plan + packing side by side -->
+  <div class="grid-2" style="gap:12px;">
+
+    <!-- Left: Plan inputs -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Plan · Start → Chicken Out Ridge</span>
+        <span style="font-family:var(--font-mono); font-size:11px; color:#94a3b8;">23.1 mi · +3,200ft · ~4h 20m</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+          <div class="input-group">
+            <label>Drink mixes</label>
+            <div class="fake-input">3</div>
+          </div>
+          <div class="input-group">
+            <label>Calories (auto)</label>
+            <div class="fake-input" style="color:var(--ridge-blue);">~1,210 kcal</div>
+          </div>
+        </div>
+        <div class="input-group" style="margin-bottom:8px;">
+          <label>Gear to collect at Chicken Out Ridge</label>
+          <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:4px;">
+            <span class="pill pill-blue">Headlamp</span>
+            <span class="pill pill-gray">Extra layer</span>
+            <span style="font-size:12px; color:#94a3b8; margin-left:4px; align-self:center;">+ add gear</span>
+          </div>
+        </div>
+        <div class="input-group" style="margin-bottom:8px;">
+          <label>Packing list (food for this leg)</label>
+          <div class="fake-textarea">4× gel, 2× bar, 1× rice ball</div>
+        </div>
+        <div class="input-group">
+          <label>Notes for crew</label>
+          <div class="fake-textarea" style="color:#475569; font-style:normal;">Crew meets at COR. Dan needs headlamp and warm layer ready.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Packing card for this station -->
+    <div>
+      <div class="card" style="margin-bottom:10px;">
+        <div class="card-header" style="background:var(--deep-ridge);">
+          <span class="card-title" style="color:white;">Bag · Start</span>
+          <span style="font-size:11px; color:rgba(255,255,255,0.6);">Packed for next leg</span>
+        </div>
+        <div class="card-body">
+          <div class="gear-row" style="margin-bottom:8px;">
+            <span class="pill pill-blue">Headlamp</span>
+            <span class="pill pill-gray">Extra layer</span>
+          </div>
+          <div class="baggie">
+            <div class="baggie-label">🥡 Baggie → Chicken Out Ridge</div>
+            <div class="baggie-items" style="margin-bottom:4px;"><span>3× drink mix</span><span>~1,210 kcal</span></div>
+            <div style="font-size:12px; color:#475569;">4× gel, 2× bar, 1× rice ball</div>
+          </div>
+          <div style="margin-top:10px; font-size:12px; color:#94a3b8; font-style:italic; border-top:1px solid rgba(130,199,246,0.3); padding-top:8px;">
+            Notes for crew: Crew meets at COR. Dan needs headlamp and warm layer ready.
+          </div>
+        </div>
+      </div>
+
+      <!-- Weather for this section -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Weather · This leg</span>
+          <span style="font-size:11px; color:#94a3b8;">5:00 AM → 9:20 AM</span>
+        </div>
+        <div class="card-body" style="font-size:13px; color:#475569; line-height:1.7;">
+          🌙 Start: 38°F · clear<br>
+          🌤 9 AM: 52°F · increasing cloud
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Works well when…</h4>
+      <ul>
+        <li>Plan inputs and packing card are side-by-side — no scrolling to cross-reference</li>
+        <li>One section at a time reduces cognitive load</li>
+        <li>Elevation strip gives context without taking up main content space</li>
+        <li>Progress indicators (3/5 planned) motivate completion</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Watch out for…</h4>
+      <ul>
+        <li>Harder to get a "whole race overview" feeling</li>
+        <li>Copy-checking across sections requires clicking through each one</li>
+        <li>The horizontal stepper can get crowded for 10+ section races</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.concept-wrapper').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.option-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('concept-' + id).classList.add('active');
+    event.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>

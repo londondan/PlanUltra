@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlanUltra — Typography Specimen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- DM Sans: display/headings — weights 700 + 800 only -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <!-- Geist Sans + Mono: UI chrome and numeric readouts -->
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@600&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --midnight:   #02071E;
+      --deep-ridge: #114574;
+      --ridge-blue: #1D7CBE;
+      --sky:        #82C7F6;
+      --mist:       #DBF1FA;
+
+      --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-ui:      'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+      --font-mono:    'Geist Mono', 'Monaco', 'Menlo', 'Courier New', monospace;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      background: white;
+      color: var(--midnight);
+      line-height: 1.5;
+    }
+
+    /* ── Page shell ── */
+    .page-header {
+      background: var(--midnight);
+      padding: 32px 48px;
+    }
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.02em;
+    }
+    .page-header p {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      color: var(--sky);
+      margin-top: 4px;
+      opacity: 0.8;
+    }
+
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px;
+    }
+
+    /* ── Section dividers ── */
+    .section {
+      margin-bottom: 64px;
+    }
+    .section-label {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--ridge-blue);
+      border-bottom: 1px solid var(--sky);
+      padding-bottom: 10px;
+      margin-bottom: 32px;
+    }
+
+    /* ── Specimen rows ── */
+    .specimen-row {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 24px;
+      align-items: baseline;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(130, 199, 246, 0.25);
+    }
+    .specimen-row:last-child {
+      border-bottom: none;
+    }
+    .specimen-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--deep-ridge);
+      opacity: 0.6;
+      line-height: 1.6;
+      text-align: right;
+    }
+    .specimen-meta strong {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--ridge-blue);
+      opacity: 1;
+      margin-bottom: 2px;
+    }
+
+    /* ── Hero strip (white text on mountain gradient) ── */
+    .hero-strip {
+      background: linear-gradient(135deg, var(--midnight) 0%, var(--deep-ridge) 50%, var(--ridge-blue) 100%);
+      border-radius: 10px;
+      padding: 40px 40px 36px;
+      margin-bottom: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-strip::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 200'%3E%3Cpolygon points='0,200 300,80 500,140 700,40 1000,120 1000,200' fill='%2382C7F6' opacity='0.12'/%3E%3C/svg%3E") bottom / cover no-repeat;
+      pointer-events: none;
+    }
+    .hero-strip-content { position: relative; z-index: 1; }
+    .hero-strip .specimen-meta { color: var(--sky); opacity: 0.7; }
+
+    /* ── Mist strip (metadata / secondary text backgrounds) ── */
+    .mist-strip {
+      background: var(--mist);
+      border-radius: 10px;
+      padding: 28px 32px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Table specimen ── */
+    .type-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-ui);
+      font-size: 13px;
+    }
+    .type-table thead tr {
+      border-bottom: 1px solid var(--sky);
+    }
+    .type-table th {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--deep-ridge);
+      padding: 10px 12px;
+      text-align: left;
+    }
+    .type-table tbody tr:nth-child(odd)  { background: var(--mist); }
+    .type-table tbody tr:nth-child(even) { background: white; }
+    .type-table tbody tr:hover { background: rgba(130,199,246,0.3); }
+    .type-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid rgba(130,199,246,0.25);
+      vertical-align: middle;
+    }
+    .type-table td:first-child { font-weight: 600; color: var(--midnight); }
+    .type-table td.meta       { color: var(--deep-ridge); opacity: 0.7; }
+    .type-table td.accent     { font-family: var(--font-mono); font-weight: 600; color: var(--ridge-blue); }
+
+    /* ── Inline annotations ── */
+    .annotation {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ridge-blue);
+      opacity: 0.7;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE HEADER
+     ══════════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <h1>PlanUltra · Typography Specimen</h1>
+  <p>PRD-003 §4 — all type styles, live in the browser</p>
+</div>
+
+<div class="content">
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECTION 1: DM SANS — DISPLAY & HEADINGS
+       ══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-label">DM Sans — Display &amp; Headings</div>
+
+    <!-- Hero title — white on dark, shown in context -->
+    <div class="hero-strip">
+      <div class="hero-strip-content">
+        <div class="specimen-row" style="grid-template-columns: 1fr 220px; align-items: end; border-bottom: 1px solid rgba(130,199,246,0.2); padding-bottom: 20px;">
+          <div style="font-family:var(--font-display); font-size:48px; font-weight:800; color:white; letter-spacing:-0.02em; line-height:1.15;">
+            Plan your ultra marathon, mile by mile
+          </div>
+          <div class="specimen-meta">
+            <strong>Hero Title</strong>
+            48px · weight 800<br>
+            letter-spacing −0.02em<br>
+            line-height 1.15<br>
+            color: white
+          </div>
+        </div>
+        <div style="margin-top: 16px; font-family:var(--font-ui); font-size:18px; color:white; opacity:0.85;">
+          Upload a GPX file, set your pace, and get hour-by-hour weather forecasts aligned to your position on course.
+          <span class="annotation" style="color:var(--sky);">← hero subtitle: Geist Sans 18px white/85%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page h1 -->
+    <div class="specimen-row">
+      <div>
+        <span style="font-family:var(--font-display); font-size:36px; font-weight:700; color:var(--midnight); letter-spacing:-0.02em;">
+          My Races
+        </span>
+        <span class="annotation">Page h1</span>
+      </div>
+      <div class="specimen-meta">
+        <strong>Page Title (h1)</strong>
+        36px · weight 700<br>
+        letter-spacing −0.02em<br>
+        color: Midnight
+      </div>
+    </div>
+
+    <!-- Race detail title -->
+    <div class="specimen-row">
+      <div>
+        <span style="font-family:var(--font-display); font-size:42px; font-weight:800; color:var(--midnight); letter-spacing:-0.02em; line-height:1.1; display:inline-block;">
+          Hellbender 100
+        </span>
+        <span class="annotation">Race detail title</span>
+      </div>
+      <div class="specimen-meta">
+        <strong>Race Detail Title</strong>
+        42px · weight 800<br>
+        letter-spacing −0.02em<br>
+        line-height 1.1 · color: Midnight
+      </div>
+    </div>
+
+    <!-- Section heading h2 -->
+    <div class="specimen-row">
+      <div>
+        <span style="font-family:var(--font-display); font-size:24px; font-weight:700; color:var(--midnight); letter-spacing:-0.01em;">
+          Aid Stations
+        </span>
+        <span class="annotation">Section heading h2</span>
+      </div>
+      <div class="specimen-meta">
+        <strong>Section Heading (h2)</strong>
+        24px · weight 700<br>
+        letter-spacing −0.01em<br>
+        color: Midnight
+      </div>
+    </div>
+
+    <!-- Card title / race name -->
+    <div class="specimen-row">
+      <div>
+        <span style="font-family:var(--font-display); font-size:18px; font-weight:700; color:var(--midnight); letter-spacing:-0.01em;">
+          Barkley Marathons
+        </span>
+        <span class="annotation">Card title / race name</span>
+      </div>
+      <div class="specimen-meta">
+        <strong>Card Title / Race Name</strong>
+        18px · weight 700<br>
+        letter-spacing −0.01em<br>
+        color: Midnight
+      </div>
+    </div>
+
+    <!-- Logo wordmark -->
+    <div class="specimen-row">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 16 16"><polygon points="8,1 15,15 1,15" fill="#1D7CBE"/></svg>
+        <span style="font-family:var(--font-display); font-size:18px; font-weight:700; color:var(--midnight); letter-spacing:-0.03em;">
+          PlanUltra
+        </span>
+        <span class="annotation">Logo wordmark</span>
+      </div>
+      <div class="specimen-meta">
+        <strong>Logo Wordmark</strong>
+        18px · weight 700<br>
+        letter-spacing −0.03em<br>
+        color: Midnight
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECTION 2: GEIST SANS — UI CHROME & BODY
+       ══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-label">Geist Sans — UI Chrome &amp; Body</div>
+
+    <!-- Body default -->
+    <div class="specimen-row">
+      <div style="font-family:var(--font-ui); font-size:16px; font-weight:400; color:var(--midnight); max-width:520px; line-height:1.6;">
+        Upload a GPX file, set your pace, and get hour-by-hour weather forecasts aligned to your position on course. Turn a route into a complete race-day plan.
+      </div>
+      <div class="specimen-meta">
+        <strong>Body / Default</strong>
+        16px · weight 400<br>
+        line-height 1.6<br>
+        color: Midnight
+      </div>
+    </div>
+
+    <!-- Body 14px -->
+    <div class="specimen-row">
+      <div style="font-family:var(--font-ui); font-size:14px; font-weight:400; color:var(--midnight); max-width:520px; line-height:1.6;">
+        Enter your target pace or finish time and see estimated arrival times at every aid station along the course.
+      </div>
+      <div class="specimen-meta">
+        <strong>Body (compact)</strong>
+        14px · weight 400<br>
+        color: Midnight
+      </div>
+    </div>
+
+    <!-- Secondary / metadata -->
+    <div class="mist-strip">
+      <div class="specimen-row" style="border-bottom: 1px solid rgba(130,199,246,0.3);">
+        <div style="font-family:var(--font-ui); font-size:14px; font-weight:400; color:var(--deep-ridge); opacity:0.7;">
+          Saturday, June 14, 2026 · Start 5:00 AM · 103.4 miles
+        </div>
+        <div class="specimen-meta">
+          <strong>Secondary / Metadata</strong>
+          14px · weight 400<br>
+          color: Deep Ridge 70%
+        </div>
+      </div>
+      <div class="specimen-row" style="padding-top:16px;">
+        <div style="font-family:var(--font-ui); font-size:13px; font-weight:400; color:var(--deep-ridge); opacity:0.7;">
+          June 14, 2026 · 5:00 AM start
+        </div>
+        <div class="specimen-meta">
+          <strong>Metadata (compact)</strong>
+          13px · weight 400<br>
+          color: Deep Ridge 70%
+        </div>
+      </div>
+    </div>
+
+    <!-- Section label / caps -->
+    <div class="specimen-row">
+      <div style="font-family:var(--font-ui); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--deep-ridge);">
+        Elevation Profile
+      </div>
+      <div class="specimen-meta">
+        <strong>Section Label / Caps</strong>
+        12px · weight 700<br>
+        uppercase · ls 0.8px<br>
+        color: Deep Ridge
+      </div>
+    </div>
+
+    <!-- Table header -->
+    <div class="specimen-row">
+      <div style="font-family:var(--font-ui); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--deep-ridge);">
+        Station &nbsp;&nbsp; Distance &nbsp;&nbsp; Est. Arrival
+      </div>
+      <div class="specimen-meta">
+        <strong>Table Header</strong>
+        12px · weight 600<br>
+        uppercase · ls 0.5px<br>
+        color: Deep Ridge
+      </div>
+    </div>
+
+    <!-- Input value -->
+    <div class="specimen-row">
+      <div style="display:inline-flex; align-items:center; gap:12px;">
+        <input
+          type="text"
+          value="15:00 min/mile"
+          readonly
+          style="font-family:var(--font-ui); font-size:14px; font-weight:600; color:var(--midnight);
+                 padding:10px 12px; border:1.5px solid var(--sky); border-radius:6px; width:200px;
+                 background:white; outline:none;"
+        >
+        <span class="annotation">Input value</span>
+      </div>
+      <div class="specimen-meta">
+        <strong>Input Value</strong>
+        14px · weight 600<br>
+        color: Midnight<br>
+        border: Sky 1.5px
+      </div>
+    </div>
+
+    <!-- Link text -->
+    <div class="specimen-row">
+      <div>
+        <a href="#" style="font-family:var(--font-ui); font-size:14px; font-weight:500; color:var(--ridge-blue); text-decoration:none; transition:opacity 0.2s;"
+           onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
+          View race details →
+        </a>
+        <span class="annotation">Link text (hover to see opacity 0.7)</span>
+      </div>
+      <div class="specimen-meta">
+        <strong>Link Text</strong>
+        14px · weight 500<br>
+        color: Ridge Blue<br>
+        hover: opacity 0.7
+      </div>
+    </div>
+
+    <!-- Nav link -->
+    <div class="specimen-row">
+      <div style="font-family:var(--font-ui); font-size:14px; font-weight:500; color:var(--ridge-blue);">
+        Dashboard &nbsp;&nbsp; My Races &nbsp;&nbsp; Settings
+      </div>
+      <div class="specimen-meta">
+        <strong>Nav Link</strong>
+        14px · weight 500<br>
+        color: Ridge Blue
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECTION 3: GEIST MONO — NUMERIC / ARRIVAL TIMES
+       ══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-label">Geist Mono — Numeric Readouts &amp; Arrival Times</div>
+
+    <div class="specimen-row">
+      <div style="font-family:var(--font-mono); font-size:14px; font-weight:600; color:var(--ridge-blue);">
+        5:00 AM &nbsp;&nbsp; 9:32 AM &nbsp;&nbsp; 3:47 PM &nbsp;&nbsp; 11:58 PM
+      </div>
+      <div class="specimen-meta">
+        <strong>Arrival Times</strong>
+        14px · weight 600<br>
+        color: Ridge Blue<br>
+        tabular figures
+      </div>
+    </div>
+
+    <div class="specimen-row">
+      <div style="font-family:var(--font-mono); font-size:13px; font-weight:600; color:var(--ridge-blue);">
+        15.2 mi &nbsp;&nbsp; 31.4 mi &nbsp;&nbsp; 50.8 mi &nbsp;&nbsp; 103.4 mi
+      </div>
+      <div class="specimen-meta">
+        <strong>Distance Values</strong>
+        13px · weight 600<br>
+        color: Ridge Blue<br>
+        tabular figures
+      </div>
+    </div>
+
+    <div class="specimen-row">
+      <div>
+        <input
+          type="text"
+          value="15:00"
+          readonly
+          style="font-family:var(--font-mono); font-size:14px; font-weight:600; color:var(--midnight);
+                 padding:10px 12px; border:1.5px solid var(--sky); border-radius:6px; width:100px;
+                 background:white; outline:none; text-align:center;"
+        >
+        <span class="annotation">Pace input field</span>
+      </div>
+      <div class="specimen-meta">
+        <strong>Pace Input</strong>
+        14px · weight 600<br>
+        color: Midnight
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECTION 4: IN-CONTEXT — TABLE
+       ══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-label">In Context — Aid Station Table</div>
+    <p style="font-family:var(--font-ui); font-size:13px; color:var(--deep-ridge); opacity:0.7; margin-bottom:20px;">
+      Shows table header (Geist Sans caps), station name (Geist Sans 600), metadata distance (Geist Sans 70%), and arrival time (Geist Mono Ridge Blue) together.
+    </p>
+
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Station</th>
+          <th>From Start</th>
+          <th>Leg</th>
+          <th>Est. Arrival</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--deep-ridge); opacity:0.7; font-weight:400;">S</td>
+          <td style="font-weight:700;">Start / Race HQ</td>
+          <td class="meta">0.0 mi</td>
+          <td class="meta">—</td>
+          <td class="accent">5:00 AM</td>
+        </tr>
+        <tr>
+          <td class="meta" style="font-weight:400;">1</td>
+          <td>Camp Grier Aid 8</td>
+          <td class="meta">19.0 mi</td>
+          <td class="meta">+19.0 mi</td>
+          <td class="accent">10:03 AM</td>
+        </tr>
+        <tr>
+          <td class="meta" style="font-weight:400;">2</td>
+          <td>Graphite Aid 2</td>
+          <td class="meta">38.4 mi</td>
+          <td class="meta">+19.4 mi</td>
+          <td class="accent">3:47 PM</td>
+        </tr>
+        <tr>
+          <td class="meta" style="font-weight:400;">3</td>
+          <td>Checkpoint B</td>
+          <td class="meta">57.1 mi</td>
+          <td class="meta">+18.7 mi</td>
+          <td class="accent">9:32 PM</td>
+        </tr>
+        <tr>
+          <td class="meta" style="font-weight:400;">F</td>
+          <td style="font-weight:700;">Finish</td>
+          <td class="meta">103.4 mi</td>
+          <td class="meta">+46.3 mi</td>
+          <td class="accent">9:32 AM</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECTION 5: IN-CONTEXT — CARD TITLE + BODY TOGETHER
+       ══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-label">In Context — Race Card</div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:20px;">
+
+      <!-- Interactive card — hover applies Mist + Ridge Blue left border -->
+      <div style="background:white; border:1px solid rgba(130,199,246,0.6); border-left:3px solid transparent;
+                  border-radius:10px; padding:24px; box-shadow:0 2px 6px rgba(29,124,190,0.07);
+                  transition:all 0.2s; cursor:pointer;"
+           onmouseover="this.style.background='#DBF1FA'; this.style.borderLeftColor='#1D7CBE'; this.style.borderColor='#82C7F6'; this.style.boxShadow='0 4px 16px rgba(29,124,190,0.12)'; this.style.transform='translateY(-2px)';"
+           onmouseout="this.style.background='white'; this.style.borderLeftColor='transparent'; this.style.borderColor='rgba(130,199,246,0.6)'; this.style.boxShadow='0 2px 6px rgba(29,124,190,0.07)'; this.style.transform='none';">
+        <div style="font-family:var(--font-display); font-size:18px; font-weight:700; color:var(--midnight); letter-spacing:-0.01em; margin-bottom:6px;">
+          Hellbender 100
+        </div>
+        <div style="font-family:var(--font-ui); font-size:13px; color:var(--deep-ridge); opacity:0.7; margin-bottom:10px;">
+          June 14, 2026 · 5:00 AM
+        </div>
+        <div style="font-family:var(--font-ui); font-size:16px; font-weight:600; color:var(--ridge-blue); margin-bottom:12px;">
+          103.4 miles
+        </div>
+        <span style="font-family:var(--font-ui); font-size:12px; font-weight:600; border:1.5px solid var(--ridge-blue); color:var(--ridge-blue); padding:5px 10px; border-radius:6px;">
+          Upcoming
+        </span>
+      </div>
+
+      <div style="background:white; border:1px solid rgba(130,199,246,0.6); border-left:3px solid transparent;
+                  border-radius:10px; padding:24px; box-shadow:0 2px 6px rgba(29,124,190,0.07);
+                  transition:all 0.2s; cursor:pointer;"
+           onmouseover="this.style.background='#DBF1FA'; this.style.borderLeftColor='#1D7CBE'; this.style.borderColor='#82C7F6'; this.style.boxShadow='0 4px 16px rgba(29,124,190,0.12)'; this.style.transform='translateY(-2px)';"
+           onmouseout="this.style.background='white'; this.style.borderLeftColor='transparent'; this.style.borderColor='rgba(130,199,246,0.6)'; this.style.boxShadow='0 2px 6px rgba(29,124,190,0.07)'; this.style.transform='none';">
+        <div style="font-family:var(--font-display); font-size:18px; font-weight:700; color:var(--midnight); letter-spacing:-0.01em; margin-bottom:6px;">
+          Hellgate 100k
+        </div>
+        <div style="font-family:var(--font-ui); font-size:13px; color:var(--deep-ridge); opacity:0.7; margin-bottom:10px;">
+          December 6, 2025 · 11:00 PM
+        </div>
+        <div style="font-family:var(--font-ui); font-size:16px; font-weight:600; color:var(--ridge-blue); margin-bottom:12px;">
+          66.6 miles
+        </div>
+        <span style="font-family:var(--font-ui); font-size:12px; font-weight:600; border:1.5px solid var(--sky); color:var(--sky); background:rgba(130,199,246,0.08); padding:5px 10px; border-radius:6px;">
+          Completed
+        </span>
+      </div>
+
+    </div>
+    <p style="font-family:var(--font-ui); font-size:11px; color:var(--deep-ridge); opacity:0.5; margin-top:12px;">
+      ↑ Hover cards to see interactive state (Mist fill, Ridge Blue left border, lift)
+    </p>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECTION 6: QUICK REFERENCE SUMMARY
+       ══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-label">Quick Reference — All Styles</div>
+
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>Element</th>
+          <th>Font</th>
+          <th>Size</th>
+          <th>Weight</th>
+          <th>Color</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hero title</td>
+          <td class="accent">DM Sans</td>
+          <td class="meta">48px</td>
+          <td class="meta">800</td>
+          <td class="meta">White</td>
+          <td class="meta">ls −0.02em · lh 1.15</td>
+        </tr>
+        <tr>
+          <td>Page title h1</td>
+          <td class="accent">DM Sans</td>
+          <td class="meta">36px</td>
+          <td class="meta">700</td>
+          <td class="meta">Midnight</td>
+          <td class="meta">ls −0.02em</td>
+        </tr>
+        <tr>
+          <td>Race detail title</td>
+          <td class="accent">DM Sans</td>
+          <td class="meta">42px</td>
+          <td class="meta">800</td>
+          <td class="meta">Midnight</td>
+          <td class="meta">ls −0.02em · lh 1.1</td>
+        </tr>
+        <tr>
+          <td>Section heading h2</td>
+          <td class="accent">DM Sans</td>
+          <td class="meta">24px</td>
+          <td class="meta">700</td>
+          <td class="meta">Midnight</td>
+          <td class="meta">ls −0.01em</td>
+        </tr>
+        <tr>
+          <td>Card title / race name</td>
+          <td class="accent">DM Sans</td>
+          <td class="meta">18px</td>
+          <td class="meta">700</td>
+          <td class="meta">Midnight</td>
+          <td class="meta">ls −0.01em</td>
+        </tr>
+        <tr>
+          <td>Logo wordmark</td>
+          <td class="accent">DM Sans</td>
+          <td class="meta">18px</td>
+          <td class="meta">700</td>
+          <td class="meta">Midnight</td>
+          <td class="meta">ls −0.03em</td>
+        </tr>
+        <tr>
+          <td>Body / default</td>
+          <td class="meta">Geist Sans</td>
+          <td class="meta">14–16px</td>
+          <td class="meta">400</td>
+          <td class="meta">Midnight</td>
+          <td class="meta">lh 1.6</td>
+        </tr>
+        <tr>
+          <td>Hero subtitle</td>
+          <td class="meta">Geist Sans</td>
+          <td class="meta">18px</td>
+          <td class="meta">400</td>
+          <td class="meta">White / 85%</td>
+          <td class="meta">on hero background only</td>
+        </tr>
+        <tr>
+          <td>Secondary / metadata</td>
+          <td class="meta">Geist Sans</td>
+          <td class="meta">13–14px</td>
+          <td class="meta">400</td>
+          <td class="meta">Deep Ridge 70%</td>
+          <td class="meta"></td>
+        </tr>
+        <tr>
+          <td>Section label / caps</td>
+          <td class="meta">Geist Sans</td>
+          <td class="meta">12px</td>
+          <td class="meta">700</td>
+          <td class="meta">Deep Ridge</td>
+          <td class="meta">uppercase · ls 0.8px</td>
+        </tr>
+        <tr>
+          <td>Table header</td>
+          <td class="meta">Geist Sans</td>
+          <td class="meta">12px</td>
+          <td class="meta">600</td>
+          <td class="meta">Deep Ridge</td>
+          <td class="meta">uppercase · ls 0.5px</td>
+        </tr>
+        <tr>
+          <td>Input value</td>
+          <td class="meta">Geist Sans</td>
+          <td class="meta">14px</td>
+          <td class="meta">600</td>
+          <td class="meta">Midnight</td>
+          <td class="meta"></td>
+        </tr>
+        <tr>
+          <td>Link text</td>
+          <td class="meta">Geist Sans</td>
+          <td class="meta">14px</td>
+          <td class="meta">500</td>
+          <td class="meta">Ridge Blue</td>
+          <td class="meta">hover: opacity 0.7</td>
+        </tr>
+        <tr>
+          <td>Nav link</td>
+          <td class="meta">Geist Sans</td>
+          <td class="meta">14px</td>
+          <td class="meta">500</td>
+          <td class="meta">Ridge Blue</td>
+          <td class="meta">hover: opacity 0.7</td>
+        </tr>
+        <tr>
+          <td>Arrival times / pace</td>
+          <td class="accent">Geist Mono</td>
+          <td class="meta">13–14px</td>
+          <td class="meta">600</td>
+          <td class="meta">Ridge Blue</td>
+          <td class="meta">tabular figures</td>
+        </tr>
+        <tr>
+          <td>Distance values</td>
+          <td class="accent">Geist Mono</td>
+          <td class="meta">13px</td>
+          <td class="meta">600</td>
+          <td class="meta">Ridge Blue</td>
+          <td class="meta">tabular figures</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /content -->
+</body>
+</html>

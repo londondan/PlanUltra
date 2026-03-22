@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlanUltra — Landing Page v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --midnight: #02071E;
+      --deep-ridge: #114574;
+      --ridge-blue: #1D7CBE;
+      --sky: #82C7F6;
+      --mist: #DBF1FA;
+      --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'Monaco', 'Menlo', 'Courier New', monospace;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      color: var(--midnight);
+      background: white;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+    }
+    .logo-triangle {
+      width: 20px;
+      height: 20px;
+    }
+    .nav-cta {
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-ui);
+      backdrop-filter: blur(8px);
+      transition: all 0.2s;
+    }
+    .nav-cta:hover {
+      background: rgba(255,255,255,0.25);
+      border-color: rgba(255,255,255,0.6);
+    }
+
+    /* ══════════════════════════════════════
+       HERO
+       ══════════════════════════════════════ */
+    .hero {
+      position: relative;
+      min-height: 680px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--midnight);
+    }
+
+    /* Layered mountain SVG background — inspired by the uploaded image:
+       flowing wave-form ridgelines in Ridge palette tones */
+    .mountain-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Subtle color wash at the very top — sky/atmosphere */
+    .hero-atmosphere {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg,
+        rgba(2, 7, 30, 0.15) 0%,
+        rgba(2, 7, 30, 0.30) 30%,
+        rgba(2, 7, 30, 0.72) 70%,
+        rgba(2, 7, 30, 0.92) 100%
+      );
+      z-index: 2;
+    }
+
+    /* Hero content */
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 80px 24px 60px;
+      max-width: 760px;
+    }
+    .hero-eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--sky);
+      margin-bottom: 16px;
+      opacity: 0.9;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(38px, 6vw, 64px);
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      margin-bottom: 24px;
+    }
+    .hero-title em {
+      font-style: normal;
+      color: var(--sky);
+    }
+    .hero-desc {
+      font-size: clamp(15px, 2vw, 18px);
+      color: rgba(255,255,255,0.75);
+      max-width: 580px;
+      margin: 0 auto 36px;
+      line-height: 1.65;
+    }
+    .hero-cta {
+      display: inline-block;
+      background: var(--ridge-blue);
+      color: white;
+      padding: 14px 36px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 20px rgba(29, 124, 190, 0.45);
+      transition: all 0.2s;
+      letter-spacing: -0.01em;
+    }
+    .hero-cta:hover {
+      background: white;
+      color: var(--ridge-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(29, 124, 190, 0.35);
+    }
+    .hero-sub {
+      margin-top: 14px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* Scroll hint */
+    .scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.4;
+    }
+    .scroll-hint span {
+      font-size: 10px;
+      color: white;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .scroll-arrow {
+      width: 20px;
+      height: 20px;
+      border-right: 2px solid white;
+      border-bottom: 2px solid white;
+      transform: rotate(45deg);
+      margin-top: -6px;
+    }
+
+    /* ══════════════════════════════════════
+       FEATURES (3 cards)
+       ══════════════════════════════════════ */
+    .features {
+      background: white;
+      padding: 80px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .features-eyebrow {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ridge-blue);
+      margin-bottom: 12px;
+    }
+    .features-heading {
+      font-family: var(--font-display);
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      color: var(--midnight);
+      text-align: center;
+      letter-spacing: -0.02em;
+      margin-bottom: 56px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: white;
+      border: 1px solid rgba(130,199,246,0.6);
+      border-left: 3px solid transparent;
+      border-radius: 12px;
+      padding: 28px 24px;
+      box-shadow: 0 2px 8px rgba(29,124,190,0.06);
+      transition: all 0.25s;
+      cursor: default;
+    }
+    .feature-card:hover {
+      background: var(--mist);
+      border-color: var(--sky);
+      border-left-color: var(--ridge-blue);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(29,124,190,0.12);
+    }
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--mist), rgba(130,199,246,0.4));
+      border: 1px solid rgba(130,199,246,0.5);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 18px;
+    }
+    .feature-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.01em;
+      margin-bottom: 10px;
+    }
+    .feature-desc {
+      font-size: 14px;
+      color: var(--deep-ridge);
+      opacity: 0.85;
+      line-height: 1.65;
+    }
+
+    /* ══════════════════════════════════════
+       SOCIAL PROOF / STATS BAR
+       ══════════════════════════════════════ */
+    .stats-bar {
+      background: var(--midnight);
+      padding: 36px 48px;
+    }
+    .stats-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-val {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--sky);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .stat-lbl {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 500;
+    }
+    .stat-div {
+      width: 1px;
+      height: 40px;
+      background: rgba(130,199,246,0.2);
+    }
+
+    /* ══════════════════════════════════════
+       HOW IT WORKS
+       ══════════════════════════════════════ */
+    .how-it-works {
+      background: var(--mist);
+      padding: 80px 48px;
+    }
+    .how-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .how-eyebrow {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ridge-blue);
+      margin-bottom: 12px;
+    }
+    .how-heading {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3.5vw, 32px);
+      font-weight: 800;
+      color: var(--midnight);
+      text-align: center;
+      letter-spacing: -0.02em;
+      margin-bottom: 52px;
+    }
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      position: relative;
+      padding-bottom: 40px;
+    }
+    .step:last-child { padding-bottom: 0; }
+    .step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .step-num {
+      width: 40px;
+      height: 40px;
+      background: var(--deep-ridge);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .step-line {
+      width: 2px;
+      flex: 1;
+      background: linear-gradient(to bottom, var(--sky), rgba(130,199,246,0.1));
+      margin-top: 8px;
+      min-height: 32px;
+    }
+    .step:last-child .step-line { display: none; }
+    .step-body {
+      padding-top: 6px;
+      padding-bottom: 8px;
+    }
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--midnight);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+    .step-desc {
+      font-size: 14px;
+      color: var(--deep-ridge);
+      opacity: 0.8;
+      line-height: 1.6;
+      max-width: 520px;
+    }
+
+    /* ══════════════════════════════════════
+       BOTTOM CTA
+       ══════════════════════════════════════ */
+    .bottom-cta {
+      position: relative;
+      background: var(--midnight);
+      padding: 80px 48px;
+      text-align: center;
+      overflow: hidden;
+    }
+    /* Faint mountain echo at bottom */
+    .bottom-mountains {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      opacity: 0.06;
+    }
+    .bottom-cta-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--sky);
+      opacity: 0.7;
+      margin-bottom: 14px;
+    }
+    .bottom-cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .bottom-cta-desc {
+      font-size: 16px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 36px;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+    .bottom-btn {
+      display: inline-block;
+      background: var(--ridge-blue);
+      color: white;
+      padding: 14px 40px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      font-family: var(--font-ui);
+      box-shadow: 0 4px 20px rgba(29,124,190,0.4);
+      transition: all 0.2s;
+      position: relative;
+      z-index: 1;
+    }
+    .bottom-btn:hover {
+      background: white;
+      color: var(--ridge-blue);
+      transform: translateY(-2px);
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--midnight);
+      border-top: 1px solid rgba(130,199,246,0.12);
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-logo {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: -0.02em;
+    }
+    .footer-note {
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     NAV
+     ══════════════════════════════════════ -->
+<nav>
+  <a href="#" class="logo">
+    <svg class="logo-triangle" viewBox="0 0 20 20" fill="none">
+      <path d="M10 2L18 17H2L10 2Z" fill="white" opacity="0.9"/>
+      <path d="M10 6L15.5 16H4.5L10 6Z" fill="white" opacity="0.4"/>
+    </svg>
+    PlanUltra
+  </a>
+  <button class="nav-cta">Sign in</button>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HERO
+     ══════════════════════════════════════ -->
+<section class="hero">
+
+  <!-- Layered mountain SVG — D density + A offsets + B rounded tips -->
+  <svg class="mountain-bg" viewBox="0 0 1440 680" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#071428"/>
+        <stop offset="100%" stop-color="#02071E"/>
+      </linearGradient>
+      <!-- Layer 5: lightest — near Sky -->
+      <linearGradient id="rg5" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#b8e0f8" stop-opacity="0.58"/>
+        <stop offset="100%" stop-color="#82C7F6" stop-opacity="0.38"/>
+      </linearGradient>
+      <!-- Layer 4: Ridge Blue -->
+      <linearGradient id="rg4" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2a8fd4" stop-opacity="0.82"/>
+        <stop offset="100%" stop-color="#1D7CBE" stop-opacity="0.92"/>
+      </linearGradient>
+      <!-- Layer 3: Deep Ridge -->
+      <linearGradient id="rg3" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#165f9a"/>
+        <stop offset="100%" stop-color="#0f4070"/>
+      </linearGradient>
+      <!-- Layer 2: dark blue -->
+      <linearGradient id="rg2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#082d4a"/>
+        <stop offset="100%" stop-color="#040e1c"/>
+      </linearGradient>
+      <!-- Layer 1: near-Midnight -->
+      <linearGradient id="rg1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#051220"/>
+        <stop offset="100%" stop-color="#02071E"/>
+      </linearGradient>
+      <!-- Atmospheric glow -->
+      <radialGradient id="atmoGlow" cx="50%" cy="0%" r="65%" fx="50%" fy="0%">
+        <stop offset="0%" stop-color="#82C7F6" stop-opacity="0.20"/>
+        <stop offset="50%" stop-color="#1D7CBE" stop-opacity="0.08"/>
+        <stop offset="100%" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <rect width="1440" height="680" fill="url(#skyGrad)"/>
+    <rect width="1440" height="680" fill="url(#atmoGlow)"/>
+
+    <!-- Layer 5 — 6 rounded peaks, lightest Sky color.
+         Peak positions: ~115, 280, 445, 620, 820, 1040, 1255
+         Valleys deliberately deep (100–130px drop) for strong silhouette.
+         Rounded tips via symmetric S-curves either side of each summit. -->
+    <path d="M0,430
+             C35,405 65,375 90,340
+             C110,312 118,290 130,265 C142,240 155,228 170,220 C185,212 200,212 215,220
+             C230,228 242,245 255,272 C268,300 278,330 300,358
+             C320,382 345,400 375,412
+             C400,422 425,418 452,405
+             C475,393 490,372 508,345
+             C524,320 534,298 548,275 C562,252 576,240 592,234 C608,228 624,228 638,236
+             C652,244 664,260 677,285 C690,310 700,340 718,368
+             C735,393 755,410 782,420
+             C808,430 835,428 862,415
+             C886,403 902,382 920,355
+             C937,330 947,306 962,282 C977,258 992,244 1010,238 C1028,232 1046,234 1062,244
+             C1078,254 1090,272 1104,298 C1118,324 1128,354 1148,380
+             C1166,403 1188,418 1216,425
+             C1242,432 1268,428 1295,415
+             C1318,403 1335,382 1355,358
+             C1375,334 1395,310 1420,292
+             C1430,285 1436,280 1440,278
+             L1440,680 L0,680 Z"
+          fill="url(#rg5)"/>
+
+    <!-- Layer 4 — 5 rounded peaks, Ridge Blue.
+         Peak positions offset from L5: valleys where L5 peaks, peaks where L5 descends.
+         Slightly lower max height than L5, wider peak shoulders. -->
+    <path d="M0,490
+             C30,472 58,452 85,428
+             C108,407 124,388 145,368 C166,348 186,338 208,336 C230,334 252,342 272,358
+             C292,374 308,398 328,422
+             C348,445 370,462 398,472
+             C425,481 452,480 480,470
+             C505,460 524,440 546,415
+             C568,390 584,365 605,342 C626,319 648,306 672,302 C696,298 720,304 742,318
+             C764,332 780,356 800,382
+             C820,408 840,430 868,445
+             C895,459 924,462 954,452
+             C980,443 1000,422 1022,396
+             C1044,370 1060,342 1082,318 C1104,294 1128,280 1155,278 C1182,276 1208,286 1232,304
+             C1256,322 1274,350 1295,376
+             C1316,402 1338,424 1368,438
+             C1396,451 1420,453 1440,450
+             L1440,680 L0,680 Z"
+          fill="url(#rg4)"/>
+
+    <!-- Layer 3 — 4 broad humps, Deep Ridge.
+         Wider, gentler peaks — different rhythm from L4/L5 above.
+         Peak positions: ~200, 540, 880, 1220 — quarter-frame spacing. -->
+    <path d="M0,548
+             C40,534 80,520 125,506
+             C165,493 200,482 240,474 C280,466 315,464 350,470
+             C385,476 415,490 450,506
+             C488,523 524,538 565,546
+             C605,553 645,552 685,544
+             C722,536 755,520 792,504
+             C830,487 868,472 910,464 C952,456 990,456 1028,464
+             C1065,472 1098,488 1132,506
+             C1168,525 1200,542 1240,550
+             C1278,558 1316,555 1356,544
+             C1388,534 1416,520 1440,512
+             L1440,680 L0,680 Z"
+          fill="url(#rg3)"/>
+
+    <!-- Layer 2 — long rolling ridge, one broad swell right-of-center.
+         Minimal peak count — contrasts with busy layers above. -->
+    <path d="M0,592
+             C70,582 145,572 225,564
+             C305,556 380,552 460,552
+             C540,552 612,556 685,562
+             C758,568 820,576 885,578
+             C950,580 1010,576 1075,566
+             C1140,556 1200,542 1268,534
+             C1336,526 1390,526 1440,528
+             L1440,680 L0,680 Z"
+          fill="url(#rg2)"/>
+
+    <!-- Layer 1 — near-Midnight ground, very subtle undulation -->
+    <path d="M0,638
+             C100,630 210,625 330,622
+             C460,619 580,620 700,618
+             C820,616 940,616 1060,614
+             C1180,612 1310,612 1440,616
+             L1440,680 L0,680 Z"
+          fill="url(#rg1)"/>
+
+  </svg>
+
+  <!-- Atmosphere overlay -->
+  <div class="hero-atmosphere"></div>
+
+  <!-- Content -->
+  <div class="hero-content">
+    <div class="hero-eyebrow">Ultra marathon race planning</div>
+    <h1 class="hero-title">
+      Because the miles<br>are <em>hard</em> enough
+    </h1>
+    <p class="hero-desc">
+      You've done the hard training, now let's pack your drop bags for success.
+      Plan Ultra is a free tool to help ultra runners plan how to organize their gear
+      so that they and their crew are prepared for every leg of the race.
+    </p>
+    <button class="hero-cta">Get Started</button>
+    <div class="hero-sub">Free · No credit card required</div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════
+     FEATURES
+     ══════════════════════════════════════ -->
+<section class="features">
+  <div class="features-eyebrow">Everything you need</div>
+  <h2 class="features-heading">From the start line to the finish tape</h2>
+
+  <div class="features-grid">
+
+    <div class="feature-card">
+      <div class="feature-icon">📍</div>
+      <div class="feature-title">Upload your GPX</div>
+      <div class="feature-desc">
+        Drop in your race GPX file and PlanUltra maps every aid station, calculates your elevation profile, and sets up your section boundaries automatically.
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🗓</div>
+      <div class="feature-title">Build a plan</div>
+      <div class="feature-desc">
+        Figure out what you'll need for each segment — guided by weather forecasts, sunset and sunrise times, and distance. Know before you go.
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🎒</div>
+      <div class="feature-title">Pack for success</div>
+      <div class="feature-desc">
+        Get a clear plan showing what to pack in each drop bag, and how to organize your gear so you have exactly what you need for each leg of the race.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     STATS BAR
+     ══════════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-val">100s</div>
+      <div class="stat-lbl">of miles planned</div>
+    </div>
+    <div class="stat-div"></div>
+    <div class="stat-item">
+      <div class="stat-val">Free</div>
+      <div class="stat-lbl">Always</div>
+    </div>
+    <div class="stat-div"></div>
+    <div class="stat-item">
+      <div class="stat-val">GPX</div>
+      <div class="stat-lbl">Any race file</div>
+    </div>
+    <div class="stat-div"></div>
+    <div class="stat-item">
+      <div class="stat-val">Crew</div>
+      <div class="stat-lbl">Shareable plans</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     FEATURES — side-by-side rows
+     ══════════════════════════════════════ -->
+<style>
+  /* ── Feature rows ── */
+  .feature-rows { background: white; }
+
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 48px;
+    align-items: center;
+    gap: 64px;
+  }
+  .feature-row + .feature-row {
+    border-top: 1px solid rgba(130,199,246,0.25);
+  }
+  .feature-row.reverse { direction: rtl; }
+  .feature-row.reverse > * { direction: ltr; }
+
+  .feature-row-copy {}
+  .feature-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--deep-ridge);
+    color: white;
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+  .feature-row-title {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.8vw, 30px);
+    font-weight: 800;
+    color: var(--midnight);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  .feature-row-desc {
+    font-size: 15px;
+    color: var(--deep-ridge);
+    opacity: 0.85;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .feature-row-detail {
+    font-size: 13px;
+    color: var(--ridge-blue);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .feature-row-detail::before { content: '→'; }
+
+  /* ── Illustration shell ── */
+  .illus-shell {
+    background: var(--mist);
+    border: 1px solid rgba(130,199,246,0.45);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 24px rgba(29,124,190,0.08);
+    overflow: hidden;
+  }
+  .illus-shell-dark {
+    background: var(--midnight);
+    border-color: rgba(130,199,246,0.2);
+  }
+
+  /* ── Card base (mirrors app) ── */
+  .app-card {
+    background: white;
+    border: 1px solid rgba(130,199,246,0.6);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(29,124,190,0.07);
+    margin-bottom: 8px;
+    font-family: var(--font-ui);
+  }
+  .app-card:last-child { margin-bottom: 0; }
+
+  .card-section-header {
+    background: var(--mist);
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(130,199,246,0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mile-badge {
+    background: var(--deep-ridge);
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .time-badge {
+    background: white;
+    border: 1px solid rgba(130,199,246,0.5);
+    color: var(--deep-ridge);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .seg-name {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--midnight);
+    flex: 1;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    padding: 10px 14px;
+  }
+  .info-chip {
+    border-radius: 7px;
+    padding: 8px 10px;
+  }
+  .info-chip-lbl {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 2px;
+  }
+  .info-chip-val {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .info-chip-sub { font-size: 9px; opacity: 0.7; margin-top: 1px; }
+
+  /* Standard chip */
+  .ic-std { background: var(--mist); border: 1px solid rgba(130,199,246,0.5); }
+  .ic-std .info-chip-lbl { color: #64748b; }
+  .ic-std .info-chip-val { color: var(--midnight); }
+
+  /* Night chip */
+  .ic-night {
+    background: linear-gradient(145deg, #0a0e2a, #1a1f4e);
+    border: 1px solid rgba(99,102,241,0.3);
+  }
+  .ic-night .info-chip-lbl { color: rgba(167,139,250,0.8); }
+  .ic-night .info-chip-val { color: #e2e8ff; font-size: 11px; font-family: var(--font-ui); font-weight: 700; }
+  .ic-night .info-chip-sub { color: rgba(196,181,253,0.65); }
+  /* star dots */
+  .ic-night { position: relative; overflow: hidden; }
+  .stars-mini {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 18% 22%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 12%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 78% 35%, rgba(255,255,255,0.8) 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 65%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 88% 58%, rgba(255,255,255,0.6) 0%, transparent 100%);
+  }
+
+  /* Sunrise chip */
+  .ic-sunrise {
+    background: linear-gradient(135deg, #3b1f5c, #7c3aed 40%, #f97316 75%, #fbbf24);
+    border: 1px solid rgba(249,115,22,0.3);
+  }
+  .ic-sunrise .info-chip-lbl { color: rgba(254,215,170,0.9); }
+  .ic-sunrise .info-chip-val { color: white; font-size: 11px; font-family: var(--font-ui); font-weight: 700; }
+  .ic-sunrise .info-chip-sub { color: rgba(254,243,199,0.8); }
+
+  /* Weather clear chip */
+  .ic-weather-clear {
+    background: linear-gradient(145deg, #eff6ff, #bfdbfe);
+    border: 1px solid rgba(96,165,250,0.4);
+  }
+  .ic-weather-clear .info-chip-lbl { color: #1d4ed8; }
+  .ic-weather-clear .info-chip-val { color: #1e3a8a; font-size: 11px; font-family: var(--font-ui); font-weight: 700; }
+  .ic-weather-clear .info-chip-sub { color: #3b82f6; }
+
+  /* Weather storm chip */
+  .ic-weather-storm {
+    background: linear-gradient(145deg, #1c1917, #44403c);
+    border: 1px solid rgba(234,179,8,0.35);
+    grid-column: span 2;
+  }
+  .ic-weather-storm .info-chip-lbl { color: rgba(253,224,71,0.8); }
+  .ic-weather-storm .info-chip-val { color: #fef08a; font-size: 11px; font-family: var(--font-ui); font-weight: 700; }
+  .ic-weather-storm .info-chip-sub { color: rgba(253,224,71,0.6); }
+
+  /* Sunset chip */
+  .ic-sunset {
+    background: linear-gradient(145deg, #fde68a, #fb923c 35%, #9333ea 70%, #4c1d95);
+    border: 1px solid rgba(147,51,234,0.3);
+  }
+  .ic-sunset .info-chip-lbl { color: rgba(233,213,255,0.9); }
+  .ic-sunset .info-chip-val { color: white; font-size: 11px; font-family: var(--font-ui); font-weight: 700; }
+  .ic-sunset .info-chip-sub { color: rgba(221,214,254,0.8); }
+
+  /* ── Pack bag card ── */
+  .bag-card-illus {
+    background: white;
+    border: 1px solid rgba(130,199,246,0.6);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 6px rgba(29,124,190,0.07);
+  }
+  .bag-header-illus {
+    background: var(--deep-ridge);
+    color: white;
+    padding: 10px 14px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .bag-header-illus .bag-name { font-family: var(--font-display); font-size: 14px; font-weight: 800; }
+  .bag-header-illus .bag-sub { font-size: 11px; opacity: 0.6; }
+  .bag-body-illus { padding: 10px 14px; }
+  .gear-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+  .gear-pill {
+    font-size: 10px; font-weight: 600; padding: 3px 8px;
+    border-radius: 99px; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .gp-blue { background: var(--mist); color: var(--deep-ridge); }
+  .gp-amber { background: #fef3c7; color: #92400e; }
+  .baggie-illus {
+    background: var(--mist);
+    border: 1px solid rgba(130,199,246,0.5);
+    border-radius: 7px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+  }
+  .baggie-illus:last-child { margin-bottom: 0; }
+  .baggie-dest { font-size: 11px; font-weight: 700; color: var(--midnight); margin-bottom: 3px; }
+  .baggie-meta { font-family: var(--font-mono); font-size: 10px; color: #64748b; }
+  .baggie-items { font-size: 10px; color: #475569; margin-top: 3px; }
+
+  /* ── Map SVG illustration ── */
+  .map-illus {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(29,124,190,0.12);
+  }
+
+  @media (max-width: 768px) {
+    .feature-row { grid-template-columns: 1fr; gap: 32px; padding: 48px 24px; }
+    .feature-row.reverse { direction: ltr; }
+  }
+</style>
+
+<section class="feature-rows">
+
+  <!-- ── Row 1: GPX Upload — text left, map illustration right ── -->
+  <div class="feature-row">
+    <div class="feature-row-copy">
+      <div class="feature-step-num">1</div>
+      <h3 class="feature-row-title">Upload your GPX,<br>we'll handle the rest</h3>
+      <p class="feature-row-desc">Drop in your race file and PlanUltra instantly maps every aid station, calculates the elevation profile, and sets up your section boundaries. Your full course, laid out in seconds.</p>
+      <div class="feature-row-detail">Supports any standard GPX file</div>
+    </div>
+
+    <div class="illus-shell">
+      <!-- Stylised topo map SVG in Ridge palette -->
+      <svg class="map-illus" viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="mapBg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#e8f4fb"/>
+            <stop offset="100%" stop-color="#d0eaf7"/>
+          </linearGradient>
+          <linearGradient id="topoFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1D7CBE" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#1D7CBE" stop-opacity="0.03"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Background -->
+        <rect width="420" height="280" fill="url(#mapBg)"/>
+
+        <!-- Topo contour lines — concentric closed curves, Ridge Blue at low opacity -->
+        <!-- Hill 1: left-center -->
+        <ellipse cx="145" cy="120" rx="85" ry="55" fill="none" stroke="#1D7CBE" stroke-width="0.8" opacity="0.2"/>
+        <ellipse cx="145" cy="120" rx="62" ry="40" fill="none" stroke="#1D7CBE" stroke-width="0.8" opacity="0.28"/>
+        <ellipse cx="145" cy="120" rx="40" ry="26" fill="none" stroke="#1D7CBE" stroke-width="0.8" opacity="0.36"/>
+        <ellipse cx="145" cy="120" rx="20" ry="13" fill="none" stroke="#114574" stroke-width="1" opacity="0.4"/>
+        <ellipse cx="145" cy="120" rx="8" ry="5" fill="#114574" opacity="0.2"/>
+
+        <!-- Hill 2: upper-right, smaller -->
+        <ellipse cx="310" cy="80" rx="65" ry="42" fill="none" stroke="#1D7CBE" stroke-width="0.8" opacity="0.18"/>
+        <ellipse cx="310" cy="80" rx="44" ry="28" fill="none" stroke="#1D7CBE" stroke-width="0.8" opacity="0.26"/>
+        <ellipse cx="310" cy="80" rx="24" ry="15" fill="none" stroke="#1D7CBE" stroke-width="0.9" opacity="0.34"/>
+        <ellipse cx="310" cy="80" rx="10" ry="6" fill="#114574" opacity="0.18"/>
+
+        <!-- Hill 3: lower-right -->
+        <ellipse cx="340" cy="200" rx="58" ry="38" fill="none" stroke="#1D7CBE" stroke-width="0.8" opacity="0.16"/>
+        <ellipse cx="340" cy="200" rx="38" ry="24" fill="none" stroke="#1D7CBE" stroke-width="0.8" opacity="0.24"/>
+        <ellipse cx="340" cy="200" rx="18" ry="12" fill="#114574" opacity="0.15"/>
+
+        <!-- Hill 4: bottom-left gentle -->
+        <ellipse cx="70" cy="220" rx="50" ry="32" fill="none" stroke="#1D7CBE" stroke-width="0.7" opacity="0.14"/>
+        <ellipse cx="70" cy="220" rx="30" ry="19" fill="none" stroke="#1D7CBE" stroke-width="0.7" opacity="0.2"/>
+
+        <!-- GPX route trace — winding path through the terrain -->
+        <path d="M28,250 C45,240 60,230 75,218 C90,205 100,190 115,175
+                 C130,160 138,148 148,135 C158,122 162,115 155,108
+                 C148,100 140,100 148,88 C158,74 172,68 188,72
+                 C205,76 215,90 228,100 C242,112 255,118 268,108
+                 C282,97 290,82 305,74 C318,67 328,70 338,78
+                 C350,87 355,100 358,118 C362,138 358,158 352,175
+                 C346,193 338,205 342,218 C346,230 354,238 362,248"
+              fill="none" stroke="#1D7CBE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Route glow -->
+        <path d="M28,250 C45,240 60,230 75,218 C90,205 100,190 115,175
+                 C130,160 138,148 148,135 C158,122 162,115 155,108
+                 C148,100 140,100 148,88 C158,74 172,68 188,72
+                 C205,76 215,90 228,100 C242,112 255,118 268,108
+                 C282,97 290,82 305,74 C318,67 328,70 338,78
+                 C350,87 355,100 358,118 C362,138 358,158 352,175
+                 C346,193 338,205 342,218 C346,230 354,238 362,248"
+              fill="none" stroke="#82C7F6" stroke-width="5" stroke-linecap="round" opacity="0.25"/>
+
+        <!-- Aid station markers along route -->
+        <!-- Start -->
+        <circle cx="28" cy="250" r="7" fill="white" stroke="#114574" stroke-width="2"/>
+        <circle cx="28" cy="250" r="3" fill="#114574"/>
+        <!-- Station 1 ~mile 23 -->
+        <circle cx="155" cy="108" r="6" fill="#1D7CBE"/>
+        <circle cx="155" cy="108" r="3" fill="white"/>
+        <!-- Station 2 ~mile 44 -->
+        <circle cx="268" cy="108" r="6" fill="#1D7CBE"/>
+        <circle cx="268" cy="108" r="3" fill="white"/>
+        <!-- Station 3 ~mile 60 -->
+        <circle cx="338" cy="78" r="6" fill="#1D7CBE"/>
+        <circle cx="338" cy="78" r="3" fill="white"/>
+        <!-- Finish -->
+        <circle cx="362" cy="248" r="7" fill="white" stroke="#114574" stroke-width="2"/>
+        <text x="362" y="251" text-anchor="middle" font-size="7" font-weight="800" fill="#114574" font-family="system-ui">F</text>
+
+        <!-- Station labels -->
+        <text x="28" y="243" font-size="8" font-weight="700" fill="#114574" font-family="system-ui" text-anchor="middle">Start</text>
+        <text x="155" y="100" font-size="7.5" font-weight="600" fill="#114574" font-family="system-ui" text-anchor="middle">COR</text>
+        <text x="268" y="100" font-size="7.5" font-weight="600" fill="#114574" font-family="system-ui" text-anchor="middle">Big M</text>
+        <text x="338" y="70" font-size="7.5" font-weight="600" fill="#114574" font-family="system-ui" text-anchor="middle">Pole</text>
+
+        <!-- Elevation mini-strip at bottom -->
+        <rect x="0" y="258" width="420" height="22" fill="white" opacity="0.7"/>
+        <path d="M8,276 L40,268 L80,262 L120,256 L155,260 L190,264 L230,260 L268,264 L308,260 L340,262 L380,266 L412,270"
+              fill="none" stroke="#1D7CBE" stroke-width="1.5"/>
+        <text x="8" y="279" font-size="7" fill="#94a3b8" font-family="system-ui">Elevation</text>
+
+        <!-- Map attribution style label -->
+        <rect x="280" y="260" width="132" height="16" rx="3" fill="white" opacity="0.8"/>
+        <text x="284" y="271" font-size="7.5" fill="#64748b" font-family="system-ui" font-weight="600">● Drop bag  ○ Start / Finish</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── Row 2: Plan — illustration left (reversed), text right ── -->
+  <div class="feature-row reverse">
+    <div class="feature-row-copy">
+      <div class="feature-step-num">2</div>
+      <h3 class="feature-row-title">Plan every segment,<br>guided by conditions</h3>
+      <p class="feature-row-desc">Work through each leg of the race knowing what to expect. The app surfaces weather forecasts, flags sunset and sunrise times, and highlights night segments — so you can pack the right gear before you need it.</p>
+      <div class="feature-row-detail">Powered by weather forecasts + suncalc</div>
+    </div>
+
+    <div class="illus-shell">
+      <!-- Two section cards — one with night/sunrise, one with storm -->
+
+      <!-- Card 1: Start → COR, night start + sunrise -->
+      <div class="app-card">
+        <div class="card-section-header">
+          <div class="mile-badge">Mile 0</div>
+          <div class="time-badge">5:00 AM</div>
+          <div class="seg-name">Start → Chicken Out Ridge</div>
+        </div>
+        <div class="info-grid">
+          <div class="info-chip ic-std">
+            <div class="info-chip-lbl">Distance</div>
+            <div class="info-chip-val">23.1 mi</div>
+            <div class="info-chip-sub">+3,200 ft</div>
+          </div>
+          <div class="info-chip ic-night">
+            <div class="stars-mini"></div>
+            <div style="position:relative; z-index:1;">
+              <div class="info-chip-lbl">🌙 Night</div>
+              <div class="info-chip-val">Start → ~mi 4</div>
+              <div class="info-chip-sub">Sunrise 5:48 AM</div>
+            </div>
+          </div>
+          <div class="info-chip ic-sunrise">
+            <div class="info-chip-lbl">🌅 Sunrise</div>
+            <div class="info-chip-val">~mile 4</div>
+            <div class="info-chip-sub">5:48 AM</div>
+          </div>
+          <div class="info-chip ic-weather-clear" style="grid-column: span 3;">
+            <div class="info-chip-lbl">☀️ Weather</div>
+            <div class="info-chip-val">38°F → 56°F &nbsp;·&nbsp; Clear, light wind</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Big Mountain → Pole, sunset + storm -->
+      <div class="app-card">
+        <div class="card-section-header">
+          <div class="mile-badge">Mile 43.6</div>
+          <div class="time-badge">3:07 PM</div>
+          <div class="seg-name">Big Mountain → Pole Canyon</div>
+        </div>
+        <div class="info-grid">
+          <div class="info-chip ic-std">
+            <div class="info-chip-lbl">Distance</div>
+            <div class="info-chip-val">16.5 mi</div>
+            <div class="info-chip-sub">+1,800 ft</div>
+          </div>
+          <div class="info-chip ic-sunset">
+            <div class="info-chip-lbl">🌇 Sunset</div>
+            <div class="info-chip-val">~mile 52</div>
+            <div class="info-chip-sub">8:24 PM</div>
+          </div>
+          <div class="info-chip ic-std">
+            <div class="info-chip-lbl">Duration</div>
+            <div class="info-chip-val">~4h 37m</div>
+            <div class="info-chip-sub">~1,295 kcal</div>
+          </div>
+          <div class="info-chip ic-weather-storm">
+            <div class="info-chip-lbl">⚡ Weather</div>
+            <div class="info-chip-val">62°F → 44°F &nbsp;·&nbsp; Storm risk 2–5 PM · rain gear recommended</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Row 3: Pack — text left, bag card illustration right ── -->
+  <div class="feature-row">
+    <div class="feature-row-copy">
+      <div class="feature-step-num">3</div>
+      <h3 class="feature-row-title">Pack smart,<br>one bag at a time</h3>
+      <p class="feature-row-desc">Your packing plan lists each drop bag once. Every bag shows the gear to collect and a pre-labelled food baggie for each leg — pack them before the race and grab-and-go at each station.</p>
+      <div class="feature-row-detail">Share your crew plan with a single link</div>
+    </div>
+
+    <div class="illus-shell">
+
+      <!-- Bag 1: Start bag, expanded -->
+      <div class="bag-card-illus">
+        <div class="bag-header-illus">
+          <div>
+            <div class="bag-name">Start bag</div>
+            <div class="bag-sub">Mile 0 · Jun 28, 5:00 AM</div>
+          </div>
+          <span style="font-size:11px; opacity:0.5;">▾</span>
+        </div>
+        <div class="bag-body-illus">
+          <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--deep-ridge); margin-bottom:6px;">What to pack</div>
+          <div class="gear-pills">
+            <span class="gear-pill gp-blue">☐ Headlamp</span>
+            <span class="gear-pill gp-blue">☐ Extra layer</span>
+          </div>
+          <div class="baggie-illus">
+            <div class="baggie-dest">🥡 Baggie → Chicken Out Ridge</div>
+            <div class="baggie-meta">23.1 mi · ~4h 22m leg</div>
+            <div class="baggie-items">3× drink mix · ~1,225 kcal · 4× gel, 2× bar, 1× rice ball</div>
+          </div>
+          <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--deep-ridge); margin: 8px 0 5px;">When do I reach this bag?</div>
+          <div style="display:flex; align-items:center; gap:8px; font-size:10px;">
+            <span style="font-family:var(--font-mono); font-weight:700; color:var(--deep-ridge);">Mile 0</span>
+            <span style="color:#64748b; font-family:var(--font-mono);">Jun 28 · 5:00 AM</span>
+            <span style="color:#475569;">Race start</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bag 2: COR, collapsed -->
+      <div class="bag-card-illus">
+        <div class="bag-header-illus" style="background: #0d3a63;">
+          <div>
+            <div class="bag-name">Chicken Out Ridge</div>
+            <div class="bag-sub">Mile 23.1 · first drop bag</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px; opacity:0.6; line-height:1.5;">Headlamp · Rain gear<br>1 baggie packed</div>
+            <span style="font-size:11px; opacity:0.4;">▸</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bag 3: Big Mountain, collapsed -->
+      <div class="bag-card-illus">
+        <div class="bag-header-illus" style="background: #0d3a63;">
+          <div>
+            <div class="bag-name">Big Mountain</div>
+            <div class="bag-sub">Mile 43.6 · crew access</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px; opacity:0.6; line-height:1.5;">Headlamp · Poles · Shoe change<br>1 baggie packed</div>
+            <span style="font-size:11px; opacity:0.4;">▸</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════
+     BOTTOM CTA
+     ══════════════════════════════════════ -->
+<section class="bottom-cta">
+
+  <!-- Faint mountain echo -->
+  <svg class="bottom-mountains" viewBox="0 0 1440 120" preserveAspectRatio="xMidYMax slice">
+    <path d="M0,80 C120,55 240,45 360,50 C480,55 560,70 680,60 C800,50 880,35 1000,40 C1120,45 1240,60 1360,65 L1440,68 L1440,120 L0,120 Z" fill="white"/>
+    <path d="M0,100 C100,85 200,78 320,80 C460,83 560,95 700,88 C840,81 940,70 1080,75 C1200,80 1320,90 1440,93 L1440,120 L0,120 Z" fill="white" opacity="0.4"/>
+  </svg>
+
+  <div class="bottom-cta-eyebrow">Ready to plan?</div>
+  <h2 class="bottom-cta-title">Your best race<br>starts here</h2>
+  <p class="bottom-cta-desc">Join runners who prep smarter, pack cleaner, and show up to the start line ready for every mile.</p>
+  <button class="bottom-btn">Get Started</button>
+
+</section>
+
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-logo">PlanUltra ▲</div>
+  <div class="footer-note">Free forever · Built for ultra runners</div>
+</footer>
+
+</body>
+</html>
