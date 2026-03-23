@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
     AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
     AUTH_URL: process.env.AUTH_URL,
     DYNAMODB_TABLE_NAME: process.env.DYNAMODB_TABLE_NAME,
+    DYNAMODB_ACCESS_KEY_ID: process.env.DYNAMODB_ACCESS_KEY_ID,
+    DYNAMODB_SECRET_ACCESS_KEY: process.env.DYNAMODB_SECRET_ACCESS_KEY,
   },
 };
 
