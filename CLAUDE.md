@@ -1,5 +1,9 @@
 # PlanUltra — Developer Notes
 
+## App URL
+
+The production URL is **www.planultrarace.com**.
+
 ## File Locations
 
 All requirements documents (PRDs, mockups) go in `docs/requirements/`. Do not use `requirements/` at the project root.

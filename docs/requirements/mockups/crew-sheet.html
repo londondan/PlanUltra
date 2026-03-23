@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew Sheet — Bear 100 · PlanUltra</title>
+<style>
+  /* ── Ridge Light Design System ── */
+  :root {
+    --midnight:    #02071E;
+    --deep-ridge:  #114574;
+    --ridge-blue:  #1D7CBE;
+    --sky:         #82C7F6;
+    --mist:        #DBF1FA;
+    --white:       #ffffff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Geist Sans', 'Inter', system-ui, sans-serif;
+    background: #f0f4f8;
+    color: var(--midnight);
+    min-height: 100vh;
+  }
+
+  /* ── Screen chrome (print button bar) ── */
+  .screen-bar {
+    background: var(--midnight);
+    border-bottom: 1px solid rgba(130,199,246,0.15);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+  }
+  .screen-bar .logo {
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-weight: 800;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: -0.02em;
+  }
+  .print-btn {
+    background: transparent;
+    border: 1px solid rgba(130,199,246,0.4);
+    color: var(--sky);
+    font-size: 12px;
+    padding: 5px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .print-btn:hover {
+    background: rgba(130,199,246,0.08);
+    border-color: var(--sky);
+  }
+
+  /* ── Page wrapper ── */
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .crew-header {
+    background: var(--midnight);
+    padding: 32px 40px 28px;
+    color: white;
+    position: relative;
+  }
+  .crew-header .race-name {
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: white;
+    margin-bottom: 6px;
+  }
+  .crew-header .runner-label {
+    font-size: 13px;
+    color: var(--sky);
+    margin-bottom: 4px;
+  }
+  .crew-header .race-meta {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 12px;
+  }
+  .crew-header .published-at {
+    font-family: 'Geist Mono', 'Courier New', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.28);
+    margin-top: 8px;
+  }
+  .header-stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(130,199,246,0.15);
+  }
+  .header-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .header-stat .val {
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--sky);
+    letter-spacing: -0.02em;
+  }
+  .header-stat .lbl {
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Station list ── */
+  .station-list {
+    padding: 32px 40px 40px;
+    /* Timeline: continuous vertical line at ~20% from left of content area */
+    position: relative;
+  }
+  /* The continuous timeline line */
+  .station-list::before {
+    content: '';
+    position: absolute;
+    left: calc(40px + 22px); /* padding-left + half of dot column */
+    top: 32px;
+    bottom: 40px;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      rgba(130,199,246,0.15) 0%,
+      rgba(130,199,246,0.55) 8%,
+      rgba(130,199,246,0.55) 92%,
+      rgba(130,199,246,0.15) 100%
+    );
+  }
+
+  /* Each row in the timeline: dot column + card column */
+  .timeline-row {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    align-items: flex-start;
+    margin-bottom: 0;
+  }
+
+  /* The dot that sits on the line */
+  .timeline-dot {
+    display: flex;
+    justify-content: center;
+    padding-top: 18px; /* aligns dot with station name row */
+    position: relative;
+    z-index: 1;
+  }
+  .timeline-dot .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid var(--sky);
+    flex-shrink: 0;
+  }
+  .timeline-row--crew .timeline-dot .dot {
+    background: var(--ridge-blue);
+    border-color: var(--ridge-blue);
+    box-shadow: 0 0 0 3px rgba(29,124,190,0.18);
+    width: 14px;
+    height: 14px;
+  }
+  .timeline-row--finish .timeline-dot .dot {
+    background: var(--midnight);
+    border-color: var(--sky);
+    box-shadow: 0 0 0 3px rgba(130,199,246,0.2);
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Gap between rows (the line segment between dots) */
+  .timeline-gap {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    height: 16px;
+  }
+
+  /* ── Station card base ── */
+  .station-card {
+    border: 1px solid rgba(130,199,246,0.4);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .station-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+  }
+
+  .mile-badge {
+    font-family: 'Geist Mono', 'Courier New', monospace;
+    font-size: 10px;
+    color: var(--midnight);
+    background: rgba(219,241,250,0.7);
+    border: 1px solid rgba(130,199,246,0.4);
+    border-radius: 5px;
+    padding: 3px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .station-name {
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--midnight);
+    flex: 1;
+  }
+
+  .station-eta {
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ridge-blue);
+    white-space: nowrap;
+  }
+
+  /* ── No-crew card ── */
+  .station-card--no-crew .station-header {
+    background: white;
+  }
+  .no-crew-label {
+    font-size: 11px;
+    color: rgba(17,69,116,0.4);
+    font-style: italic;
+    padding: 0 18px 10px;
+  }
+
+  /* ── Crew-access card ── */
+  .station-card--crew {
+    border-color: rgba(29,124,190,0.35);
+  }
+  .station-card--crew .station-header {
+    background: var(--mist);
+    border-bottom: 1px solid rgba(130,199,246,0.4);
+  }
+
+  .crew-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: #15803d;
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* Segment detail block */
+  .segment-detail {
+    padding: 16px 18px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .segment-label {
+    font-size: 10px;
+    color: rgba(17,69,116,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 600;
+  }
+  .segment-name {
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--deep-ridge);
+    margin-top: 2px;
+  }
+
+  .detail-divider {
+    height: 1px;
+    background: rgba(130,199,246,0.3);
+  }
+
+  /* Gear section */
+  .detail-section-label {
+    font-size: 10px;
+    color: rgba(17,69,116,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .gear-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .gear-pill {
+    background: var(--mist);
+    border: 1px solid rgba(130,199,246,0.5);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--deep-ridge);
+    font-weight: 500;
+  }
+
+  /* Baggies */
+  .baggie {
+    background: rgba(219,241,250,0.4);
+    border: 1px solid rgba(130,199,246,0.35);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .baggie-dest {
+    font-family: 'Geist Mono', 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--ridge-blue);
+    font-weight: 600;
+  }
+  .baggie-items {
+    font-size: 12px;
+    color: var(--deep-ridge);
+    line-height: 1.5;
+  }
+  .baggie-kcal {
+    font-family: 'Geist Mono', 'Courier New', monospace;
+    font-size: 10px;
+    color: rgba(17,69,116,0.5);
+  }
+
+  /* Crew notes */
+  .crew-notes-text {
+    font-size: 13px;
+    color: var(--midnight);
+    line-height: 1.6;
+    background: #fffbeb;
+    border-left: 3px solid #fbbf24;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+  }
+
+  /* ── Condition chips (PRD-008) ── */
+  .conditions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .condition-chip {
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 120px;
+  }
+  .chip-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.75;
+  }
+  .chip-value {
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .chip-sub {
+    font-size: 10px;
+    opacity: 0.65;
+  }
+
+  /* Night chip */
+  .chip-night {
+    background: linear-gradient(135deg, #0a0e2a 0%, #1a1f4e 60%, #0d1235 100%);
+    color: #c8d8ff;
+    position: relative;
+    overflow: hidden;
+  }
+  .chip-night::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 55%, rgba(255,255,255,0.45) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.3) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .chip-night .chip-label { color: rgba(200,216,255,0.6); }
+
+  /* Sunrise chip */
+  .chip-sunrise {
+    background: linear-gradient(135deg, #3b1f5c 0%, #7c3aed 35%, #f97316 75%, #fbbf24 100%);
+    color: #fff7ed;
+  }
+  .chip-sunrise .chip-label { color: rgba(255,247,237,0.6); }
+
+  /* Sunset chip */
+  .chip-sunset {
+    background: linear-gradient(135deg, #fde68a 0%, #fb923c 35%, #9333ea 70%, #4c1d95 100%);
+    color: #1e0a3c;
+  }
+  .chip-sunset .chip-label { color: rgba(30,10,60,0.55); }
+
+  /* Weather clear */
+  .chip-weather-clear {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    color: var(--deep-ridge);
+    border: 1px solid rgba(130,199,246,0.5);
+  }
+  .chip-weather-clear .chip-label { color: rgba(17,69,116,0.55); }
+
+  /* Weather storm */
+  .chip-weather-storm {
+    background: linear-gradient(135deg, #1c1c2e 0%, #2d2d44 50%, #1a1a2e 100%);
+    color: #e2e8f0;
+    position: relative;
+    overflow: hidden;
+  }
+  .chip-weather-storm::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    right: 18%;
+    width: 8px;
+    height: 14px;
+    background: #fbbf24;
+    clip-path: polygon(50% 0%, 100% 40%, 60% 40%, 80% 100%, 0% 45%, 45% 45%);
+    opacity: 0.85;
+    filter: drop-shadow(0 0 4px rgba(251,191,36,0.7));
+  }
+  .chip-weather-storm .chip-label { color: rgba(226,232,240,0.5); }
+
+  /* Weather rain */
+  .chip-weather-rain {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+    color: #d1d5db;
+  }
+  .chip-weather-rain .chip-label { color: rgba(209,213,219,0.5); }
+
+  /* ── Finish card ── */
+  .station-card--finish {
+    border-color: rgba(130,199,246,0.5);
+    border-width: 2px;
+  }
+  .station-card--finish .station-header {
+    background: linear-gradient(135deg, var(--midnight) 0%, var(--deep-ridge) 100%);
+  }
+  .station-card--finish .station-name,
+  .station-card--finish .station-eta {
+    color: white;
+  }
+  .station-card--finish .mile-badge {
+    background: rgba(130,199,246,0.15);
+    border-color: rgba(130,199,246,0.3);
+    color: var(--sky);
+  }
+  .finish-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    padding: 0 18px 12px;
+    background: linear-gradient(135deg, var(--midnight) 0%, var(--deep-ridge) 100%);
+  }
+
+  /* ── Footer ── */
+  .crew-footer {
+    padding: 20px 40px;
+    border-top: 1px solid rgba(130,199,246,0.2);
+    text-align: center;
+  }
+  .crew-footer p {
+    font-size: 11px;
+    color: rgba(17,69,116,0.35);
+  }
+  .crew-footer a {
+    color: var(--ridge-blue);
+    text-decoration: none;
+  }
+
+  /* ── Print styles ── */
+  @media print {
+    .screen-bar { display: none !important; }
+    body { background: white; }
+
+    .crew-header {
+      background: var(--ridge-blue) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .crew-header .race-name,
+    .crew-header .runner-label,
+    .crew-header .race-meta,
+    .crew-header .published-at { color: white !important; }
+    .crew-header .header-stat .val { color: white !important; }
+
+    .station-card { break-inside: avoid; page-break-inside: avoid; }
+
+    .station-card--crew {
+      background: white !important;
+      border-left: 4px solid var(--ridge-blue) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .station-card--crew .station-header {
+      background: #f0f9ff !important;
+    }
+
+    .condition-chip {
+      border: 1px solid var(--deep-ridge) !important;
+      background: white !important;
+      color: var(--midnight) !important;
+    }
+    .condition-chip::before, .condition-chip::after { display: none !important; }
+
+    .station-list { padding: 16px 20px; }
+    .station-list::before { background: #82C7F6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .timeline-row--crew .timeline-dot .dot { background: var(--ridge-blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    a { text-decoration: none !important; color: inherit !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Screen-only chrome bar -->
+<div class="screen-bar print-hide">
+  <span class="logo">PlanUltra ▲</span>
+  <div style="display:flex;align-items:center;gap:16px">
+    <span>Share this page with your crew</span>
+    <button class="print-btn" onclick="window.print()">🖨 Print crew sheet</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <header class="crew-header">
+    <div class="race-name">Bear 100 Endurance Run</div>
+    <div class="runner-label">Crew sheet for Dan James</div>
+    <div class="race-meta">September 27, 2026 · 5:00 AM start · 100.3 miles · 22,000 ft gain</div>
+    <div class="header-stats">
+      <div class="header-stat">
+        <span class="val">4</span>
+        <span class="lbl">Crew stations</span>
+      </div>
+      <div class="header-stat">
+        <span class="val">11</span>
+        <span class="lbl">Aid stations</span>
+      </div>
+      <div class="header-stat">
+        <span class="val">~32h</span>
+        <span class="lbl">Target finish</span>
+      </div>
+      <div class="header-stat">
+        <span class="val">Sat 1:00 PM</span>
+        <span class="lbl">Est. finish</span>
+      </div>
+    </div>
+    <div class="published-at">Published 2026-09-22 at 8:14 PM · www.planultrarace.com/crew/xk7mQp2nRvTdWcLs</div>
+  </header>
+
+  <!-- ── STATION LIST ── -->
+  <div class="station-list">
+
+    <!-- START — Crew access -->
+    <div class="timeline-row timeline-row--crew">
+      <div class="timeline-dot"><div class="dot"></div></div>
+      <div class="station-card station-card--crew">
+      <div class="station-header">
+        <span class="mile-badge">MILE 0</span>
+        <span class="station-name">Race Start</span>
+        <span class="crew-badge">✓ Crew access</span>
+        <span class="station-eta">5:00 AM</span>
+      </div>
+      <div class="segment-detail">
+        <div>
+          <div class="segment-label">Next segment</div>
+          <div class="segment-name">Race Start → Beaver Meadows (18.4 mi)</div>
+        </div>
+        <div class="detail-divider"></div>
+        <div>
+          <div class="detail-section-label">Grab from drop bag</div>
+          <ul class="gear-list">
+            <li class="gear-pill">Headlamp</li>
+            <li class="gear-pill">Extra layer</li>
+            <li class="gear-pill">Trekking poles</li>
+            <li class="gear-pill">Hand warmers</li>
+          </ul>
+        </div>
+        <div>
+          <div class="detail-section-label">Baggies for this leg</div>
+          <div class="baggie">
+            <div class="baggie-dest">→ Beaver Meadows (mile 18.4)</div>
+            <div class="baggie-items">3× Tailwind drink mix · 4× Maurten gels · 2× RX Bars · 1× PB&J quarter</div>
+            <div class="baggie-kcal">~1,225 kcal</div>
+          </div>
+        </div>
+        <div>
+          <div class="detail-section-label">Crew notes</div>
+          <div class="crew-notes-text">Fill both soft flasks before start. Runner will be cold at 5am — have the extra layer ready to hand off. Headlamp should already have fresh batteries.</div>
+        </div>
+        <div>
+          <div class="detail-section-label">Conditions — next segment</div>
+          <div class="conditions-row">
+            <div class="condition-chip chip-night">
+              <span class="chip-label">Night running</span>
+              <span class="chip-value">Full segment</span>
+              <span class="chip-sub">Entire leg in darkness</span>
+            </div>
+            <div class="condition-chip chip-sunrise">
+              <span class="chip-label">Sunrise</span>
+              <span class="chip-value">~mile 14 · 6:41 AM</span>
+              <span class="chip-sub">Dark until mile 14</span>
+            </div>
+            <div class="condition-chip chip-weather-clear">
+              <span class="chip-label">Weather</span>
+              <span class="chip-value">38°F → 48°F</span>
+              <span class="chip-sub">Clear · light wind</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="timeline-gap"></div>
+
+    <!-- Beaver Meadows — No crew -->
+    <div class="timeline-row">
+      <div class="timeline-dot"><div class="dot"></div></div>
+      <div class="station-card station-card--no-crew">
+        <div class="station-header">
+          <span class="mile-badge">MILE 18.4</span>
+          <span class="station-name">Beaver Meadows</span>
+          <span class="station-eta">8:52 AM</span>
+        </div>
+        <div class="no-crew-label">No crew access at this station</div>
+      </div>
+    </div>
+
+    <div class="timeline-gap"></div>
+
+    <!-- Logan River — No crew -->
+    <div class="timeline-row">
+      <div class="timeline-dot"><div class="dot"></div></div>
+      <div class="station-card station-card--no-crew">
+        <div class="station-header">
+          <span class="mile-badge">MILE 30.7</span>
+          <span class="station-name">Logan River</span>
+          <span class="station-eta">12:14 PM</span>
+        </div>
+        <div class="no-crew-label">No crew access at this station</div>
+      </div>
+    </div>
+
+    <div class="timeline-gap"></div>
+
+    <!-- Leatham Hollow — Crew access -->
+    <div class="timeline-row timeline-row--crew">
+      <div class="timeline-dot"><div class="dot"></div></div>
+      <div class="station-card station-card--crew">
+      <div class="station-header">
+        <span class="mile-badge">MILE 43.6</span>
+        <span class="station-name">Leatham Hollow</span>
+        <span class="crew-badge">✓ Crew access</span>
+        <span class="station-eta">3:07 PM</span>
+      </div>
+      <div class="segment-detail">
+        <div>
+          <div class="segment-label">Next segment</div>
+          <div class="segment-name">Leatham Hollow → Right Hand Fork (18.4 mi)</div>
+        </div>
+        <div class="detail-divider"></div>
+        <div>
+          <div class="detail-section-label">Grab from drop bag</div>
+          <ul class="gear-list">
+            <li class="gear-pill">Poles (swap out)</li>
+            <li class="gear-pill">Sunscreen</li>
+            <li class="gear-pill">Sunglasses</li>
+          </ul>
+        </div>
+        <div>
+          <div class="detail-section-label">Baggies for this leg</div>
+          <div class="baggie">
+            <div class="baggie-dest">→ Right Hand Fork (mile 62.0)</div>
+            <div class="baggie-items">2× Tailwind · 4× gels · 3× bars · 1× PB&J</div>
+            <div class="baggie-kcal">~1,050 kcal</div>
+          </div>
+        </div>
+        <div>
+          <div class="detail-section-label">Crew notes</div>
+          <div class="crew-notes-text">Good place for runner to sit for 5 minutes. Check feet for hot spots — there's a climb after this. Swap poles for fresh ones if available. Remind runner to apply sunscreen — exposed ridge for several miles.</div>
+        </div>
+        <div>
+          <div class="detail-section-label">Conditions — next segment</div>
+          <div class="conditions-row">
+            <div class="condition-chip chip-weather-clear">
+              <span class="chip-label">Weather</span>
+              <span class="chip-value">62°F → 68°F</span>
+              <span class="chip-sub">Clear · warm afternoon</span>
+            </div>
+            <div class="condition-chip chip-sunset">
+              <span class="chip-label">Sunset</span>
+              <span class="chip-value">~mile 58 · 7:52 PM</span>
+              <span class="chip-sub">Headlamp needed from ~mile 58</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="timeline-gap"></div>
+
+    <!-- Tony Grove — No crew -->
+    <div class="timeline-row">
+      <div class="timeline-dot"><div class="dot"></div></div>
+      <div class="station-card station-card--no-crew">
+        <div class="station-header">
+          <span class="mile-badge">MILE 52.1</span>
+          <span class="station-name">Tony Grove</span>
+          <span class="station-eta">6:28 PM</span>
+        </div>
+        <div class="no-crew-label">No crew access at this station</div>
+      </div>
+    </div>
+
+    <div class="timeline-gap"></div>
+
+    <!-- Right Hand Fork — Crew access -->
+    <div class="timeline-row timeline-row--crew">
+      <div class="timeline-dot"><div class="dot"></div></div>
+      <div class="station-card station-card--crew">
+        <div class="station-header">
+          <span class="mile-badge">MILE 62.0</span>
+          <span class="station-name">Right Hand Fork</span>
+          <span class="crew-badge">✓ Crew access</span>
+          <span class="station-eta">9:44 PM</span>
+        </div>
+        <div class="segment-detail">
+          <div>
+            <div class="segment-label">Next segment</div>
+            <div class="segment-name">Right Hand Fork → Cowley Canyon (20.3 mi)</div>
+          </div>
+          <div class="detail-divider"></div>
+          <div>
+            <div class="detail-section-label">Grab from drop bag</div>
+            <ul class="gear-list">
+              <li class="gear-pill">Headlamp (spare batteries)</li>
+              <li class="gear-pill">Warm jacket</li>
+              <li class="gear-pill">Gloves</li>
+              <li class="gear-pill">Night visor</li>
+            </ul>
+          </div>
+          <div>
+            <div class="detail-section-label">Baggies for this leg</div>
+            <div class="baggie">
+              <div class="baggie-dest">→ Cowley Canyon (mile 82.3)</div>
+              <div class="baggie-items">3× Tailwind · 5× gels · 2× bars · rice balls × 2</div>
+              <div class="baggie-kcal">~1,400 kcal</div>
+            </div>
+          </div>
+          <div>
+            <div class="detail-section-label">Crew notes</div>
+            <div class="crew-notes-text">This is mile 62 — runner will likely be struggling. Hot soup or broth if available. Make sure headlamp is fresh and jacket is easily accessible. This is a long night section with significant climbing.</div>
+          </div>
+          <div>
+            <div class="detail-section-label">Conditions — next segment</div>
+            <div class="conditions-row">
+              <div class="condition-chip chip-night">
+                <span class="chip-label">Night running</span>
+                <span class="chip-value">Full segment</span>
+                <span class="chip-sub">Full night section</span>
+              </div>
+              <div class="condition-chip chip-weather-storm">
+                <span class="chip-label">Weather</span>
+                <span class="chip-value">44°F → 38°F</span>
+                <span class="chip-sub">Storm risk overnight</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-gap"></div>
+
+    <!-- Cowley Canyon — No crew -->
+    <div class="timeline-row">
+      <div class="timeline-dot"><div class="dot"></div></div>
+      <div class="station-card station-card--no-crew">
+        <div class="station-header">
+          <span class="mile-badge">MILE 82.3</span>
+          <span class="station-name">Cowley Canyon</span>
+          <span class="station-eta">4:02 AM</span>
+        </div>
+        <div class="no-crew-label">No crew access at this station</div>
+      </div>
+    </div>
+
+    <div class="timeline-gap"></div>
+
+    <!-- Gibson Basin — No crew -->
+    <div class="timeline-row">
+      <div class="timeline-dot"><div class="dot"></div></div>
+      <div class="station-card station-card--no-crew">
+        <div class="station-header">
+          <span class="mile-badge">MILE 90.4</span>
+          <span class="station-name">Gibson Basin</span>
+          <span class="station-eta">7:18 AM</span>
+        </div>
+        <div class="no-crew-label">No crew access at this station</div>
+      </div>
+    </div>
+
+    <div class="timeline-gap"></div>
+
+    <!-- Finish -->
+    <div class="timeline-row timeline-row--finish">
+      <div class="timeline-dot"><div class="dot"></div></div>
+      <div class="station-card station-card--finish">
+        <div class="station-header">
+          <span class="mile-badge">MILE 100.3</span>
+          <span class="station-name">Finish Line 🏁</span>
+          <span class="station-eta" style="color:var(--sky)">~1:00 PM</span>
+        </div>
+        <div class="finish-label">Bear Lake State Park · estimated finish time</div>
+      </div>
+    </div>
+
+  </div><!-- /station-list -->
+
+  <!-- ── FOOTER ── -->
+  <footer class="crew-footer">
+    <p>Generated by <a href="https://www.planultrarace.com">PlanUltra</a> · Published Sep 22, 2026 · This link is private — share only with your crew.</p>
+  </footer>
+
+</div><!-- /page -->
+
+</body>
+</html>

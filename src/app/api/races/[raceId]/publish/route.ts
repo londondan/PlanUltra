@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { randomUUID } from 'crypto'
+import { randomBytes } from 'crypto'
 import { auth } from '@/lib/auth'
 import { getRaceById, updateRace } from '@/lib/db/races'
 
@@ -18,9 +18,10 @@ export async function POST(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const crewShareToken = randomUUID()
+  const crewShareToken = randomBytes(12).toString('base64url')
   const crewPublishedAt = new Date().toISOString()
-  await updateRace(session.user.id, raceId, { crewShareToken, crewPublishedAt })
+  const runnerName = session.user.name ?? ''
+  await updateRace(session.user.id, raceId, { crewShareToken, crewPublishedAt, runnerName })
   return NextResponse.json({ crewShareToken, crewPublishedAt })
 }
 

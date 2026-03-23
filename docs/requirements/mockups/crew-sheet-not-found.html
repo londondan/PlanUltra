@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew Sheet Not Found — PlanUltra</title>
+<style>
+  :root {
+    --midnight:   #02071E;
+    --deep-ridge: #114574;
+    --ridge-blue: #1D7CBE;
+    --sky:        #82C7F6;
+    --mist:       #DBF1FA;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Geist Sans', 'Inter', system-ui, sans-serif;
+    background: white;
+    color: var(--midnight);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  .crew-header {
+    background: var(--midnight);
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: white;
+    letter-spacing: -0.02em;
+  }
+  .logo span {
+    color: var(--sky);
+    opacity: 0.7;
+  }
+  .header-note {
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+  }
+
+  /* ── Main content ── */
+  .not-found-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px 80px;
+    text-align: center;
+  }
+
+  /* SVG mountain illustration */
+  .mountain-illustration {
+    width: 220px;
+    opacity: 0.35;
+    margin-bottom: 32px;
+  }
+
+  /* Headline */
+  .nf-headline {
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-size: clamp(22px, 4vw, 28px);
+    font-weight: 800;
+    color: var(--midnight);
+    letter-spacing: -0.02em;
+    max-width: 480px;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+
+  .nf-subtext {
+    font-size: 15px;
+    color: rgba(17,69,116,0.65);
+    max-width: 400px;
+    line-height: 1.6;
+    margin-bottom: 36px;
+  }
+
+  /* What to try block */
+  .what-to-try {
+    background: var(--mist);
+    border: 1px solid rgba(130,199,246,0.5);
+    border-radius: 12px;
+    padding: 20px 24px;
+    max-width: 420px;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 28px;
+  }
+  .what-to-try-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(17,69,116,0.5);
+    margin-bottom: 12px;
+  }
+  .what-to-try ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .what-to-try li {
+    font-size: 13px;
+    color: var(--deep-ridge);
+    line-height: 1.5;
+    padding-left: 18px;
+    position: relative;
+  }
+  .what-to-try li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--ridge-blue);
+    font-size: 12px;
+  }
+
+  /* CTA */
+  .cta-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .cta-btn {
+    display: inline-block;
+    border: 1.5px solid var(--ridge-blue);
+    color: var(--ridge-blue);
+    font-family: 'DM Sans', 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.15s;
+    cursor: pointer;
+    background: transparent;
+  }
+  .cta-btn:hover {
+    background: rgba(29,124,190,0.06);
+  }
+  .cta-note {
+    font-size: 11px;
+    color: rgba(17,69,116,0.35);
+  }
+
+  /* ── Footer ── */
+  .crew-footer {
+    padding: 16px 40px;
+    border-top: 1px solid rgba(130,199,246,0.15);
+    text-align: center;
+  }
+  .crew-footer p {
+    font-size: 11px;
+    color: rgba(17,69,116,0.3);
+  }
+
+  /* ── Variant switcher (demo only) ── */
+  .variant-bar {
+    background: #f8fafc;
+    border-bottom: 1px solid rgba(130,199,246,0.3);
+    padding: 8px 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: rgba(17,69,116,0.5);
+  }
+  .variant-bar span { font-weight: 600; }
+  .variant-btn {
+    background: white;
+    border: 1px solid rgba(130,199,246,0.5);
+    color: var(--deep-ridge);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .variant-btn:hover, .variant-btn.active {
+    background: var(--mist);
+    border-color: var(--ridge-blue);
+    color: var(--ridge-blue);
+  }
+</style>
+</head>
+<body>
+
+<!-- Demo variant bar — not part of real UI -->
+<div class="variant-bar">
+  <span>Flavor variants:</span>
+  <button class="variant-btn active" onclick="setVariant(0)">0 — Lost on course</button>
+  <button class="variant-btn" onclick="setVariant(1)">1 — Miles 44–62</button>
+  <button class="variant-btn" onclick="setVariant(2)">2 — Dying headlamp</button>
+  <button class="variant-btn" onclick="setVariant(3)">3 — Aid station closed</button>
+</div>
+
+<!-- ── HEADER ── -->
+<header class="crew-header">
+  <div class="logo">PlanUltra <span>▲</span></div>
+  <div class="header-note">Crew sheet</div>
+</header>
+
+<!-- ── MAIN ── -->
+<main class="not-found-body">
+
+  <!-- Mountain illustration SVG -->
+  <svg class="mountain-illustration" viewBox="0 0 220 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Layer 3 — back ridge, lightest -->
+    <path d="M0,80 C20,70 35,55 50,42 C60,33 68,28 78,22 C88,16 96,16 106,22 C116,28 124,38 138,50 C150,60 165,68 180,73 C195,78 210,78 220,76 L220,100 L0,100 Z"
+          fill="#DBF1FA"/>
+    <!-- Layer 2 — mid ridge -->
+    <path d="M0,88 C15,80 30,68 48,55 C62,44 72,36 85,30 C95,25 104,25 115,31 C126,37 136,48 152,60 C166,70 185,78 220,82 L220,100 L0,100 Z"
+          fill="#82C7F6" opacity="0.5"/>
+    <!-- Layer 1 — foreground, darkest -->
+    <path d="M0,95 C18,88 38,78 58,68 C74,60 86,54 100,50 C112,46 122,47 135,53 C148,59 162,70 180,80 C196,88 210,92 220,93 L220,100 L0,100 Z"
+          fill="#1D7CBE" opacity="0.35"/>
+    <!-- Tiny star dots on back layer -->
+    <circle cx="30" cy="35" r="1" fill="#114574" opacity="0.4"/>
+    <circle cx="60" cy="20" r="0.8" fill="#114574" opacity="0.3"/>
+    <circle cx="155" cy="25" r="1" fill="#114574" opacity="0.35"/>
+    <circle cx="190" cy="38" r="0.7" fill="#114574" opacity="0.3"/>
+    <!-- Lost marker — X on the route -->
+    <circle cx="110" cy="44" r="7" fill="white" stroke="#82C7F6" stroke-width="1.5"/>
+    <line x1="107" y1="41" x2="113" y2="47" stroke="#1D7CBE" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="113" y1="41" x2="107" y2="47" stroke="#1D7CBE" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>
+
+  <!-- Text content — swapped by JS variant switcher -->
+  <h1 class="nf-headline" id="nf-headline">
+    Looks like this crew sheet got lost somewhere out on the course.
+  </h1>
+  <p class="nf-subtext" id="nf-subtext">
+    It may have been unpublished, or the link may have changed.
+  </p>
+
+  <div class="what-to-try">
+    <div class="what-to-try-label">What to try</div>
+    <ul>
+      <li>Ask your runner to re-share the current crew sheet link</li>
+      <li>If you're the runner, check the Crew tab in your plan to get the active link</li>
+    </ul>
+  </div>
+
+  <div class="cta-area">
+    <a href="/" class="cta-btn">Sign in to PlanUltra</a>
+    <span class="cta-note">For runners — to check or republish your crew sheet</span>
+  </div>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer class="crew-footer">
+  <p>PlanUltra · www.planultrarace.com</p>
+</footer>
+
+<script>
+  const variants = [
+    {
+      headline: "Looks like this crew sheet got lost somewhere out on the course.",
+      subtext: "It may have been unpublished, or the link may have changed."
+    },
+    {
+      headline: "Your crew sheet may have gotten lost between miles 44 and 62.",
+      subtext: "Classic. The link may have been unpublished or the runner may have regenerated it."
+    },
+    {
+      headline: "This link has gone dark — like mile 80 with a dying headlamp.",
+      subtext: "The runner may have unpublished this plan or reshared a new link."
+    },
+    {
+      headline: "Aid station closed. Nothing to see here.",
+      subtext: "This crew sheet link is no longer active."
+    }
+  ];
+
+  function setVariant(i) {
+    document.getElementById('nf-headline').textContent = variants[i].headline;
+    document.getElementById('nf-subtext').textContent = variants[i].subtext;
+    document.querySelectorAll('.variant-btn').forEach((b, j) => {
+      b.classList.toggle('active', i === j);
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -23,6 +23,12 @@ export class PlanUltraStack extends cdk.Stack {
       roleName: 'PlanUltraAmplifyRole',
     })
 
+    table.addGlobalSecondaryIndex({
+      indexName: 'CrewTokenIndex',
+      partitionKey: { name: 'crewShareToken', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    })
+
     table.grantReadWriteData(amplifyRole)
 
     new cdk.CfnOutput(this, 'TableName', { value: table.tableName })

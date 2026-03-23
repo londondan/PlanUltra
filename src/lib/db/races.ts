@@ -27,11 +27,28 @@ export interface Race {
   targetFinishMinutes?: number
   crewShareToken?: string
   crewPublishedAt?: string
+  runnerName?: string
   paceMode?: 'pace' | 'finish'
   paceMin?: string
   paceSec?: string
   finishHours?: string
   finishMins?: string
+}
+
+export async function getRaceByCrewToken(token: string): Promise<Race | null> {
+  const result = await docClient.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      IndexName: 'CrewTokenIndex',
+      KeyConditionExpression: 'crewShareToken = :token',
+      ExpressionAttributeValues: { ':token': token },
+      Limit: 1,
+    })
+  )
+  if (!result.Items || result.Items.length === 0) return null
+  const race = result.Items[0] as unknown as Race
+  if (race.gpxData) race.gpxData = decompressGPX(race.gpxData)
+  return race
 }
 
 export async function createRace(
