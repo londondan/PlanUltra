@@ -26,8 +26,9 @@ export async function GET() {
   let tableCheck = null
   let tableError = null
   try {
-    const { DynamoDBClient, DescribeTableCommand } = await import('@aws-sdk/client-dynamodb')
-    const ddb = new DynamoDBClient({ region: process.env.AWS_REGION ?? 'us-east-1' })
+    const { DescribeTableCommand } = await import('@aws-sdk/client-dynamodb')
+    const { docClient } = await import('@/lib/db')
+    const ddb = docClient
     const result = await ddb.send(
       new DescribeTableCommand({ TableName: process.env.DYNAMODB_TABLE_NAME ?? 'PlanUltra' })
     )
