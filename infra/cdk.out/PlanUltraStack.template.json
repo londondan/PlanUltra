@@ -11,9 +11,27 @@
      {
       "AttributeName": "SK",
       "AttributeType": "S"
+     },
+     {
+      "AttributeName": "crewShareToken",
+      "AttributeType": "S"
      }
     ],
     "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "CrewTokenIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "crewShareToken",
+        "KeyType": "HASH"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
     "KeySchema": [
      {
       "AttributeName": "PK",
@@ -81,6 +99,20 @@
           "PlanUltraTableE1661BF2",
           "Arn"
          ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "PlanUltraTableE1661BF2",
+             "Arn"
+            ]
+           },
+           "/index/*"
+          ]
+         ]
         }
        ]
       },
@@ -95,6 +127,20 @@
          "Fn::GetAtt": [
           "PlanUltraTableE1661BF2",
           "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "PlanUltraTableE1661BF2",
+             "Arn"
+            ]
+           },
+           "/index/*"
+          ]
          ]
         }
        ]

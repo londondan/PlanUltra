@@ -36,17 +36,42 @@ export interface Race {
 }
 
 export async function getRaceByCrewToken(token: string): Promise<Race | null> {
-  const result = await docClient.send(
-    new QueryCommand({
+  // Try GSI first (fast, O(1))
+  try {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: 'CrewTokenIndex',
+        KeyConditionExpression: 'crewShareToken = :token',
+        ExpressionAttributeValues: { ':token': token },
+        Limit: 1,
+      })
+    )
+    if (result.Items && result.Items.length > 0) {
+      const race = result.Items[0] as unknown as Race
+      if (race.gpxData) race.gpxData = decompressGPX(race.gpxData)
+      return race
+    }
+    return null
+  } catch (err) {
+    // If IAM doesn't cover the index yet, fall back to a full-table scan.
+    const errName = (err as { name?: string }).name ?? ''
+    if (errName !== 'AccessDeniedException' && errName !== 'ValidationException') {
+      throw err // re-throw unexpected errors
+    }
+  }
+
+  // Fallback: scan (slow, but correct until IAM policy covers the index)
+  const { ScanCommand } = await import('@aws-sdk/lib-dynamodb')
+  const scan = await docClient.send(
+    new ScanCommand({
       TableName: TABLE_NAME,
-      IndexName: 'CrewTokenIndex',
-      KeyConditionExpression: 'crewShareToken = :token',
+      FilterExpression: 'crewShareToken = :token',
       ExpressionAttributeValues: { ':token': token },
-      Limit: 1,
     })
   )
-  if (!result.Items || result.Items.length === 0) return null
-  const race = result.Items[0] as unknown as Race
+  if (!scan.Items || scan.Items.length === 0) return null
+  const race = scan.Items[0] as unknown as Race
   if (race.gpxData) race.gpxData = decompressGPX(race.gpxData)
   return race
 }
