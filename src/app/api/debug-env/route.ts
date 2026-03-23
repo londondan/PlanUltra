@@ -18,6 +18,8 @@ export async function GET() {
     // App-specific
     DYNAMODB_TABLE_NAME: process.env.DYNAMODB_TABLE_NAME ?? '(not set)',
     DYNAMODB_ENDPOINT: process.env.DYNAMODB_ENDPOINT ?? '(not set)',
+    DYNAMODB_ACCESS_KEY_ID: !!process.env.DYNAMODB_ACCESS_KEY_ID,
+    DYNAMODB_SECRET_ACCESS_KEY: !!process.env.DYNAMODB_SECRET_ACCESS_KEY,
   }
 
   // Try DynamoDB DescribeTable
