@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, use } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Timer, ClipboardList, Package, Users } from 'lucide-react'
 import { CourseHeader } from '@/components/CourseHeader'
@@ -41,6 +42,14 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
   const [error, setError] = useState<string | null>(null)
   const [sectionPlans, setSectionPlans] = useState<SectionPlan[]>([])
   const [caloriesPerHour, setCaloriesPerHour] = useState<number | null>(null)
+
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const activeTab = searchParams.get('tab') ?? 'pace'
+
+  const handleTabChange = (tab: string) => {
+    router.replace(`?tab=${tab}`, { scroll: false })
+  }
 
   const handleRaceUpdate = (updates: Partial<Race>) => {
     setRaceData((prev) => prev ? { ...prev, race: { ...prev.race, ...updates } } : prev)
@@ -175,7 +184,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
         <CourseHeader race={race} trackPoints={trackPoints} aidStations={aidStations} />
 
         {/* Tabs */}
-        <Tabs defaultValue="plan">
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsList variant="line" className="w-full h-11 rounded-none p-0 gap-0 border-b border-[rgba(130,199,246,0.55)]">
             <TabsTrigger
               value="pace"
