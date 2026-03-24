@@ -23,7 +23,7 @@ export default function NewRacePage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const userHasManuallySetTz = useRef(false)
-  const [activeTab, setActiveTab] = useState<'upload' | 'library'>('upload')
+  const [activeTab, setActiveTab] = useState<'upload' | 'library'>('library')
   const [name, setName] = useState('')
   const [date, setDate] = useState('')
   const [startTime, setStartTime] = useState('06:00')
@@ -66,9 +66,9 @@ export default function NewRacePage() {
   const handleLibrarySelect = (race: Race) => {
     setSelectedLibraryRaceId(race.raceId)
     setName(race.name)
-    if (!userHasManuallySetTz.current && race.timezone) {
-      setTimezone(race.timezone)
-    }
+    if (race.date) setDate(race.date)
+    if (race.startTime) setStartTime(race.startTime)
+    if (race.timezone) setTimezone(race.timezone)
     setError(null)
   }
 
@@ -120,11 +120,42 @@ export default function NewRacePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Tabs defaultValue="upload" onValueChange={(v) => setActiveTab(v as 'upload' | 'library')}>
+        <Tabs defaultValue="library" onValueChange={(v) => setActiveTab(v as 'upload' | 'library')}>
           <TabsList className="w-full">
-            <TabsTrigger value="upload" className="flex-1">Upload GPX</TabsTrigger>
             <TabsTrigger value="library" className="flex-1">Race Library</TabsTrigger>
+            <TabsTrigger value="upload" className="flex-1">Upload GPX</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="library" className="space-y-3 pt-4">
+            {loadingLibrary ? (
+              <p className="text-sm text-muted-foreground text-center py-6">Loading races…</p>
+            ) : libraryRaces.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">
+                No races in the library yet.
+              </p>
+            ) : (
+              libraryRaces.map((race) => (
+                <button
+                  key={race.raceId}
+                  type="button"
+                  onClick={() => handleLibrarySelect(race)}
+                  className={`w-full text-left rounded-lg border p-4 transition-colors hover:bg-accent ${
+                    selectedLibraryRaceId === race.raceId ? 'border-primary bg-accent' : ''
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{race.name}</span>
+                    {race.location && (
+                      <span className="text-xs text-muted-foreground">{race.location}</span>
+                    )}
+                  </div>
+                  {race.libraryDescription && (
+                    <p className="text-sm text-muted-foreground mt-1">{race.libraryDescription}</p>
+                  )}
+                </button>
+              ))
+            )}
+          </TabsContent>
 
           <TabsContent value="upload" className="space-y-4 pt-4">
             <div
@@ -155,37 +186,6 @@ export default function NewRacePage() {
                 <Badge variant="secondary">{gpxPreview.trackPoints} track points</Badge>
                 <Badge variant="secondary">{gpxPreview.waypoints} waypoints found</Badge>
               </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="library" className="space-y-3 pt-4">
-            {loadingLibrary ? (
-              <p className="text-sm text-muted-foreground text-center py-6">Loading races…</p>
-            ) : libraryRaces.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">
-                No races in the library yet.
-              </p>
-            ) : (
-              libraryRaces.map((race) => (
-                <button
-                  key={race.raceId}
-                  type="button"
-                  onClick={() => handleLibrarySelect(race)}
-                  className={`w-full text-left rounded-lg border p-4 transition-colors hover:bg-accent ${
-                    selectedLibraryRaceId === race.raceId ? 'border-primary bg-accent' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{race.name}</span>
-                    {race.location && (
-                      <span className="text-xs text-muted-foreground">{race.location}</span>
-                    )}
-                  </div>
-                  {race.libraryDescription && (
-                    <p className="text-sm text-muted-foreground mt-1">{race.libraryDescription}</p>
-                  )}
-                </button>
-              ))
             )}
           </TabsContent>
         </Tabs>
