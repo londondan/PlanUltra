@@ -2,6 +2,8 @@ import { UserMenu } from "@/components/UserMenu"
 import { auth } from "@/lib/auth"
 import { isAdmin } from "@/lib/admin"
 import Link from "next/link"
+import { GuestBanner } from "@/components/GuestBanner"
+import { PostSignInCleaner } from "@/components/PostSignInCleaner"
 
 export default async function AppLayout({
   children,
@@ -13,6 +15,8 @@ export default async function AppLayout({
 
   return (
     <>
+      <GuestBanner />
+      <PostSignInCleaner isAuthenticated={!!session?.user?.id} />
       <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
         <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
