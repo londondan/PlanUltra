@@ -465,14 +465,14 @@ export function CrewStationCard({
         {/* Crew notes — yellow highlight */}
         {showCrewNotes && (
           <div>
-            <p style={LABEL_STYLE}>Crew notes</p>
+            <p style={{ ...LABEL_STYLE, color: '#d97706' }}>Crew notes</p>
             <div
               style={{
                 fontSize: 13,
                 color: '#02071E',
                 lineHeight: 1.6,
-                background: '#fffbeb',
-                borderLeft: '3px solid #fbbf24',
+                background: '#fef3c7',
+                borderLeft: '4px solid #fbbf24',
                 borderRadius: '0 6px 6px 0',
                 padding: '10px 14px',
                 whiteSpace: 'pre-wrap' as const,

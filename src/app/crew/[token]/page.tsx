@@ -384,13 +384,13 @@ export default async function CrewSheetPage({
             </p>
           </div>
         ) : (
-          <div style={{ position: 'relative', padding: '32px 40px 40px' }}>
+          <div style={{ position: 'relative', padding: '32px 20px 40px' }}>
             {/* Continuous timeline line */}
             <div
               aria-hidden="true"
               style={{
                 position: 'absolute',
-                left: 62,
+                left: 42,
                 top: 32,
                 bottom: 40,
                 width: 2,
