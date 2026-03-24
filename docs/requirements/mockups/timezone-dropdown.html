@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timezone Dropdown — Race Creator Mockup</title>
+<style>
+  :root {
+    --midnight:   #02071E;
+    --deep-ridge: #114574;
+    --ridge-blue: #1D7CBE;
+    --sky:        #82C7F6;
+    --mist:       #DBF1FA;
+    --white:      #ffffff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #f0f4f8;
+    color: var(--midnight);
+    min-height: 100vh;
+  }
+
+  /* ── Switcher bar ── */
+  .switcher {
+    background: var(--midnight);
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .switcher strong { color: rgba(255,255,255,0.7); margin-right: 8px; }
+  .sw-btn {
+    background: transparent;
+    border: 1px solid rgba(130,199,246,0.3);
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .sw-btn.active, .sw-btn:hover {
+    background: rgba(29,124,190,0.2);
+    border-color: var(--ridge-blue);
+    color: var(--sky);
+  }
+
+  /* ── App header ── */
+  .app-header {
+    background: rgba(255,255,255,0.95);
+    border-bottom: 1px solid rgba(130,199,246,0.4);
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .app-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--midnight);
+    letter-spacing: -0.02em;
+  }
+  .nav-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ridge-blue);
+  }
+
+  /* ── Page wrapper ── */
+  .page {
+    max-width: 640px;
+    margin: 32px auto;
+    padding: 0 24px 80px;
+  }
+  .page-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--midnight);
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    font-size: 13px;
+    color: rgba(17,69,116,0.55);
+    margin-bottom: 24px;
+  }
+
+  /* ── Tabs ── */
+  .tabs-bar {
+    display: flex;
+    background: var(--mist);
+    border: 1px solid rgba(130,199,246,0.4);
+    border-radius: 8px;
+    padding: 3px;
+    margin-bottom: 20px;
+    gap: 2px;
+  }
+  .tab-btn {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: rgba(17,69,116,0.6);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .tab-btn.active {
+    background: white;
+    color: var(--midnight);
+    box-shadow: 0 1px 3px rgba(2,7,30,0.1);
+    font-weight: 600;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: white;
+    border: 1px solid rgba(130,199,246,0.4);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .card-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid rgba(130,199,246,0.2);
+  }
+  .card-header h2 { font-size: 14px; font-weight: 700; color: var(--midnight); }
+  .card-header p { font-size: 12px; color: rgba(17,69,116,0.5); margin-top: 2px; }
+  .card-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── Form fields ── */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--deep-ridge);
+  }
+  .field input, .field select {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--midnight);
+    background: white;
+    border: 1px solid rgba(130,199,246,0.6);
+    border-radius: 7px;
+    padding: 9px 12px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .field input:focus, .field select:focus {
+    border-color: var(--ridge-blue);
+    box-shadow: 0 0 0 3px rgba(29,124,190,0.1);
+  }
+
+  /* ── THE KEY LAYOUT: date / start time / timezone ── */
+  .time-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+  .time-row .tz-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  /* ── Timezone select trigger (collapsed) ── */
+  .tz-trigger {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--midnight);
+    background: white;
+    border: 1px solid rgba(130,199,246,0.6);
+    border-radius: 7px;
+    padding: 9px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.12s, box-shadow 0.12s;
+    min-width: 76px;
+  }
+  .tz-trigger:hover, .tz-trigger.open {
+    border-color: var(--ridge-blue);
+    box-shadow: 0 0 0 3px rgba(29,124,190,0.1);
+  }
+  .tz-trigger .tz-abbr {
+    flex: 1;
+    letter-spacing: 0.02em;
+  }
+  .tz-trigger .tz-caret {
+    font-size: 10px;
+    color: rgba(17,69,116,0.4);
+    transition: transform 0.15s;
+  }
+  .tz-trigger.open .tz-caret { transform: rotate(180deg); }
+
+  /* ── Timezone dropdown panel ── */
+  .tz-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 260px;
+    background: white;
+    border: 1px solid rgba(130,199,246,0.5);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(2,7,30,0.12), 0 2px 8px rgba(2,7,30,0.06);
+    z-index: 50;
+    overflow: hidden;
+    display: none;
+  }
+  .tz-dropdown.open { display: block; }
+
+  .tz-group-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(17,69,116,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 10px 14px 4px;
+  }
+  .tz-option {
+    display: flex;
+    align-items: center;
+    padding: 9px 14px;
+    cursor: pointer;
+    gap: 8px;
+    transition: background 0.1s;
+  }
+  .tz-option:hover, .tz-option.selected {
+    background: var(--mist);
+  }
+  .tz-option.selected .tz-opt-name { color: var(--ridge-blue); font-weight: 600; }
+  .tz-opt-name {
+    flex: 1;
+    font-size: 13px;
+    color: var(--midnight);
+  }
+  .tz-opt-abbr {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ridge-blue);
+    background: rgba(29,124,190,0.08);
+    border-radius: 4px;
+    padding: 1px 6px;
+    min-width: 38px;
+    text-align: center;
+  }
+  .tz-opt-offset {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: rgba(17,69,116,0.4);
+    min-width: 44px;
+    text-align: right;
+  }
+  .tz-divider {
+    height: 1px;
+    background: rgba(130,199,246,0.2);
+    margin: 4px 0;
+  }
+
+  /* ── Auto-detect banner ── */
+  .tz-autodetect-banner {
+    background: rgba(29,124,190,0.06);
+    border: 1px solid rgba(29,124,190,0.2);
+    border-radius: 7px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--deep-ridge);
+  }
+  .tz-autodetect-banner .icon { font-size: 14px; }
+  .tz-autodetect-banner strong { color: var(--ridge-blue); }
+
+  /* ── Relative wrapper for dropdown positioning ── */
+  .tz-wrapper { position: relative; }
+
+  /* ── GPX preview badges ── */
+  .gpx-badges { display: flex; gap: 6px; }
+  .badge {
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--mist);
+    border: 1px solid rgba(130,199,246,0.5);
+    border-radius: 5px;
+    padding: 3px 8px;
+    color: var(--deep-ridge);
+  }
+
+  /* ── Submit button ── */
+  .btn-submit {
+    width: 100%;
+    background: var(--ridge-blue);
+    color: white;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* ── Annotation callouts ── */
+  .callout {
+    background: #fef9c3;
+    border: 1px solid #fde047;
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #78350f;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .callout strong { font-weight: 700; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Mobile preview */
+  @media (max-width: 480px) {
+    .time-row {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+    }
+    .time-row .field:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <strong>States:</strong>
+  <button class="sw-btn active" onclick="show('s-collapsed')">Collapsed (default)</button>
+  <button class="sw-btn" onclick="show('s-open')">Dropdown open</button>
+  <button class="sw-btn" onclick="show('s-autodetected')">Auto-detected from GPX</button>
+  <button class="sw-btn" onclick="show('s-international')">International selected</button>
+</div>
+
+<!-- ════════════════════════════════
+     STATE 1: Collapsed (default)
+════════════════════════════════ -->
+<div id="s-collapsed" class="screen active">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1 15,15 1,15" fill="#1D7CBE"/></svg>
+      PlanUltra
+    </div>
+    <span class="nav-link">Dashboard</span>
+  </header>
+
+  <div class="page">
+    <div class="page-title">Add a race</div>
+    <div class="page-sub">Upload a GPX file or choose from our race library</div>
+
+    <div class="tabs-bar">
+      <button class="tab-btn active">Upload GPX</button>
+      <button class="tab-btn">Race Library</button>
+    </div>
+
+    <!-- GPX drop zone (abbreviated) -->
+    <div style="border:2px dashed rgba(130,199,246,0.5);border-radius:10px;padding:24px;text-align:center;background:rgba(219,241,250,0.2);margin-bottom:16px;">
+      <p style="font-size:13px;color:var(--deep-ridge);font-weight:500;">Drop your GPX file here or click to browse</p>
+      <p style="font-size:11px;color:rgba(17,69,116,0.45);margin-top:4px;">Supports .gpx files</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Race details</h2>
+        <p>Enter your race date and start time</p>
+      </div>
+      <div class="card-body">
+
+        <div class="field">
+          <label>Race name</label>
+          <input type="text" placeholder="e.g. Western States 100">
+        </div>
+
+        <!-- KEY LAYOUT: Date / Start time / Timezone on one row -->
+        <div class="time-row">
+          <div class="field">
+            <label>Race date</label>
+            <input type="date">
+          </div>
+          <div class="field">
+            <label>Start time</label>
+            <input type="time" value="05:00">
+          </div>
+          <div class="tz-field">
+            <label>Timezone</label>
+            <div class="tz-wrapper">
+              <button class="tz-trigger" onclick="show('s-open')">
+                <span class="tz-abbr">PDT</span>
+                <span class="tz-caret">▾</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Collapsed state:</strong> the trigger shows only the short abbreviation — <code>PDT</code> in this case. Takes minimal space next to Start time. User can click to change.
+    </div>
+
+    <br>
+    <button class="btn-submit">Create race</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     STATE 2: Dropdown open
+════════════════════════════════ -->
+<div id="s-open" class="screen">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1 15,15 1,15" fill="#1D7CBE"/></svg>
+      PlanUltra
+    </div>
+    <span class="nav-link">Dashboard</span>
+  </header>
+
+  <div class="page">
+    <div class="page-title">Add a race</div>
+    <div class="page-sub">Upload a GPX file or choose from our race library</div>
+
+    <div class="tabs-bar">
+      <button class="tab-btn active">Upload GPX</button>
+      <button class="tab-btn">Race Library</button>
+    </div>
+
+    <div style="border:2px dashed rgba(130,199,246,0.5);border-radius:10px;padding:24px;text-align:center;background:rgba(219,241,250,0.2);margin-bottom:16px;">
+      <p style="font-size:13px;color:var(--deep-ridge);font-weight:500;">Drop your GPX file here or click to browse</p>
+      <p style="font-size:11px;color:rgba(17,69,116,0.45);margin-top:4px;">Supports .gpx files</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Race details</h2>
+        <p>Enter your race date and start time</p>
+      </div>
+      <div class="card-body">
+
+        <div class="field">
+          <label>Race name</label>
+          <input type="text" placeholder="e.g. Western States 100">
+        </div>
+
+        <div class="time-row">
+          <div class="field">
+            <label>Race date</label>
+            <input type="date">
+          </div>
+          <div class="field">
+            <label>Start time</label>
+            <input type="time" value="05:00">
+          </div>
+          <div class="tz-field">
+            <label>Timezone</label>
+            <div class="tz-wrapper">
+              <button class="tz-trigger open" onclick="show('s-collapsed')">
+                <span class="tz-abbr">PDT</span>
+                <span class="tz-caret">▾</span>
+              </button>
+              <!-- DROPDOWN OPEN -->
+              <div class="tz-dropdown open">
+                <div class="tz-group-label">United States</div>
+                <div class="tz-option selected">
+                  <span class="tz-opt-name">Pacific Time</span>
+                  <span class="tz-opt-abbr">PDT</span>
+                  <span class="tz-opt-offset">UTC−7</span>
+                </div>
+                <div class="tz-option">
+                  <span class="tz-opt-name">Mountain Time</span>
+                  <span class="tz-opt-abbr">MDT</span>
+                  <span class="tz-opt-offset">UTC−6</span>
+                </div>
+                <div class="tz-option">
+                  <span class="tz-opt-name">Mountain (Arizona)</span>
+                  <span class="tz-opt-abbr">MST</span>
+                  <span class="tz-opt-offset">UTC−7</span>
+                </div>
+                <div class="tz-option">
+                  <span class="tz-opt-name">Central Time</span>
+                  <span class="tz-opt-abbr">CDT</span>
+                  <span class="tz-opt-offset">UTC−5</span>
+                </div>
+                <div class="tz-option">
+                  <span class="tz-opt-name">Eastern Time</span>
+                  <span class="tz-opt-abbr">EDT</span>
+                  <span class="tz-opt-offset">UTC−4</span>
+                </div>
+                <div class="tz-option">
+                  <span class="tz-opt-name">Alaska Time</span>
+                  <span class="tz-opt-abbr">AKDT</span>
+                  <span class="tz-opt-offset">UTC−8</span>
+                </div>
+                <div class="tz-option">
+                  <span class="tz-opt-name">Hawaii Time</span>
+                  <span class="tz-opt-abbr">HST</span>
+                  <span class="tz-opt-offset">UTC−10</span>
+                </div>
+                <div class="tz-divider"></div>
+                <div class="tz-group-label">International</div>
+                <div class="tz-option">
+                  <span class="tz-opt-name">UTC</span>
+                  <span class="tz-opt-abbr">UTC</span>
+                  <span class="tz-opt-offset">UTC+0</span>
+                </div>
+                <div class="tz-option">
+                  <span class="tz-opt-name">Western Europe</span>
+                  <span class="tz-opt-abbr">CEST</span>
+                  <span class="tz-opt-offset">UTC+2</span>
+                </div>
+                <div class="tz-option">
+                  <span class="tz-opt-name">New Zealand</span>
+                  <span class="tz-opt-abbr">NZST</span>
+                  <span class="tz-opt-offset">UTC+12</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Open state:</strong> each option shows the full name, short abbreviation badge, and UTC offset. Selected option highlighted in Mist. International options grouped below a divider.
+    </div>
+
+    <br>
+    <button class="btn-submit">Create race</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     STATE 3: Auto-detected from GPX
+════════════════════════════════ -->
+<div id="s-autodetected" class="screen">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1 15,15 1,15" fill="#1D7CBE"/></svg>
+      PlanUltra
+    </div>
+    <span class="nav-link">Dashboard</span>
+  </header>
+
+  <div class="page">
+    <div class="page-title">Add a race</div>
+    <div class="page-sub">Upload a GPX file or choose from our race library</div>
+
+    <div class="tabs-bar">
+      <button class="tab-btn active">Upload GPX</button>
+      <button class="tab-btn">Race Library</button>
+    </div>
+
+    <!-- GPX loaded state -->
+    <div style="background:rgba(219,241,250,0.5);border:1px solid rgba(130,199,246,0.5);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--deep-ridge);">wasatch-front-100.gpx</div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <span class="badge">5,204 track points</span>
+          <span class="badge">25 waypoints</span>
+        </div>
+      </div>
+      <span style="font-size:11px;color:var(--ridge-blue);cursor:pointer;text-decoration:underline;">Replace</span>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Race details</h2>
+        <p>Enter your race date and start time</p>
+      </div>
+      <div class="card-body">
+
+        <div class="field">
+          <label>Race name</label>
+          <input type="text" value="Wasatch Front 100">
+        </div>
+
+        <div class="time-row">
+          <div class="field">
+            <label>Race date</label>
+            <input type="date" value="2026-09-05">
+          </div>
+          <div class="field">
+            <label>Start time</label>
+            <input type="time" value="05:00">
+          </div>
+          <div class="tz-field">
+            <label>Timezone</label>
+            <div class="tz-wrapper">
+              <!-- Auto-detected to Mountain Time from UT coordinates -->
+              <button class="tz-trigger" onclick="show('s-open')" style="border-color:rgba(29,124,190,0.5);box-shadow:0 0 0 3px rgba(29,124,190,0.08);">
+                <span class="tz-abbr">MDT</span>
+                <span class="tz-caret">▾</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auto-detect notice -->
+        <div class="tz-autodetect-banner">
+          <span class="icon">📍</span>
+          <span>Timezone set to <strong>Mountain Time</strong> based on GPX start coordinates (Salt Lake City, UT)</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Auto-detected state:</strong> after GPX upload, the start coordinates (Salt Lake City, UT → lon ≈ −111.9) resolve to <code>America/Denver</code> (Mountain Time). A subtle info banner confirms the auto-detection. The trigger gets a soft Ridge Blue glow to signal it was auto-set. User can still click to override.
+    </div>
+
+    <br>
+    <button class="btn-submit">Create race</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     STATE 4: International selected
+════════════════════════════════ -->
+<div id="s-international" class="screen">
+  <header class="app-header">
+    <div class="app-logo">
+      <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1 15,15 1,15" fill="#1D7CBE"/></svg>
+      PlanUltra
+    </div>
+    <span class="nav-link">Dashboard</span>
+  </header>
+
+  <div class="page">
+    <div class="page-title">Add a race</div>
+    <div class="page-sub">Upload a GPX file or choose from our race library</div>
+
+    <div class="tabs-bar">
+      <button class="tab-btn active">Upload GPX</button>
+      <button class="tab-btn">Race Library</button>
+    </div>
+
+    <div style="background:rgba(219,241,250,0.5);border:1px solid rgba(130,199,246,0.5);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--deep-ridge);">utmb-mont-blanc.gpx</div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <span class="badge">8,821 track points</span>
+          <span class="badge">11 waypoints</span>
+        </div>
+      </div>
+      <span style="font-size:11px;color:var(--ridge-blue);cursor:pointer;text-decoration:underline;">Replace</span>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Race details</h2>
+        <p>Enter your race date and start time</p>
+      </div>
+      <div class="card-body">
+
+        <div class="field">
+          <label>Race name</label>
+          <input type="text" value="UTMB Mont-Blanc 2026">
+        </div>
+
+        <div class="time-row">
+          <div class="field">
+            <label>Race date</label>
+            <input type="date" value="2026-08-28">
+          </div>
+          <div class="field">
+            <label>Start time</label>
+            <input type="time" value="18:00">
+          </div>
+          <div class="tz-field">
+            <label>Timezone</label>
+            <div class="tz-wrapper">
+              <!-- International — Western Europe selected -->
+              <button class="tz-trigger" onclick="show('s-open')">
+                <span class="tz-abbr">CEST</span>
+                <span class="tz-caret">▾</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tz-autodetect-banner">
+          <span class="icon">📍</span>
+          <span>Timezone set to <strong>Central European Summer Time</strong> based on GPX start coordinates (Chamonix, France)</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>International state:</strong> Chamonix coordinates (lon ≈ +6.9) fall outside the US longitude heuristic, so the fallback resolves to <code>Europe/Paris</code> → displays as <code>CEST</code> in summer. The abbreviation still fits cleanly in the compact trigger.
+    </div>
+
+    <br>
+    <button class="btn-submit">Create race</button>
+  </div>
+</div>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+    const screens = ['s-collapsed','s-open','s-autodetected','s-international']
+    document.querySelectorAll('.sw-btn').forEach((b, i) => b.classList.toggle('active', screens[i] === id))
+    document.getElementById(id).classList.add('active')
+    window.scrollTo(0, 0)
+  }
+</script>
+</body>
+</html>

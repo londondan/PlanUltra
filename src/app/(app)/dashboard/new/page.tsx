@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { parseGPX } from '@/lib/gpx-parser'
+import { guessTimezoneFromCoords } from '@/lib/timezone'
+import { TimezoneSelect } from '@/components/ui/timezone-select'
 import type { Race } from '@/lib/db/races'
 
 interface GPXPreview {
@@ -20,6 +22,7 @@ interface GPXPreview {
 export default function NewRacePage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
+  const userHasManuallySetTz = useRef(false)
   const [activeTab, setActiveTab] = useState<'upload' | 'library'>('upload')
   const [name, setName] = useState('')
   const [date, setDate] = useState('')
@@ -51,6 +54,9 @@ export default function NewRacePage() {
       const text = await file.text()
       const { trackPoints, waypoints } = parseGPX(text)
       setGpxPreview({ trackPoints: trackPoints.length, waypoints: waypoints.length, gpxString: text })
+      if (!userHasManuallySetTz.current && trackPoints.length > 0) {
+        setTimezone(guessTimezoneFromCoords(trackPoints[0].lat, trackPoints[0].lon))
+      }
       if (!name) setName(file.name.replace('.gpx', '').replace(/-|_/g, ' '))
     } catch {
       setError('Failed to parse GPX file. Please ensure it is a valid GPX file.')
@@ -60,6 +66,9 @@ export default function NewRacePage() {
   const handleLibrarySelect = (race: Race) => {
     setSelectedLibraryRaceId(race.raceId)
     setName(race.name)
+    if (!userHasManuallySetTz.current && race.timezone) {
+      setTimezone(race.timezone)
+    }
     setError(null)
   }
 
@@ -210,23 +219,20 @@ export default function NewRacePage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="startTime">Start time</Label>
-                <Input
-                  id="startTime"
-                  type="time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  required
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="startTime"
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    required
+                  />
+                  <TimezoneSelect
+                    value={timezone}
+                    onChange={(tz) => { userHasManuallySetTz.current = true; setTimezone(tz) }}
+                  />
+                </div>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="timezone">Timezone</Label>
-              <Input
-                id="timezone"
-                value={timezone}
-                onChange={(e) => setTimezone(e.target.value)}
-                placeholder="e.g. America/Los_Angeles"
-              />
             </div>
           </CardContent>
         </Card>

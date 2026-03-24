@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { parseGPX } from '@/lib/gpx-parser'
+import { TimezoneSelect } from '@/components/ui/timezone-select'
 import type { Race } from '@/lib/db/races'
 
 interface GPXPreview {
@@ -183,23 +184,17 @@ export function AdminRaceForm({ race }: AdminRaceFormProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="startTime">Start time</Label>
-              <Input
-                id="startTime"
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                required
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="startTime"
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  required
+                />
+                <TimezoneSelect value={timezone} onChange={setTimezone} />
+              </div>
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="timezone">Timezone</Label>
-            <Input
-              id="timezone"
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              placeholder="e.g. America/Los_Angeles"
-            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="libraryDescription">
