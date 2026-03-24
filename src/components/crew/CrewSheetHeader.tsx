@@ -6,6 +6,10 @@ interface CrewSheetHeaderProps {
   raceDate: string       // formatted date string
   totalMiles: string     // e.g. "100.0"
   publishedAt: string    // formatted published timestamp
+  crewStationCount: number
+  aidStationCount: number
+  targetFinish: string | null
+  estFinish: string | null
 }
 
 export function CrewSheetHeader({
@@ -14,7 +18,20 @@ export function CrewSheetHeader({
   raceDate,
   totalMiles,
   publishedAt,
+  crewStationCount,
+  aidStationCount,
+  targetFinish,
+  estFinish,
 }: CrewSheetHeaderProps) {
+  const stats: { val: string | number; lbl: string }[] = [
+    { val: crewStationCount, lbl: 'Crew stations' },
+    { val: aidStationCount, lbl: 'Aid stations' },
+    ...(targetFinish ? [{ val: targetFinish, lbl: 'Target finish' }] : []),
+    ...(estFinish ? [{ val: estFinish, lbl: 'Est. finish' }] : []),
+  ]
+
+  const showStats = crewStationCount > 0 || aidStationCount > 0 || targetFinish || estFinish
+
   return (
     <>
       {/* Screen-only top bar */}
@@ -91,6 +108,46 @@ export function CrewSheetHeader({
         >
           Published {publishedAt}
         </p>
+
+        {/* Stats row */}
+        {showStats && (
+          <div
+            style={{
+              display: 'flex',
+              gap: 24,
+              marginTop: 16,
+              paddingTop: 16,
+              borderTop: '1px solid rgba(130,199,246,0.15)',
+              flexWrap: 'wrap',
+            }}
+          >
+            {stats.map(({ val, lbl }) => (
+              <div key={lbl} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+                    fontSize: 18,
+                    fontWeight: 800,
+                    color: '#82C7F6',
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {val}
+                </span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: 'rgba(255,255,255,0.35)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  {lbl}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   )

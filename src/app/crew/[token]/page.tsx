@@ -42,6 +42,10 @@ function formatDate(dateStr: string): string {
   })
 }
 
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+}
+
 function formatPublishedAt(isoStr: string): string {
   const d = new Date(isoStr)
   return d.toLocaleDateString('en-US', {
@@ -305,6 +309,27 @@ export default async function CrewSheetPage({
   const publishedAt = race.crewPublishedAt ? formatPublishedAt(race.crewPublishedAt) : ''
   const runnerName = race.runnerName || 'your runner'
 
+  // Header stats
+  const crewStationCount = sortedStations.filter((s) => s.hasCrewAccess && !s.isFinish).length
+  const aidStationCount = sortedStations.length
+  const targetFinish = (() => {
+    const mins =
+      parseInt(race.finishHours || '0', 10) * 60 + parseInt(race.finishMins || '0', 10)
+    if (race.paceMode === 'finish' && mins > 0) {
+      const h = Math.floor(mins / 60), m = mins % 60
+      return m > 0 ? `~${h}h ${m}m` : `~${h}h`
+    }
+    if (race.targetFinishMinutes) {
+      const h = Math.floor(race.targetFinishMinutes / 60), m = race.targetFinishMinutes % 60
+      return m > 0 ? `~${h}h ${m}m` : `~${h}h`
+    }
+    return null
+  })()
+  const estFinish =
+    arrivalEstimates.length > 0
+      ? formatTime(arrivalEstimates[arrivalEstimates.length - 1].estimatedArrival)
+      : null
+
   return (
     <>
       <style>{`
@@ -318,6 +343,7 @@ export default async function CrewSheetPage({
             border-left: 4px solid #1D7CBE !important;
           }
           .condition-chip { border: 1px solid #114574 !important; background: white !important; }
+          .timeline-dot-inner { background: #1D7CBE !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           a { text-decoration: none !important; color: inherit !important; }
         }
       `}</style>
@@ -337,11 +363,15 @@ export default async function CrewSheetPage({
           raceDate={raceDate}
           totalMiles={totalMiles}
           publishedAt={publishedAt}
+          crewStationCount={crewStationCount}
+          aidStationCount={aidStationCount}
+          targetFinish={targetFinish}
+          estFinish={estFinish}
         />
 
         {/* Station list */}
-        <div style={{ padding: '32px 24px' }}>
-          {sortedStations.length === 0 ? (
+        {sortedStations.length === 0 ? (
+          <div style={{ padding: '32px 24px' }}>
             <p
               style={{
                 fontFamily: 'var(--font-geist-sans), Inter, sans-serif',
@@ -352,18 +382,83 @@ export default async function CrewSheetPage({
             >
               No aid stations have been added to this plan yet.
             </p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {sortedStations.map((station, idx) => {
-                const isFinish = !!station.isFinish
-                const isLast = idx === sortedStations.length - 1
-                const arrivalEst = arrivalMap.get(station.order)
-                const arrivalTime = arrivalEst?.estimatedArrival ?? null
-                const sectionPlan = sectionPlanMap.get(station.order) ?? null
-                const section = sectionMap.get(station.order) ?? null
+          </div>
+        ) : (
+          <div style={{ position: 'relative', padding: '32px 40px 40px' }}>
+            {/* Continuous timeline line */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: 62,
+                top: 32,
+                bottom: 40,
+                width: 2,
+                background:
+                  'linear-gradient(to bottom, rgba(130,199,246,0.15) 0%, rgba(130,199,246,0.55) 8%, rgba(130,199,246,0.55) 92%, rgba(130,199,246,0.15) 100%)',
+              }}
+            />
 
-                return (
-                  <div key={station.order}>
+            {sortedStations.map((station, idx) => {
+              const isFinish = !!station.isFinish
+              const isLast = idx === sortedStations.length - 1
+              const isCrewAccess = station.hasCrewAccess || isFinish
+              const arrivalEst = arrivalMap.get(station.order)
+              const arrivalTime = arrivalEst?.estimatedArrival ?? null
+              const sectionPlan = sectionPlanMap.get(station.order) ?? null
+              const section = sectionMap.get(station.order) ?? null
+
+              const dotStyle: React.CSSProperties = isFinish
+                ? {
+                    width: 14,
+                    height: 14,
+                    borderRadius: '50%',
+                    background: '#02071E',
+                    border: '2px solid #82C7F6',
+                    boxShadow: '0 0 0 3px rgba(130,199,246,0.2)',
+                    flexShrink: 0,
+                  }
+                : isCrewAccess
+                  ? {
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: '#1D7CBE',
+                      border: '2px solid #1D7CBE',
+                      boxShadow: '0 0 0 3px rgba(29,124,190,0.18)',
+                      flexShrink: 0,
+                    }
+                  : {
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      background: 'white',
+                      border: '2px solid #82C7F6',
+                      flexShrink: 0,
+                    }
+
+              return (
+                <div key={station.order}>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '44px 1fr',
+                      alignItems: 'flex-start',
+                    }}
+                  >
+                    {/* Dot */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        paddingTop: 18,
+                        position: 'relative',
+                        zIndex: 1,
+                      }}
+                    >
+                      <div className="timeline-dot-inner" style={dotStyle} />
+                    </div>
+                    {/* Card */}
                     <CrewStationCard
                       station={station}
                       arrivalTime={arrivalTime}
@@ -374,24 +469,19 @@ export default async function CrewSheetPage({
                       caloriesPerHour={race.caloriesPerHour ?? null}
                       isFinish={isFinish}
                     />
-                    {/* Connector line between cards */}
-                    {!isLast && (
-                      <div
-                        aria-hidden="true"
-                        style={{
-                          width: 2,
-                          height: 16,
-                          background: 'rgba(130,199,246,0.3)',
-                          margin: '0 auto',
-                        }}
-                      />
-                    )}
                   </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
+                  {/* Gap between rows */}
+                  {!isLast && (
+                    <div
+                      aria-hidden="true"
+                      style={{ display: 'grid', gridTemplateColumns: '44px 1fr', height: 16 }}
+                    />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         {/* Footer */}
         <div

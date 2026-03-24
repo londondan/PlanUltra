@@ -95,7 +95,7 @@ This deepens the lower portion of the hero for text legibility without losing th
 Centered, z-index 10, max-width 760px, padding 80px top / 60px bottom.
 
 **Eyebrow:**
-- Text: "Ultra marathon race planning"
+- Text: "Multi-stage race planning"
 - Font: Geist Sans, 12px, weight 700, uppercase, letter-spacing 0.15em
 - Color: `var(--sky)` at 90% opacity
 
