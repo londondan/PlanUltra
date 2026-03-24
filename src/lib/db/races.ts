@@ -11,6 +11,8 @@ function decompressGPX(compressed: string): string {
   return gunzipSync(Buffer.from(compressed, 'base64')).toString('utf8')
 }
 
+export const LIBRARY_USER_ID = '__LIBRARY__'
+
 export interface Race {
   raceId: string
   userId: string
@@ -33,6 +35,9 @@ export interface Race {
   paceSec?: string
   finishHours?: string
   finishMins?: string
+  isLibraryRace?: boolean
+  libraryDescription?: string | null
+  location?: string | null
 }
 
 export async function getRaceByCrewToken(token: string): Promise<Race | null> {
@@ -181,6 +186,10 @@ export async function updateRace(
       ...(Object.keys(values).length > 0 ? { ExpressionAttributeValues: values } : {}),
     })
   )
+}
+
+export async function getLibraryRaces(): Promise<Race[]> {
+  return getRacesByUser(LIBRARY_USER_ID)
 }
 
 export async function deleteRace(userId: string, raceId: string): Promise<void> {

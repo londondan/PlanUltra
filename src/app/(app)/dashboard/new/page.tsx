@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { parseGPX } from '@/lib/gpx-parser'
-import { CURATED_RACES } from '@/data/curated-races'
+import type { Race } from '@/lib/db/races'
 
 interface GPXPreview {
   trackPoints: number
@@ -20,15 +20,30 @@ interface GPXPreview {
 export default function NewRacePage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
+  const [activeTab, setActiveTab] = useState<'upload' | 'library'>('upload')
   const [name, setName] = useState('')
   const [date, setDate] = useState('')
   const [startTime, setStartTime] = useState('06:00')
   const [timezone, setTimezone] = useState('America/Los_Angeles')
   const [gpxPreview, setGpxPreview] = useState<GPXPreview | null>(null)
-  const [selectedRace, setSelectedRace] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  // Library tab state
+  const [libraryRaces, setLibraryRaces] = useState<Race[]>([])
+  const [loadingLibrary, setLoadingLibrary] = useState(false)
+  const [selectedLibraryRaceId, setSelectedLibraryRaceId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (activeTab !== 'library' || libraryRaces.length > 0) return
+    setLoadingLibrary(true)
+    fetch('/api/library/races')
+      .then((r) => r.json())
+      .then((data) => setLibraryRaces(data.races ?? []))
+      .catch(() => setLibraryRaces([]))
+      .finally(() => setLoadingLibrary(false))
+  }, [activeTab, libraryRaces.length])
 
   const handleFile = async (file: File) => {
     setError(null)
@@ -42,23 +57,10 @@ export default function NewRacePage() {
     }
   }
 
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragOver(false)
-    const file = e.dataTransfer.files[0]
-    if (file) await handleFile(file)
-  }
-
-  const handleCuratedSelect = async (raceId: string) => {
-    const race = CURATED_RACES.find((r) => r.id === raceId)
-    if (!race) return
-    setSelectedRace(raceId)
+  const handleLibrarySelect = (race: Race) => {
+    setSelectedLibraryRaceId(race.raceId)
     setName(race.name)
-
-    const res = await fetch(race.gpxPath)
-    const text = await res.text()
-    const { trackPoints, waypoints } = parseGPX(text)
-    setGpxPreview({ trackPoints: trackPoints.length, waypoints: waypoints.length, gpxString: text })
+    setError(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,11 +73,21 @@ export default function NewRacePage() {
     setError(null)
 
     try {
-      const res = await fetch('/api/races', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, date, startTime, timezone, gpx: gpxPreview?.gpxString }),
-      })
+      let res: Response
+
+      if (activeTab === 'library' && selectedLibraryRaceId) {
+        res = await fetch('/api/races/from-library', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ libraryRaceId: selectedLibraryRaceId, date, startTime, timezone }),
+        })
+      } else {
+        res = await fetch('/api/races', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, date, startTime, timezone, gpx: gpxPreview?.gpxString }),
+        })
+      }
 
       if (!res.ok) {
         const data = await res.json()
@@ -99,7 +111,7 @@ export default function NewRacePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Tabs defaultValue="upload">
+        <Tabs defaultValue="upload" onValueChange={(v) => setActiveTab(v as 'upload' | 'library')}>
           <TabsList className="w-full">
             <TabsTrigger value="upload" className="flex-1">Upload GPX</TabsTrigger>
             <TabsTrigger value="library" className="flex-1">Race Library</TabsTrigger>
@@ -138,22 +150,34 @@ export default function NewRacePage() {
           </TabsContent>
 
           <TabsContent value="library" className="space-y-3 pt-4">
-            {CURATED_RACES.map((race) => (
-              <button
-                key={race.id}
-                type="button"
-                onClick={() => handleCuratedSelect(race.id)}
-                className={`w-full text-left rounded-lg border p-4 transition-colors hover:bg-accent ${
-                  selectedRace === race.id ? 'border-primary bg-accent' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{race.name}</span>
-                  <Badge>{race.distance}</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">{race.location}</p>
-              </button>
-            ))}
+            {loadingLibrary ? (
+              <p className="text-sm text-muted-foreground text-center py-6">Loading races…</p>
+            ) : libraryRaces.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">
+                No races in the library yet.
+              </p>
+            ) : (
+              libraryRaces.map((race) => (
+                <button
+                  key={race.raceId}
+                  type="button"
+                  onClick={() => handleLibrarySelect(race)}
+                  className={`w-full text-left rounded-lg border p-4 transition-colors hover:bg-accent ${
+                    selectedLibraryRaceId === race.raceId ? 'border-primary bg-accent' : ''
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{race.name}</span>
+                    {race.location && (
+                      <span className="text-xs text-muted-foreground">{race.location}</span>
+                    )}
+                  </div>
+                  {race.libraryDescription && (
+                    <p className="text-sm text-muted-foreground mt-1">{race.libraryDescription}</p>
+                  )}
+                </button>
+              ))
+            )}
           </TabsContent>
         </Tabs>
 
@@ -217,4 +241,11 @@ export default function NewRacePage() {
       </form>
     </div>
   )
+
+  async function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragOver(false)
+    const file = e.dataTransfer.files[0]
+    if (file) await handleFile(file)
+  }
 }

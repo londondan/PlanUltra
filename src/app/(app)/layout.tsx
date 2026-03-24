@@ -1,11 +1,16 @@
-import { UserMenu } from "@/components/UserMenu";
-import Link from "next/link";
+import { UserMenu } from "@/components/UserMenu"
+import { auth } from "@/lib/auth"
+import { isAdmin } from "@/lib/admin"
+import Link from "next/link"
 
-export default function AppLayout({
+export default async function AppLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
+  const session = await auth()
+  const adminUser = isAdmin(session?.user?.email)
+
   return (
     <>
       <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -20,6 +25,11 @@ export default function AppLayout({
             <Link href="/dashboard" className="text-sm font-medium text-primary hover:opacity-70 transition-opacity">
               Dashboard
             </Link>
+            {adminUser && (
+              <Link href="/admin" className="text-sm font-medium text-primary hover:opacity-70 transition-opacity">
+                Admin
+              </Link>
+            )}
             <UserMenu />
           </nav>
         </div>
@@ -28,5 +38,5 @@ export default function AppLayout({
         {children}
       </main>
     </>
-  );
+  )
 }

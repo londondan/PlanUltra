@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Race Library · PlanUltra Mockup</title>
+<style>
+  :root {
+    --midnight:   #02071E;
+    --deep-ridge: #114574;
+    --ridge-blue: #1D7CBE;
+    --sky:        #82C7F6;
+    --mist:       #DBF1FA;
+    --white:      #ffffff;
+    --destructive: #dc2626;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #f8fafc;
+    color: var(--midnight);
+    min-height: 100vh;
+  }
+
+  /* ── Mockup switcher ── */
+  .mockup-bar {
+    background: var(--midnight);
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    border-bottom: 1px solid rgba(130,199,246,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .mockup-bar strong { color: rgba(255,255,255,0.7); margin-right: 8px; }
+  .mockup-btn {
+    background: transparent;
+    border: 1px solid rgba(130,199,246,0.3);
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .mockup-btn:hover { background: rgba(130,199,246,0.08); color: var(--sky); }
+  .mockup-btn.active { background: rgba(29,124,190,0.2); border-color: var(--ridge-blue); color: var(--sky); }
+
+  /* ── App shell ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── App header ── */
+  .app-header {
+    position: sticky;
+    top: 37px; /* below mockup bar */
+    z-index: 50;
+    width: 100%;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--sky);
+    border-bottom-color: rgba(130,199,246,0.4);
+  }
+  .app-header-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .app-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--midnight);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .app-logo svg { flex-shrink: 0; }
+  .app-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .nav-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ridge-blue);
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .nav-link:hover { opacity: 0.7; }
+  .nav-link.admin-link {
+    color: var(--deep-ridge);
+    font-size: 13px;
+  }
+  .nav-link.admin-link:hover { color: var(--ridge-blue); }
+  .user-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--deep-ridge);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(130,199,246,0.3);
+    background: var(--mist);
+  }
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ridge-blue);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Main content ── */
+  .main {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* ── Page heading ── */
+  .page-heading {
+    margin-bottom: 28px;
+  }
+  .page-heading .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: rgba(17,69,116,0.55);
+    text-decoration: none;
+    margin-bottom: 10px;
+    transition: color 0.12s;
+  }
+  .page-heading .back-link:hover { color: var(--ridge-blue); }
+  .page-heading h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--midnight);
+    line-height: 1.2;
+  }
+  .page-heading p {
+    font-size: 13px;
+    color: rgba(17,69,116,0.55);
+    margin-top: 4px;
+  }
+  .heading-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: all 0.15s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--ridge-blue);
+    color: white;
+  }
+  .btn-primary:hover { background: #1a6fa8; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(130,199,246,0.6);
+    color: var(--deep-ridge);
+  }
+  .btn-outline:hover { background: var(--mist); border-color: var(--ridge-blue); }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--deep-ridge);
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  .btn-ghost:hover { background: var(--mist); }
+  .btn-destructive {
+    background: transparent;
+    border: 1px solid rgba(220,38,38,0.3);
+    color: var(--destructive);
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  .btn-destructive:hover { background: rgba(220,38,38,0.06); }
+  .btn-sm { font-size: 12px; padding: 5px 12px; }
+
+  /* ── Admin dashboard card ── */
+  .admin-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .admin-card {
+    background: white;
+    border: 1px solid rgba(130,199,246,0.4);
+    border-radius: 12px;
+    padding: 24px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .admin-card:hover {
+    border-color: var(--ridge-blue);
+    background: var(--mist);
+    box-shadow: -3px 0 0 0 var(--ridge-blue);
+  }
+  .admin-card-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+  .admin-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--midnight);
+    margin-bottom: 6px;
+  }
+  .admin-card p {
+    font-size: 12px;
+    color: rgba(17,69,116,0.6);
+    line-height: 1.5;
+  }
+  .admin-card-arrow {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    color: rgba(130,199,246,0.6);
+    font-size: 18px;
+    transition: all 0.15s;
+  }
+  .admin-card:hover .admin-card-arrow { color: var(--ridge-blue); right: 16px; }
+
+  /* ── Admin badge in nav ── */
+  .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ridge-blue);
+    background: rgba(29,124,190,0.08);
+    border: 1px solid rgba(29,124,190,0.2);
+    border-radius: 4px;
+    padding: 1px 5px;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+
+  /* ── Race library list ── */
+  .race-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .race-row {
+    background: white;
+    border: 1px solid rgba(130,199,246,0.4);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.12s;
+  }
+  .race-row:hover { border-color: rgba(130,199,246,0.7); }
+  .race-row-info { flex: 1; min-width: 0; }
+  .race-row-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--midnight);
+    margin-bottom: 3px;
+  }
+  .race-row-meta {
+    font-size: 12px;
+    color: rgba(17,69,116,0.55);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .race-row-meta span { display: inline-flex; align-items: center; gap: 3px; }
+  .race-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .section-count-badge {
+    font-size: 10px;
+    color: rgba(17,69,116,0.5);
+    background: var(--mist);
+    border: 1px solid rgba(130,199,246,0.4);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    background: white;
+    border: 2px dashed rgba(130,199,246,0.5);
+    border-radius: 12px;
+    padding: 48px 24px;
+    text-align: center;
+  }
+  .empty-state h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .empty-state p { font-size: 13px; color: rgba(17,69,116,0.55); margin-bottom: 20px; }
+
+  /* ── Form ── */
+  .form-card {
+    background: white;
+    border: 1px solid rgba(130,199,246,0.4);
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 680px;
+  }
+  .form-card-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(130,199,246,0.25);
+    background: var(--mist);
+  }
+  .form-card-header h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--midnight);
+  }
+  .form-card-header p {
+    font-size: 12px;
+    color: rgba(17,69,116,0.55);
+    margin-top: 2px;
+  }
+  .form-card-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+  .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--deep-ridge);
+  }
+  .field input, .field select, .field textarea {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--midnight);
+    background: white;
+    border: 1px solid rgba(130,199,246,0.6);
+    border-radius: 7px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.12s;
+    width: 100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--ridge-blue);
+    box-shadow: 0 0 0 3px rgba(29,124,190,0.1);
+  }
+  .field textarea { resize: vertical; min-height: 72px; }
+  .field .hint { font-size: 11px; color: rgba(17,69,116,0.45); }
+
+  /* GPX drop zone */
+  .gpx-dropzone {
+    border: 2px dashed rgba(130,199,246,0.6);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    background: rgba(219,241,250,0.3);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .gpx-dropzone:hover {
+    border-color: var(--ridge-blue);
+    background: rgba(219,241,250,0.6);
+  }
+  .gpx-dropzone p { font-size: 13px; color: var(--deep-ridge); font-weight: 500; }
+  .gpx-dropzone span { font-size: 11px; color: rgba(17,69,116,0.5); }
+  .gpx-loaded {
+    background: rgba(219,241,250,0.5);
+    border: 1px solid rgba(130,199,246,0.5);
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .gpx-loaded .filename {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--deep-ridge);
+  }
+  .gpx-loaded .filemeta {
+    font-size: 11px;
+    color: rgba(17,69,116,0.5);
+    font-family: 'Courier New', monospace;
+    display: flex;
+    gap: 8px;
+  }
+  .gpx-loaded .replace-link {
+    font-size: 11px;
+    color: var(--ridge-blue);
+    cursor: pointer;
+    text-decoration: underline;
+    flex-shrink: 0;
+  }
+
+  /* Form actions */
+  .form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid rgba(130,199,246,0.25);
+    background: #fafcff;
+  }
+
+  /* ── Delete dialog overlay ── */
+  .dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2,7,30,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+  }
+  .dialog-box {
+    background: white;
+    border-radius: 14px;
+    padding: 28px 28px 20px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(2,7,30,0.3);
+  }
+  .dialog-box h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--midnight);
+    margin-bottom: 10px;
+  }
+  .dialog-box p {
+    font-size: 13px;
+    color: rgba(17,69,116,0.7);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .btn-delete-confirm {
+    background: var(--destructive);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-delete-confirm:hover { background: #b91c1c; }
+
+  /* ── Annotation labels ── */
+  .annotation {
+    display: inline-block;
+    background: #fef9c3;
+    border: 1px solid #fde047;
+    border-radius: 4px;
+    font-size: 10px;
+    color: #78350f;
+    padding: 1px 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── MOCKUP SWITCHER ── -->
+<div class="mockup-bar">
+  <strong>Screens:</strong>
+  <button class="mockup-btn active" onclick="show('screen-admin-home')">1 · Admin home</button>
+  <button class="mockup-btn" onclick="show('screen-race-list')">2 · Race library list</button>
+  <button class="mockup-btn" onclick="show('screen-add-race')">3 · Add race</button>
+  <button class="mockup-btn" onclick="show('screen-edit-race')">4 · Edit race</button>
+  <button class="mockup-btn" onclick="show('screen-delete-confirm')">5 · Delete confirm</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1: Admin home
+══════════════════════════════════════════ -->
+<div id="screen-admin-home" class="screen active">
+  <header class="app-header">
+    <div class="app-header-inner">
+      <a href="#" class="app-logo">
+        <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1 15,15 1,15" fill="#1D7CBE"/></svg>
+        PlanUltra
+      </a>
+      <nav class="app-nav">
+        <a href="#" class="nav-link">Dashboard</a>
+        <a href="#" class="nav-link admin-link">Admin <span class="admin-badge">●</span></a>
+        <div class="user-menu">
+          <div class="user-avatar">D</div>
+          Dan James
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-heading">
+      <h1>Admin</h1>
+      <p>PlanUltra admin tools</p>
+    </div>
+
+    <div class="admin-card-grid">
+      <a href="#" class="admin-card" onclick="show('screen-race-list'); return false;">
+        <div class="admin-card-icon">📚</div>
+        <h3>Race Library</h3>
+        <p>Manage the curated race library that users can pick from when adding a new race.</p>
+        <span class="admin-card-arrow">→</span>
+      </a>
+      <!-- Placeholder for future tools -->
+      <div class="admin-card" style="opacity:0.35; cursor:default; pointer-events:none;">
+        <div class="admin-card-icon">👥</div>
+        <h3>Users <span class="annotation">coming soon</span></h3>
+        <p>View registered users and activity.</p>
+        <span class="admin-card-arrow">→</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2: Race library list
+══════════════════════════════════════════ -->
+<div id="screen-race-list" class="screen">
+  <header class="app-header">
+    <div class="app-header-inner">
+      <a href="#" class="app-logo">
+        <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1 15,15 1,15" fill="#1D7CBE"/></svg>
+        PlanUltra
+      </a>
+      <nav class="app-nav">
+        <a href="#" class="nav-link">Dashboard</a>
+        <a href="#" class="nav-link admin-link">Admin <span class="admin-badge">●</span></a>
+        <div class="user-menu">
+          <div class="user-avatar">D</div>
+          Dan James
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-heading">
+      <div class="heading-row">
+        <div>
+          <a href="#" class="back-link" onclick="show('screen-admin-home'); return false;">← Admin</a>
+          <h1>Race Library</h1>
+          <p>Manage races available in the library. Users get their own copy when they add one.</p>
+        </div>
+        <button class="btn btn-primary" onclick="show('screen-add-race')">+ Add race</button>
+      </div>
+    </div>
+
+    <div class="race-list">
+
+      <div class="race-row">
+        <div class="race-row-info">
+          <div class="race-row-name">Western States 100</div>
+          <div class="race-row-meta">
+            <span>100.2 mi</span>
+            <span>·</span>
+            <span>June · Squaw Valley to Auburn, CA</span>
+            <span class="section-count-badge">11 sections</span>
+          </div>
+        </div>
+        <div class="race-row-actions">
+          <button class="btn btn-ghost btn-sm" onclick="show('screen-edit-race')">Edit</button>
+          <button class="btn btn-destructive btn-sm" onclick="show('screen-delete-confirm')">✕</button>
+        </div>
+      </div>
+
+      <div class="race-row">
+        <div class="race-row-info">
+          <div class="race-row-name">Leadville Trail 100</div>
+          <div class="race-row-meta">
+            <span>100.0 mi</span>
+            <span>·</span>
+            <span>August · Leadville, CO</span>
+            <span class="section-count-badge">9 sections</span>
+          </div>
+        </div>
+        <div class="race-row-actions">
+          <button class="btn btn-ghost btn-sm" onclick="show('screen-edit-race')">Edit</button>
+          <button class="btn btn-destructive btn-sm" onclick="show('screen-delete-confirm')">✕</button>
+        </div>
+      </div>
+
+      <div class="race-row">
+        <div class="race-row-info">
+          <div class="race-row-name">Hardrock 100</div>
+          <div class="race-row-meta">
+            <span>100.5 mi</span>
+            <span>·</span>
+            <span>July · Silverton, CO</span>
+            <span class="section-count-badge">0 sections</span>
+          </div>
+        </div>
+        <div class="race-row-actions">
+          <button class="btn btn-ghost btn-sm" onclick="show('screen-edit-race')">Edit</button>
+          <button class="btn btn-destructive btn-sm" onclick="show('screen-delete-confirm')">✕</button>
+        </div>
+      </div>
+
+      <div class="race-row">
+        <div class="race-row-info">
+          <div class="race-row-name">Bear 100</div>
+          <div class="race-row-meta">
+            <span>100.3 mi</span>
+            <span>·</span>
+            <span>September · Logan, UT</span>
+            <span class="section-count-badge">0 sections</span>
+          </div>
+        </div>
+        <div class="race-row-actions">
+          <button class="btn btn-ghost btn-sm" onclick="show('screen-edit-race')">Edit</button>
+          <button class="btn btn-destructive btn-sm" onclick="show('screen-delete-confirm')">✕</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3: Add race
+══════════════════════════════════════════ -->
+<div id="screen-add-race" class="screen">
+  <header class="app-header">
+    <div class="app-header-inner">
+      <a href="#" class="app-logo">
+        <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1 15,15 1,15" fill="#1D7CBE"/></svg>
+        PlanUltra
+      </a>
+      <nav class="app-nav">
+        <a href="#" class="nav-link">Dashboard</a>
+        <a href="#" class="nav-link admin-link">Admin <span class="admin-badge">●</span></a>
+        <div class="user-menu">
+          <div class="user-avatar">D</div>
+          Dan James
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-heading">
+      <a href="#" class="back-link" onclick="show('screen-race-list'); return false;">← Race Library</a>
+      <h1>Add race to library</h1>
+      <p>This race will be available to all users when adding a new race.</p>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-header">
+        <h2>Race details</h2>
+        <p>Basic info shown in the race picker</p>
+      </div>
+      <div class="form-card-body">
+
+        <div class="field">
+          <label>Race name</label>
+          <input type="text" placeholder="e.g. UTMB Mont-Blanc">
+        </div>
+
+        <div class="form-grid-2">
+          <div class="field">
+            <label>Distance (miles)</label>
+            <input type="number" placeholder="e.g. 106.2">
+          </div>
+          <div class="field">
+            <label>Typical month</label>
+            <select>
+              <option value="">— select —</option>
+              <option>January</option><option>February</option><option>March</option>
+              <option>April</option><option>May</option><option>June</option>
+              <option>July</option><option>August</option><option selected>September</option>
+              <option>October</option><option>November</option><option>December</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Location</label>
+          <input type="text" placeholder="e.g. Chamonix, France">
+        </div>
+
+        <div class="field">
+          <label>Description <span style="font-weight:400;color:rgba(17,69,116,0.4)">(shown in race picker)</span></label>
+          <textarea placeholder="A short description of the race for users browsing the library…" rows="3"></textarea>
+          <span class="hint">Max 160 characters</span>
+        </div>
+
+      </div>
+
+      <div class="form-card-header" style="margin-top:0; border-top: 1px solid rgba(130,199,246,0.25);">
+        <h2>GPX file</h2>
+        <p>Course data used to map aid stations and elevation</p>
+      </div>
+      <div class="form-card-body">
+
+        <div class="gpx-dropzone">
+          <p>Drop GPX file here or click to browse</p>
+          <span>Supports .gpx files</span>
+        </div>
+
+      </div>
+
+      <div class="form-card-header" style="border-top: 1px solid rgba(130,199,246,0.25);">
+        <h2>Default race settings</h2>
+        <p>Pre-filled for users who add this race — they can change these</p>
+      </div>
+      <div class="form-card-body">
+
+        <div class="form-grid-2">
+          <div class="field">
+            <label>Default start time</label>
+            <input type="time" value="05:00">
+          </div>
+          <div class="field">
+            <label>Timezone</label>
+            <input type="text" value="America/Los_Angeles" placeholder="e.g. America/Los_Angeles">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="show('screen-race-list')">Cancel</button>
+        <button class="btn btn-primary">Save to library</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4: Edit race
+══════════════════════════════════════════ -->
+<div id="screen-edit-race" class="screen">
+  <header class="app-header">
+    <div class="app-header-inner">
+      <a href="#" class="app-logo">
+        <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1 15,15 1,15" fill="#1D7CBE"/></svg>
+        PlanUltra
+      </a>
+      <nav class="app-nav">
+        <a href="#" class="nav-link">Dashboard</a>
+        <a href="#" class="nav-link admin-link">Admin <span class="admin-badge">●</span></a>
+        <div class="user-menu">
+          <div class="user-avatar">D</div>
+          Dan James
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-heading">
+      <a href="#" class="back-link" onclick="show('screen-race-list'); return false;">← Race Library</a>
+      <h1>Edit — Western States 100</h1>
+      <p>Changes to this race do not affect users who have already added it to their dashboard.</p>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-header">
+        <h2>Race details</h2>
+        <p>Basic info shown in the race picker</p>
+      </div>
+      <div class="form-card-body">
+
+        <div class="field">
+          <label>Race name</label>
+          <input type="text" value="Western States 100">
+        </div>
+
+        <div class="form-grid-2">
+          <div class="field">
+            <label>Distance (miles)</label>
+            <input type="number" value="100.2">
+          </div>
+          <div class="field">
+            <label>Typical month</label>
+            <select>
+              <option>January</option><option>February</option><option>March</option>
+              <option>April</option><option>May</option><option selected>June</option>
+              <option>July</option><option>August</option><option>September</option>
+              <option>October</option><option>November</option><option>December</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Location</label>
+          <input type="text" value="Squaw Valley to Auburn, CA">
+        </div>
+
+        <div class="field">
+          <label>Description</label>
+          <textarea rows="3">100 miles through the Sierra Nevada from Olympic Valley to Auburn. One of the oldest and most prestigious 100-mile trail races in the world.</textarea>
+          <span class="hint">Max 160 characters · <strong style="color:var(--ridge-blue)">148 / 160</strong></span>
+        </div>
+
+      </div>
+
+      <div class="form-card-header" style="border-top: 1px solid rgba(130,199,246,0.25);">
+        <h2>GPX file</h2>
+        <p>Course data used to map aid stations and elevation</p>
+      </div>
+      <div class="form-card-body">
+
+        <div class="gpx-loaded">
+          <div>
+            <div class="filename">western-states-100.gpx</div>
+            <div class="filemeta">
+              <span>4,821 track points</span>
+              <span>·</span>
+              <span>23 waypoints</span>
+            </div>
+          </div>
+          <span class="replace-link">Replace file</span>
+        </div>
+
+      </div>
+
+      <div class="form-card-header" style="border-top: 1px solid rgba(130,199,246,0.25);">
+        <h2>Default race settings</h2>
+        <p>Pre-filled for users who add this race — they can change these</p>
+      </div>
+      <div class="form-card-body">
+
+        <div class="form-grid-2">
+          <div class="field">
+            <label>Default start time</label>
+            <input type="time" value="05:00">
+          </div>
+          <div class="field">
+            <label>Timezone</label>
+            <input type="text" value="America/Los_Angeles">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="show('screen-race-list')">Cancel</button>
+        <button class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 5: Delete confirm dialog
+══════════════════════════════════════════ -->
+<div id="screen-delete-confirm" class="screen">
+  <header class="app-header">
+    <div class="app-header-inner">
+      <a href="#" class="app-logo">
+        <svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1 15,15 1,15" fill="#1D7CBE"/></svg>
+        PlanUltra
+      </a>
+      <nav class="app-nav">
+        <a href="#" class="nav-link">Dashboard</a>
+        <a href="#" class="nav-link admin-link">Admin <span class="admin-badge">●</span></a>
+        <div class="user-menu">
+          <div class="user-avatar">D</div>
+          Dan James
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Race list in background (dimmed) -->
+  <main class="main" style="opacity:0.35; pointer-events:none; user-select:none;">
+    <div class="page-heading">
+      <div class="heading-row">
+        <div>
+          <a href="#" class="back-link">← Admin</a>
+          <h1>Race Library</h1>
+          <p>Manage races available in the library.</p>
+        </div>
+        <button class="btn btn-primary">+ Add race</button>
+      </div>
+    </div>
+    <div class="race-list">
+      <div class="race-row"><div class="race-row-info"><div class="race-row-name">Western States 100</div></div></div>
+      <div class="race-row"><div class="race-row-info"><div class="race-row-name">Leadville Trail 100</div></div></div>
+      <div class="race-row" style="border-color: rgba(220,38,38,0.35); background: rgba(220,38,38,0.03);"><div class="race-row-info"><div class="race-row-name">Hardrock 100</div></div></div>
+    </div>
+  </main>
+
+  <!-- Dialog overlay -->
+  <div class="dialog-overlay" onclick="show('screen-race-list')">
+    <div class="dialog-box" onclick="event.stopPropagation()">
+      <h3>Delete "Hardrock 100"?</h3>
+      <p>This will permanently remove the race from the library. Users who have already added it to their dashboard will not be affected — their copy is independent.</p>
+      <div class="dialog-actions">
+        <button class="btn btn-outline" onclick="show('screen-race-list')">Cancel</button>
+        <button class="btn-delete-confirm" onclick="show('screen-race-list')">Delete race</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+    document.querySelectorAll('.mockup-btn').forEach((b, i) => {
+      const screens = ['screen-admin-home','screen-race-list','screen-add-race','screen-edit-race','screen-delete-confirm']
+      b.classList.toggle('active', screens[i] === id)
+    })
+    document.getElementById(id).classList.add('active')
+    window.scrollTo(0, 0)
+  }
+</script>
+
+</body>
+</html>
