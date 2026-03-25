@@ -60,3 +60,6 @@ next-env.d.ts
 
 # Local planning and memory (not for repo)
 memory/
+
+# Marketing assets (local only)
+/marketing/

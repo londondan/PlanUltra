@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, DM_Sans } from "next/font/google";
 import "./globals.css";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { Analytics } from '@vercel/analytics/react'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${dmSans.variable}`}>
       <body className="antialiased min-h-screen bg-background">
         {children}
+        <Analytics />
       </body>
     </html>
   );

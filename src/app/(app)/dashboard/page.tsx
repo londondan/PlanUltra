@@ -6,6 +6,7 @@ import { buttonVariants } from '@/lib/button-variants'
 import { RaceList } from '@/components/RaceList'
 import { isGuestMode, getGuestRaces } from '@/lib/guest-storage'
 import type { Race } from '@/lib/db/races'
+import { track } from '@vercel/analytics'
 
 export default function DashboardPage() {
   const [races, setRaces] = useState<Race[]>([])
@@ -25,6 +26,13 @@ export default function DashboardPage() {
         .then((d) => {
           setRaces(d.races ?? [])
           setLoading(false)
+          if (d.races?.length === 0) {
+            if (!localStorage.getItem('pu_signup_tracked')) {
+              const source = new URLSearchParams(window.location.search).get('utm_source') ?? 'direct'
+              track('signup', { source })
+              localStorage.setItem('pu_signup_tracked', '1')
+            }
+          }
         })
         .catch(() => setLoading(false))
     }
