@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { signIn } from '@/lib/auth'
+import { GuestEntryLink } from '@/components/GuestEntryLink'
 
 export default function SignInPage() {
   return (
@@ -178,6 +179,9 @@ export default function SignInPage() {
           <p style={{ marginTop: 20, fontSize: 13, color: "rgba(255,255,255,0.35)" }}>
             Free · No credit card required
           </p>
+          <div style={{ marginTop: 16 }}>
+            <GuestEntryLink />
+          </div>
         </div>
       </div>
 

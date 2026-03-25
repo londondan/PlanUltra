@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD-016 — Weather Availability Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --midnight: #02071E;
+    --deep-ridge: #114574;
+    --ridge-blue: #1D7CBE;
+    --sky: #82C7F6;
+    --mist: #DBF1FA;
+    --amber: #92400E;
+    --amber-bg: #FEF3C7;
+    --amber-border: #F59E0B;
+  }
+
+  body { font-family: 'Inter', system-ui, sans-serif; background: #F1F5F9; color: #0F172A; }
+
+  .tab-nav {
+    display: flex; gap: 8px; padding: 16px 24px;
+    background: white; border-bottom: 1px solid #E2E8F0;
+    position: sticky; top: 0; z-index: 100; flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 6px 14px; border-radius: 6px; border: 1px solid #CBD5E1;
+    background: white; font-size: 13px; cursor: pointer; color: #64748B;
+  }
+  .tab-btn.active { background: var(--midnight); color: white; border-color: var(--midnight); }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .screen-label {
+    background: #F1F5F9; border-bottom: 1px solid #E2E8F0;
+    padding: 8px 24px; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8;
+  }
+
+  /* ─── SECTION CARD SHELL ─── */
+  .page-body { max-width: 860px; margin: 32px auto; padding: 0 24px; }
+
+  .section-shell {
+    background: white; border-radius: 12px;
+    border: 1px solid #E2E8F0; overflow: hidden; margin-bottom: 12px;
+  }
+
+  .section-header {
+    padding: 16px 20px; display: flex;
+    align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #F1F5F9;
+  }
+
+  .section-header-left h3 { font-size: 14px; font-weight: 600; color: var(--midnight); }
+  .section-header-left p { font-size: 12px; color: #64748B; margin-top: 2px; }
+
+  .section-time {
+    font-size: 15px; font-weight: 700;
+    color: var(--deep-ridge); font-family: 'Courier New', monospace;
+  }
+
+  .conditions-grid {
+    padding: 14px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+
+  /* ─── CONDITION CARD BASE ─── */
+  .ccard {
+    border-radius: 8px; padding: 10px 12px;
+    min-height: 80px; display: flex; flex-direction: column;
+    justify-content: space-between; position: relative; overflow: hidden;
+  }
+
+  .ccard-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; opacity: 0.7;
+  }
+
+  .ccard-value { font-size: 15px; font-weight: 700; line-height: 1.2; }
+
+  .ccard-sub { font-size: 10px; opacity: 0.65; margin-top: 2px; line-height: 1.3; }
+
+  /* Night card */
+  .ccard-night {
+    background: linear-gradient(135deg, #060d24 0%, #0a1a3a 100%);
+    border: 1px solid rgba(100,130,200,0.25); color: #c8d8f8;
+  }
+
+  /* Sunrise card */
+  .ccard-sunrise {
+    background: linear-gradient(135deg, #3b1f05 0%, #7a3a10 50%, #c45f10 100%);
+    border: 1px solid rgba(200,120,50,0.35); color: #fde8c8;
+  }
+
+  /* Sunset card */
+  .ccard-sunset {
+    background: linear-gradient(135deg, #1a1040 0%, #4a1a60 50%, #8a2a40 100%);
+    border: 1px solid rgba(180,80,120,0.35); color: #f8d8e8;
+  }
+
+  /* Clear weather */
+  .ccard-clear {
+    background: linear-gradient(135deg, #0d3060 0%, #1a5090 100%);
+    border: 1px solid rgba(130,199,246,0.3); color: #cce8f8;
+  }
+
+  /* ─── PROPOSAL A: Chip ─── */
+  .ccard-pending-a {
+    background: rgba(130,199,246,0.06);
+    border: 1px dashed rgba(130,199,246,0.25);
+    color: var(--sky);
+  }
+  .ccard-pending-a .ccard-label { opacity: 0.5; }
+  .ccard-pending-a .ccard-value { font-size: 13px; font-weight: 600; opacity: 0.7; font-family: 'Courier New', monospace; }
+  .ccard-pending-a .ccard-sub { opacity: 0.4; font-size: 10px; }
+
+  /* ─── PROPOSAL B: Whimsical card ─── */
+  .ccard-pending-b {
+    background: linear-gradient(135deg, #0a1628 0%, #0d2040 100%);
+    border: 1px solid rgba(130,199,246,0.2);
+    color: #a8c8e8;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Stars */
+  .ccard-pending-b::before {
+    content: '·  ·    ·  ·   ·    ·  ·';
+    position: absolute; top: 6px; left: 8px; right: 8px;
+    font-size: 10px; letter-spacing: 3px;
+    color: rgba(255,255,255,0.25);
+    animation: twinkle 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes twinkle {
+    from { opacity: 0.2; }
+    to { opacity: 0.6; }
+  }
+
+  .ccard-pending-b .ccard-label { opacity: 0.5; }
+  .ccard-pending-b .ccard-value { font-size: 13px; font-weight: 600; color: rgba(130,199,246,0.85); }
+  .ccard-pending-b .ccard-sub { opacity: 0.55; font-size: 10px; }
+
+  /* ─── PROPOSAL C: Banner ─── */
+  .forecast-banner {
+    background: rgba(29,124,190,0.08);
+    border: 1px solid rgba(29,124,190,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+    font-size: 13px; color: var(--deep-ridge);
+  }
+
+  .forecast-banner-icon { font-size: 20px; flex-shrink: 0; }
+
+  .forecast-banner strong { font-weight: 600; }
+
+  .forecast-banner-dismiss {
+    margin-left: auto; font-size: 16px; color: #94A3B8;
+    cursor: pointer; flex-shrink: 0; background: none; border: none;
+    line-height: 1;
+  }
+
+  /* ─── WEATHER TIMELINE ─── */
+  .timeline-shell {
+    background: white; border-radius: 12px;
+    border: 1px solid #E2E8F0; overflow: hidden; margin-bottom: 12px;
+  }
+
+  .timeline-header {
+    padding: 14px 20px; border-bottom: 1px solid #F1F5F9;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .timeline-header h3 { font-size: 14px; font-weight: 600; color: var(--midnight); }
+
+  .timeline-body { position: relative; height: 180px; overflow: hidden; }
+
+  /* Night/day gradient background — always shown */
+  .timeline-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right,
+      #060d24 0%,        /* night start */
+      #060d24 12%,
+      #3b1f05 18%,       /* dawn */
+      #1a5090 25%,       /* morning */
+      #0d3060 50%,       /* midday */
+      #0d3060 70%,       /* afternoon */
+      #4a1a60 80%,       /* dusk */
+      #060d24 88%,       /* night end */
+      #060d24 100%
+    );
+  }
+
+  /* Star field overlay for unavailable state */
+  .timeline-stars {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px),
+      radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px),
+      radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px);
+    background-size: 80px 60px, 50px 40px, 30px 25px;
+    background-position: 10px 8px, 25px 18px, 5px 12px;
+    animation: drift 20s linear infinite;
+    opacity: 0.5;
+  }
+
+  @keyframes drift {
+    from { background-position: 10px 8px, 25px 18px, 5px 12px; }
+    to { background-position: 90px 8px, 75px 18px, 35px 12px; }
+  }
+
+  /* Sunrise/sunset markers — always shown */
+  .timeline-sun-marker {
+    position: absolute; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(to bottom, rgba(255,180,80,0.8), rgba(255,180,80,0));
+  }
+
+  .timeline-sun-label {
+    position: absolute; top: 8px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(255,180,80,0.9);
+    white-space: nowrap;
+  }
+
+  /* Temperature curve — only when available (suppressed) */
+  .timeline-temp-curve {
+    position: absolute; bottom: 40px; left: 0; right: 0; height: 50px;
+    opacity: 0.3; /* dimmed in unavailable state */
+  }
+
+  /* Unavailable overlay */
+  .timeline-unavailable {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: rgba(2,7,30,0.65);
+    gap: 6px;
+  }
+
+  .timeline-unavailable .icon { font-size: 28px; margin-bottom: 4px; }
+  .timeline-unavailable h4 { font-size: 15px; font-weight: 700; color: white; }
+  .timeline-unavailable p { font-size: 12px; color: rgba(130,199,246,0.7); max-width: 340px; text-align: center; line-height: 1.5; }
+  .timeline-unavailable .opens { font-size: 11px; color: rgba(130,199,246,0.45); margin-top: 4px; font-family: 'Courier New', monospace; }
+
+  /* Available state (for comparison) */
+  .timeline-available-overlay {
+    position: absolute; bottom: 20px; left: 0; right: 0;
+    padding: 0 20px;
+  }
+
+  .timeline-available-overlay svg { width: 100%; height: 50px; }
+
+  /* ─── SECTION DIVIDERS ─── */
+  .proposal-label {
+    font-size: 12px; font-weight: 700; color: #64748B;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin: 24px 0 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .proposal-label::after {
+    content: ''; flex: 1; height: 1px; background: #E2E8F0;
+  }
+
+  .proposal-rec {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 600; background: #D1FAE5;
+    color: #065F46; padding: 2px 8px; border-radius: 99px;
+    text-transform: none; letter-spacing: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="show(0,this)">1 · Proposal A (chip)</button>
+  <button class="tab-btn" onclick="show(1,this)">2 · Proposal B (whimsical)</button>
+  <button class="tab-btn" onclick="show(2,this)">3 · Proposal C (banner)</button>
+  <button class="tab-btn" onclick="show(3,this)">4 · WeatherTimeline unavailable</button>
+  <button class="tab-btn" onclick="show(4,this)">5 · Side-by-side comparison</button>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 1 — Proposal A: chip
+═══════════════════════════════════ -->
+<div class="screen active" id="s0">
+  <div class="screen-label">Proposal A — Minimal chip: informational, no personality</div>
+  <div class="page-body">
+
+    <div class="proposal-label">Section card with Proposal A weather chip</div>
+
+    <div class="section-shell">
+      <div class="section-header">
+        <div class="section-header-left">
+          <h3>Duncan Canyon → Robinson Flat</h3>
+          <p>7.7 mi · +2,600 ft · –1,100 ft</p>
+        </div>
+        <div class="section-time">1:55</div>
+      </div>
+      <div class="conditions-grid">
+        <!-- Night card — always shown -->
+        <div class="ccard ccard-night">
+          <div class="ccard-label">🌙 Night</div>
+          <div class="ccard-value">Running in dark</div>
+          <div class="ccard-sub">Headlamp required</div>
+        </div>
+        <!-- Sunrise — always shown -->
+        <div class="ccard ccard-sunrise">
+          <div class="ccard-label">🌅 Sunrise</div>
+          <div class="ccard-value">Mile 34.2</div>
+          <div class="ccard-sub">6:14 AM · dawn</div>
+        </div>
+        <!-- Proposal A chip -->
+        <div class="ccard ccard-pending-a">
+          <div class="ccard-label">🌤 Weather</div>
+          <div class="ccard-value">In ~47 days</div>
+          <div class="ccard-sub">Open-Meteo · 16-day window</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-shell">
+      <div class="section-header">
+        <div class="section-header-left">
+          <h3>Robinson Flat → Miller's Defeat</h3>
+          <p>9.8 mi · +1,400 ft · –2,800 ft</p>
+        </div>
+        <div class="section-time">1:58</div>
+      </div>
+      <div class="conditions-grid">
+        <!-- No sun conditions for this section (daytime) -->
+        <div class="ccard ccard-pending-a">
+          <div class="ccard-label">🌤 Weather</div>
+          <div class="ccard-value">In ~47 days</div>
+          <div class="ccard-sub">Open-Meteo · 16-day window</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:12px; color:#94A3B8; margin-top:8px; padding:0 4px;">
+      ↑ Proposal A: functional but anonymous. Repeated across every section without variation.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 2 — Proposal B: whimsical
+═══════════════════════════════════ -->
+<div class="screen" id="s1">
+  <div class="screen-label">Proposal B — Whimsical card: personality, deterministic variant per section</div>
+  <div class="page-body">
+
+    <div class="proposal-label">Section card with Proposal B — three message variants</div>
+
+    <!-- Section 0 — variant 0 -->
+    <div class="section-shell">
+      <div class="section-header">
+        <div class="section-header-left">
+          <h3>Start/Finish → Kitsuma Aid</h3>
+          <p>7.9 mi · +1,100 ft · –800 ft</p>
+        </div>
+        <div class="section-time">1:42</div>
+      </div>
+      <div class="conditions-grid">
+        <div class="ccard ccard-night">
+          <div class="ccard-label">🌙 Night</div>
+          <div class="ccard-value">Running in dark</div>
+          <div class="ccard-sub">Headlamp required</div>
+        </div>
+        <div class="ccard ccard-pending-b" data-variant="0">
+          <div class="ccard-label">🔭 Weather</div>
+          <div class="ccard-value">Checking the clouds…</div>
+          <div class="ccard-sub">Forecast opens ~Jun 12</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1 — variant 1 -->
+    <div class="section-shell">
+      <div class="section-header">
+        <div class="section-header-left">
+          <h3>Kitsuma Aid → Duncan Canyon</h3>
+          <p>9.4 mi · +800 ft · –1,400 ft</p>
+        </div>
+        <div class="section-time">1:55</div>
+      </div>
+      <div class="conditions-grid">
+        <div class="ccard ccard-sunrise">
+          <div class="ccard-label">🌅 Sunrise</div>
+          <div class="ccard-value">Mile 12.6</div>
+          <div class="ccard-sub">6:14 AM · dawn</div>
+        </div>
+        <div class="ccard ccard-pending-b" data-variant="1">
+          <div class="ccard-label">🔭 Weather</div>
+          <div class="ccard-value">Ask me in 47 days</div>
+          <div class="ccard-sub">Forecast opens ~Jun 12</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2 — variant 2 -->
+    <div class="section-shell">
+      <div class="section-header">
+        <div class="section-header-left">
+          <h3>Duncan Canyon → Robinson Flat</h3>
+          <p>7.7 mi · +2,600 ft · –1,100 ft</p>
+        </div>
+        <div class="section-time">1:58</div>
+      </div>
+      <div class="conditions-grid">
+        <div class="ccard ccard-pending-b" data-variant="2">
+          <div class="ccard-label">🔭 Weather</div>
+          <div class="ccard-value">Still too far out</div>
+          <div class="ccard-sub">Forecast opens ~Jun 12</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3 — wraps back to variant 0 -->
+    <div class="section-shell">
+      <div class="section-header">
+        <div class="section-header-left">
+          <h3>Robinson Flat → Miller's Defeat</h3>
+          <p>9.8 mi · +1,400 ft · –2,800 ft</p>
+        </div>
+        <div class="section-time">2:10</div>
+      </div>
+      <div class="conditions-grid">
+        <div class="ccard ccard-sunset">
+          <div class="ccard-label">🌆 Sunset</div>
+          <div class="ccard-value">Mile 52.4</div>
+          <div class="ccard-sub">8:31 PM · pack headlamp</div>
+        </div>
+        <div class="ccard ccard-pending-b" data-variant="0">
+          <div class="ccard-label">🔭 Weather</div>
+          <div class="ccard-value">Checking the clouds…</div>
+          <div class="ccard-sub">Forecast opens ~Jun 12</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:12px; color:#94A3B8; margin-top:8px; padding:0 4px;">
+      ↑ Three message variants rotate by section index — no two adjacent sections show the same text. Sun cards always appear regardless.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 3 — Proposal C: banner
+═══════════════════════════════════ -->
+<div class="screen" id="s2">
+  <div class="screen-label">Proposal C — Banner: single notice above section list, clean cards below</div>
+  <div class="page-body">
+
+    <!-- Plan tab banner -->
+    <div class="forecast-banner">
+      <span class="forecast-banner-icon">🌤️</span>
+      <span>
+        Weather forecasts open <strong>Jun 12</strong> — about 47 days before your race.
+        Sun and night conditions are already calculated below.
+      </span>
+      <button class="forecast-banner-dismiss">×</button>
+    </div>
+
+    <!-- Section cards — no weather slot at all -->
+    <div class="section-shell">
+      <div class="section-header">
+        <div class="section-header-left">
+          <h3>Start/Finish → Kitsuma Aid</h3>
+          <p>7.9 mi · +1,100 ft · –800 ft</p>
+        </div>
+        <div class="section-time">1:42</div>
+      </div>
+      <div class="conditions-grid">
+        <div class="ccard ccard-night">
+          <div class="ccard-label">🌙 Night</div>
+          <div class="ccard-value">Running in dark</div>
+          <div class="ccard-sub">Headlamp required</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-shell">
+      <div class="section-header">
+        <div class="section-header-left">
+          <h3>Kitsuma Aid → Duncan Canyon</h3>
+          <p>9.4 mi · +800 ft · –1,400 ft</p>
+        </div>
+        <div class="section-time">1:55</div>
+      </div>
+      <div class="conditions-grid">
+        <div class="ccard ccard-sunrise">
+          <div class="ccard-label">🌅 Sunrise</div>
+          <div class="ccard-value">Mile 12.6</div>
+          <div class="ccard-sub">6:14 AM · dawn</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-shell">
+      <div class="section-header">
+        <div class="section-header-left">
+          <h3>Duncan Canyon → Robinson Flat</h3>
+          <p>7.7 mi · +2,600 ft · –1,100 ft</p>
+        </div>
+        <div class="section-time">1:58</div>
+      </div>
+      <!-- No conditions at all for this section — just the header -->
+    </div>
+
+    <p style="font-size:12px; color:#94A3B8; margin-top:8px; padding:0 4px;">
+      ↑ Proposal C: one banner explains everything. Sections without sun events show no condition grid — clean but may feel empty.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 4 — WeatherTimeline unavailable
+═══════════════════════════════════ -->
+<div class="screen" id="s3">
+  <div class="screen-label">WeatherTimeline — daylight band always shown, weather data overlay suppressed</div>
+  <div class="page-body">
+
+    <div class="proposal-label">Current state (basic placeholder)</div>
+    <div class="timeline-shell">
+      <div class="timeline-header">
+        <h3>Weather Timeline</h3>
+        <span style="font-size:12px; color:#94A3B8;">Western States 100 · Jun 28</span>
+      </div>
+      <div class="timeline-body" style="display:flex; align-items:center; justify-content:center; background:#F8FAFC;">
+        <div style="text-align:center; color:#94A3B8;">
+          <div style="font-size:24px; margin-bottom:8px;">—</div>
+          <div style="font-size:13px; font-weight:600;">Forecast not yet available</div>
+          <div style="font-size:12px; margin-top:4px;">Weather forecasts are available up to 16 days before the race</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="proposal-label">Proposed state — daylight band + whimsical copy</div>
+    <div class="timeline-shell">
+      <div class="timeline-header">
+        <h3>Weather Timeline</h3>
+        <span style="font-size:12px; color:#94A3B8;">Western States 100 · Jun 28</span>
+      </div>
+      <div class="timeline-body">
+        <!-- Daylight band — always shown from suncalc -->
+        <div class="timeline-bg"></div>
+        <div class="timeline-stars"></div>
+
+        <!-- Sunrise marker -->
+        <div class="timeline-sun-marker" style="left: 18%;"></div>
+        <div class="timeline-sun-label" style="left: 19%;">Sunrise 6:14 AM</div>
+
+        <!-- Sunset marker -->
+        <div class="timeline-sun-marker" style="left: 82%; background: linear-gradient(to bottom, rgba(200,80,160,0.8), rgba(200,80,160,0));"></div>
+        <div class="timeline-sun-label" style="left: 69%; color: rgba(200,120,200,0.9);">Sunset 8:31 PM</div>
+
+        <!-- Suppressed temp curve (ghost) -->
+        <div class="timeline-available-overlay">
+          <svg viewBox="0 0 600 50" preserveAspectRatio="none">
+            <path d="M0 35 C50 30, 100 25, 150 20 C200 15, 250 18, 300 22 C350 26, 400 24, 450 28 C500 32, 550 30, 600 35"
+              fill="none" stroke="rgba(130,199,246,0.12)" stroke-width="2" stroke-dasharray="4 4"/>
+          </svg>
+        </div>
+
+        <!-- Unavailable overlay -->
+        <div class="timeline-unavailable">
+          <div class="icon">🔭</div>
+          <h4>The clouds aren't talking yet.</h4>
+          <p>Open-Meteo's forecast opens about 16 days out — check back around Jun 12. Sunrise and sunset times are already plotted above.</p>
+          <div class="opens">Forecast window opens Jun 12, 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:12px; color:#94A3B8; margin-top:8px; padding:0 4px;">
+      ↑ The daylight/night background and sunrise/sunset markers render from suncalc — no API needed.
+      The dashed ghost curve hints that temperature data will appear here. The overlay explains why it's missing.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 5 — Side-by-side comparison
+═══════════════════════════════════ -->
+<div class="screen" id="s4">
+  <div class="screen-label">Side-by-side: the same section card across all three proposals</div>
+  <div class="page-body" style="max-width:1100px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; align-items:start;">
+
+      <!-- A -->
+      <div>
+        <div class="proposal-label" style="font-size:11px;">A — Chip</div>
+        <div class="section-shell">
+          <div class="section-header">
+            <div class="section-header-left">
+              <h3 style="font-size:13px;">Kitsuma → Duncan</h3>
+              <p>9.4 mi · night section</p>
+            </div>
+            <div class="section-time" style="font-size:13px;">1:55</div>
+          </div>
+          <div class="conditions-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="ccard ccard-night" style="min-height:68px;">
+              <div class="ccard-label">🌙 Night</div>
+              <div class="ccard-value" style="font-size:12px;">Running in dark</div>
+            </div>
+            <div class="ccard ccard-pending-a" style="min-height:68px;">
+              <div class="ccard-label">🌤 Weather</div>
+              <div class="ccard-value">In ~47 days</div>
+              <div class="ccard-sub">16-day window</div>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:11px; color:#94A3B8; margin-top:6px;">Clean. Anonymous. No surprise.</p>
+      </div>
+
+      <!-- B -->
+      <div>
+        <div class="proposal-label" style="font-size:11px;">B — Whimsical <span class="proposal-rec">Recommended</span></div>
+        <div class="section-shell">
+          <div class="section-header">
+            <div class="section-header-left">
+              <h3 style="font-size:13px;">Kitsuma → Duncan</h3>
+              <p>9.4 mi · night section</p>
+            </div>
+            <div class="section-time" style="font-size:13px;">1:55</div>
+          </div>
+          <div class="conditions-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="ccard ccard-night" style="min-height:68px;">
+              <div class="ccard-label">🌙 Night</div>
+              <div class="ccard-value" style="font-size:12px;">Running in dark</div>
+            </div>
+            <div class="ccard ccard-pending-b" style="min-height:68px;">
+              <div class="ccard-label">🔭 Weather</div>
+              <div class="ccard-value">Ask me in 47 days</div>
+              <div class="ccard-sub">Forecast opens ~Jun 12</div>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:11px; color:#94A3B8; margin-top:6px;">Has personality. Date is specific and useful.</p>
+      </div>
+
+      <!-- C -->
+      <div>
+        <div class="proposal-label" style="font-size:11px;">C — Banner</div>
+        <div class="forecast-banner" style="font-size:12px; padding:8px 12px; margin-bottom:8px;">
+          <span>🌤️</span>
+          <span>Forecast opens <strong>Jun 12</strong></span>
+          <button class="forecast-banner-dismiss" style="font-size:14px;">×</button>
+        </div>
+        <div class="section-shell">
+          <div class="section-header">
+            <div class="section-header-left">
+              <h3 style="font-size:13px;">Kitsuma → Duncan</h3>
+              <p>9.4 mi · night section</p>
+            </div>
+            <div class="section-time" style="font-size:13px;">1:55</div>
+          </div>
+          <div class="conditions-grid" style="grid-template-columns:1fr;">
+            <div class="ccard ccard-night" style="min-height:68px;">
+              <div class="ccard-label">🌙 Night</div>
+              <div class="ccard-value" style="font-size:12px;">Running in dark</div>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:11px; color:#94A3B8; margin-top:6px;">Cleanest cards, but doesn't work in crew sheet.</p>
+      </div>
+
+    </div>
+
+    <!-- Decision note -->
+    <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:10px; padding:16px; margin-top:24px; font-size:13px; color:#1E40AF; line-height:1.7;">
+      <strong>Recommended approach:</strong> Proposal B in section cards + crew sheet cards, optionally paired with Proposal C's banner on the Plan tab.
+      The banner explains it once clearly; the whimsical cards reinforce it without repeating the "N days" copy on every row.
+      Proposal A is acceptable if you want the personality to stay exclusively in the WeatherTimeline.
+    </div>
+  </div>
+</div>
+
+<script>
+function show(i, btn) {
+  document.querySelectorAll('.screen').forEach((s,j) => s.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab-btn').forEach((b,j) => b.classList.toggle('active', j===i));
+}
+
+// Dismiss banner
+document.querySelectorAll('.forecast-banner-dismiss').forEach(btn => {
+  btn.addEventListener('click', () => btn.closest('.forecast-banner').style.display = 'none');
+});
+</script>
+
+</body>
+</html>

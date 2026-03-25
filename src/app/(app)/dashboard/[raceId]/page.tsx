@@ -18,6 +18,7 @@ import { fetchForecast } from '@/lib/weather-client'
 import { computeSections } from '@/lib/section-utils'
 import type { TrackPoint, AidStation } from '@/types/gpx'
 import { calculateArrivalTimes, type ArrivalEstimate } from '@/lib/pace-calculator'
+import { isGuestMode, getGuestRaceById, getGuestAidStations, getGuestSections } from '@/lib/guest-storage'
 import type { Race } from '@/lib/db/races'
 import type { SectionPlan } from '@/types/section'
 
@@ -42,6 +43,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
   const [error, setError] = useState<string | null>(null)
   const [sectionPlans, setSectionPlans] = useState<SectionPlan[]>([])
   const [caloriesPerHour, setCaloriesPerHour] = useState<number | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -55,38 +57,58 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
     setRaceData((prev) => prev ? { ...prev, race: { ...prev.race, ...updates } } : prev)
   }
 
+  useEffect(() => setMounted(true), [])
+
   useEffect(() => {
-    fetch(`/api/races/${raceId}`)
-      .then((r) => r.json())
-      .then(async (data: RaceData) => {
-        setRaceData(data)
-        setSectionPlans(data.sectionPlans)
-        setCaloriesPerHour(data.race.caloriesPerHour ?? null)
+    if (!mounted) return
 
-        if (data.race.targetFinishMinutes && data.aidStations.length > 0) {
-          const totalKm = data.aidStations[data.aidStations.length - 1].distanceFromStart
-          const raceStart = new Date(`${data.race.date}T${data.race.startTime}:00`)
-          setArrivalEstimates(
-            calculateArrivalTimes(
-              { mode: 'finish', targetMinutes: data.race.targetFinishMinutes, totalDistanceKm: totalKm },
-              data.aidStations,
-              raceStart
-            )
+    const loadRaceData = async (data: RaceData) => {
+      setRaceData(data)
+      setSectionPlans(data.sectionPlans)
+      setCaloriesPerHour(data.race.caloriesPerHour ?? null)
+
+      if (data.race.targetFinishMinutes && data.aidStations.length > 0) {
+        const totalKm = data.aidStations[data.aidStations.length - 1].distanceFromStart
+        const raceStart = new Date(`${data.race.date}T${data.race.startTime}:00`)
+        setArrivalEstimates(
+          calculateArrivalTimes(
+            { mode: 'finish', targetMinutes: data.race.targetFinishMinutes, totalDistanceKm: totalKm },
+            data.aidStations,
+            raceStart
           )
-        }
+        )
+      }
 
-        if (data.race.gpxData) {
-          try {
-            const { trackPoints: pts } = parseGPX(data.race.gpxData)
-            setTrackPoints(pts)
-          } catch {
-            // GPX not available
-          }
+      if (data.race.gpxData) {
+        try {
+          const { trackPoints: pts } = parseGPX(data.race.gpxData)
+          setTrackPoints(pts)
+        } catch {
+          // GPX not available
         }
-      })
-      .catch(() => setError('Failed to load race data'))
-      .finally(() => setLoading(false))
-  }, [raceId])
+      }
+    }
+
+    if (isGuestMode()) {
+      const race = getGuestRaceById(raceId)
+      if (!race) {
+        setError('Race not found')
+        setLoading(false)
+        return
+      }
+      const aidStations = getGuestAidStations(raceId)
+      const sectionPlansData = getGuestSections(raceId)
+      loadRaceData({ race, aidStations, sectionPlans: sectionPlansData }).finally(() =>
+        setLoading(false)
+      )
+    } else {
+      fetch(`/api/races/${raceId}`)
+        .then((r) => r.json())
+        .then((data: RaceData) => loadRaceData(data))
+        .catch(() => setError('Failed to load race data'))
+        .finally(() => setLoading(false))
+    }
+  }, [raceId, mounted])
 
   useEffect(() => {
     if (!raceData || arrivalEstimates.length === 0 || trackPoints.length === 0) return
@@ -242,6 +264,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
               raceStart={raceStart}
               onSectionPlansChange={setSectionPlans}
               onCaloriesPerHourChange={setCaloriesPerHour}
+              isGuest={mounted && isGuestMode()}
             />
           </TabsContent>
 
@@ -255,7 +278,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
           </TabsContent>
 
           <TabsContent value="crew" className="pt-4">
-            <CrewTab race={race} onRaceUpdate={handleRaceUpdate} />
+            <CrewTab race={race} onRaceUpdate={handleRaceUpdate} isGuest={mounted && isGuestMode()} />
           </TabsContent>
         </Tabs>
       </div>

@@ -12,7 +12,8 @@ export default auth((req: NextRequest & { auth: unknown }) => {
     nextUrl.pathname.startsWith('/api/auth') ||
     nextUrl.pathname.startsWith('/crew')
 
-  if (!isPublicRoute && !isLoggedIn) {
+  const isGuestCookie = req.cookies.get('pua_guest')?.value === '1'
+  if (!isPublicRoute && !isLoggedIn && !isGuestCookie) {
     return NextResponse.redirect(new URL('/auth/signin', nextUrl))
   }
 })

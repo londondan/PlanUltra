@@ -346,3 +346,66 @@ export function DropBagCardsIllustration() {
     </IllusShell>
   );
 }
+
+/* ── Crew Sheet Mockup ── */
+export function CrewSheetMockup() {
+  return (
+    <div style={{
+      background: "var(--mist)",
+      border: "1px solid rgba(130,199,246,0.3)",
+      borderRadius: 16,
+      padding: 24,
+      boxShadow: "0 4px 24px rgba(29,124,190,0.08)",
+      overflow: "hidden",
+      fontFamily: "system-ui, sans-serif",
+    }}>
+      {/* Dark header */}
+      <div style={{ background: "var(--midnight)", borderRadius: "12px 12px 0 0", padding: "16px 20px" }}>
+        <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 16, fontWeight: 700, color: "white" }}>
+          2025 Hellbender Alternate
+        </div>
+        <div style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 12, color: "rgba(130,199,246,0.7)", marginTop: 4 }}>
+          Crew sheet for Daniel James · Friday, May 15 · 100 mi
+        </div>
+        <div style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: 11, color: "rgba(130,199,246,0.5)", marginTop: 6 }}>
+          8 crew stations · ~30h target finish · Est. finish 11:00 AM
+        </div>
+      </div>
+
+      {/* Card 1 — Start/Finish */}
+      <div style={{ background: "white", border: "1px solid #E2E8F0", borderTop: "none", padding: "12px 16px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ background: "var(--mist)", color: "var(--midnight)", fontFamily: "var(--font-geist-mono, monospace)", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 99 }}>0.0</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "var(--midnight)" }}>Start/Finish – Race HQ</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ background: "#DCFCE7", color: "#15803D", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 99 }}>✓ Crew access</span>
+            <span style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: 12, fontWeight: 700, color: "var(--ridge-blue)" }}>5:00 AM</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+          <span style={{ background: "var(--mist)", color: "var(--deep-ridge)", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 99 }}>Headlamp</span>
+          <span style={{ background: "var(--mist)", color: "var(--deep-ridge)", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 99 }}>Poles</span>
+        </div>
+        <div style={{ borderLeft: "3px solid #F59E0B", background: "#FFFBEB", padding: "8px 10px", borderRadius: "0 4px 4px 0", fontSize: 12, color: "#92400E" }}>
+          make sure we have changed the batteries on the headlamp...
+        </div>
+      </div>
+
+      {/* Card 2 — No crew access */}
+      <div style={{ background: "white", border: "1px solid #E2E8F0", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "12px 16px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ background: "#F1F5F9", color: "#94A3B8", fontFamily: "var(--font-geist-mono, monospace)", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 99 }}>7.9</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "#94A3B8" }}>Kitsuma Aid 1 &amp; 9</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 11, color: "#94A3B8" }}>No crew access</span>
+            <span style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: 12, fontWeight: 700, color: "#94A3B8" }}>7:22 AM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

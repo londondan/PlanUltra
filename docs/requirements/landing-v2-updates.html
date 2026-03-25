@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD-015 — Landing Page Updates Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --midnight: #02071E;
+    --deep-ridge: #114574;
+    --ridge-blue: #1D7CBE;
+    --sky: #82C7F6;
+    --mist: #DBF1FA;
+    --amber: #92400E;
+    --amber-bg: #FEF3C7;
+    --amber-border: #F59E0B;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #F1F5F9;
+    color: #0F172A;
+  }
+
+  /* ─── NAV ─── */
+  .tab-nav {
+    display: flex;
+    gap: 8px;
+    padding: 16px 24px;
+    background: white;
+    border-bottom: 1px solid #E2E8F0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid #CBD5E1;
+    background: white;
+    font-size: 13px;
+    cursor: pointer;
+    color: #64748B;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--midnight); color: white; border-color: var(--midnight); }
+  .tab-btn:hover:not(.active) { background: #F8FAFC; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .screen-label {
+    background: #F1F5F9;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 8px 24px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94A3B8;
+  }
+
+  /* ─── SHARED ─── */
+  .section-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ridge-blue);
+    margin-bottom: 12px;
+  }
+
+  .section-heading {
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 800;
+    color: var(--midnight);
+    line-height: 1.15;
+    margin-bottom: 48px;
+  }
+
+  /* ─── FEATURE ROW 4 ─── */
+  .features-section {
+    background: white;
+    padding: 80px 48px;
+  }
+
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    margin-bottom: 72px;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .feature-row:last-child { margin-bottom: 0; }
+
+  .illustration-col {
+    background: var(--mist);
+    border: 1px solid rgba(130,199,246,0.3);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .feature-badge {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ridge-blue);
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .feature-title {
+    font-size: clamp(20px, 3vw, 26px);
+    font-weight: 800;
+    color: var(--midnight);
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .feature-body {
+    font-size: 15px;
+    color: rgba(17,69,116,0.8);
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+
+  .feature-body-2 {
+    font-size: 14px;
+    color: rgba(17,69,116,0.55);
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+
+  .feature-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ridge-blue);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(29,124,190,0.3);
+    padding-bottom: 1px;
+    transition: border-color 0.15s;
+  }
+
+  .feature-link:hover { border-color: var(--ridge-blue); }
+
+  /* ─── CREW SHEET MOCKUP ─── */
+  .crew-mockup {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(2,7,30,0.15);
+    font-size: 13px;
+  }
+
+  .crew-mockup-header {
+    background: var(--midnight);
+    padding: 16px 20px;
+  }
+
+  .crew-mockup-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+  }
+
+  .crew-mockup-header .sub {
+    font-size: 12px;
+    color: rgba(130,199,246,0.7);
+    margin-bottom: 8px;
+  }
+
+  .crew-mockup-stats {
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    color: rgba(130,199,246,0.5);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .crew-station-card {
+    background: white;
+    border-bottom: 1px solid #F1F5F9;
+    padding: 14px 20px;
+  }
+
+  .crew-station-card:last-child { border-bottom: none; }
+
+  .crew-station-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .crew-station-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mile-badge {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--mist);
+    color: var(--deep-ridge);
+    padding: 2px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .station-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--midnight);
+  }
+
+  .station-name-muted { color: #94A3B8; }
+
+  .crew-station-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .crew-access-chip {
+    font-size: 10px;
+    font-weight: 600;
+    background: #D1FAE5;
+    color: #065F46;
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+
+  .no-crew-chip {
+    font-size: 10px;
+    color: #94A3B8;
+  }
+
+  .station-time {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ridge-blue);
+  }
+
+  .station-time-muted { color: #CBD5E1; }
+
+  .drop-bag-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .drop-bag-tag {
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--mist);
+    color: var(--deep-ridge);
+    padding: 3px 10px;
+    border-radius: 99px;
+    border: 1px solid rgba(130,199,246,0.4);
+  }
+
+  .crew-note {
+    background: var(--amber-bg);
+    border-left: 3px solid var(--amber-border);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 11px;
+    color: var(--amber);
+    line-height: 1.5;
+  }
+
+  /* ─── ABOUT SECTION ─── */
+  .about-section {
+    background: var(--midnight);
+    padding: 72px 48px;
+    border-top: 1px solid rgba(130,199,246,0.1);
+  }
+
+  .about-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 64px;
+    align-items: start;
+  }
+
+  /* Left col */
+  .builder-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .builder-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--deep-ridge);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--sky);
+    margin-bottom: 14px;
+    border: 2px solid rgba(130,199,246,0.2);
+  }
+
+  .builder-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+  }
+
+  .builder-tag {
+    font-size: 13px;
+    color: rgba(130,199,246,0.7);
+    margin-bottom: 14px;
+  }
+
+  .builder-divider {
+    width: 40px;
+    height: 2px;
+    background: var(--ridge-blue);
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+
+  .builder-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .builder-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    transition: color 0.15s;
+    cursor: pointer;
+  }
+
+  .builder-link:hover { color: white; }
+
+  .builder-link svg { width: 13px; height: 13px; opacity: 0.7; }
+
+  /* Right col */
+  .about-content {}
+
+  .about-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(130,199,246,0.6);
+    margin-bottom: 16px;
+  }
+
+  .about-body {
+    font-size: 15px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .about-body-closing {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  .about-body-closing a {
+    color: rgba(130,199,246,0.6);
+    text-underline-offset: 3px;
+  }
+  .about-body-closing a:hover { color: var(--sky); }
+
+  /* ─── STATS BAR (context) ─── */
+  .stats-bar {
+    background: var(--midnight);
+    padding: 36px 48px;
+    border-top: 1px solid rgba(130,199,246,0.1);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 0 40px;
+    border-right: 1px solid rgba(130,199,246,0.15);
+  }
+
+  .stat-item:last-child { border-right: none; }
+
+  .stat-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--sky);
+    letter-spacing: -0.03em;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ─── BOTTOM CTA (context) ─── */
+  .bottom-cta {
+    background: var(--midnight);
+    padding: 80px 48px;
+    text-align: center;
+    border-top: 1px solid rgba(130,199,246,0.1);
+  }
+
+  .cta-eyebrow {
+    font-size: 13px;
+    color: rgba(130,199,246,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .cta-heading {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    color: white;
+    margin-bottom: 16px;
+  }
+
+  .cta-body {
+    font-size: 16px;
+    color: rgba(255,255,255,0.55);
+    max-width: 500px;
+    margin: 0 auto 32px;
+    line-height: 1.65;
+  }
+
+  .btn-hero {
+    background: var(--ridge-blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 36px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(29,124,190,0.45);
+  }
+
+  /* ─── FULL PAGE VIEW ─── */
+  .full-page-bg { background: white; }
+
+  /* annotation callouts */
+  .annotation {
+    background: #FFFBEB;
+    border: 1.5px dashed #F59E0B;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400E;
+    margin: 0 48px 0;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .annotation strong { font-weight: 700; }
+
+  .annotation-bar {
+    background: #FFFBEB;
+    border-top: 2px dashed #F59E0B;
+    border-bottom: 2px dashed #F59E0B;
+    padding: 8px 48px;
+    font-size: 12px;
+    color: #92400E;
+    text-align: center;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showScreen(0,this)">1 · Feature Row 4</button>
+  <button class="tab-btn" onclick="showScreen(1,this)">2 · About section</button>
+  <button class="tab-btn" onclick="showScreen(2,this)">3 · Dark section sequencing</button>
+  <button class="tab-btn" onclick="showScreen(3,this)">4 · Full page context</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 1 — Feature Row 4
+═══════════════════════════════════════════ -->
+<div class="screen active" id="screen-0">
+  <div class="screen-label">Screen 1 — Feature Row 4: Share with your crew</div>
+
+  <div class="features-section">
+    <div style="text-align:center; margin-bottom: 48px;">
+      <div class="section-eyebrow">Everything you need</div>
+      <div class="section-heading">From the start line to the finish tape</div>
+    </div>
+
+    <!-- Row 4 (illustration left, text right) -->
+    <div class="feature-row" style="margin-bottom:0;">
+
+      <!-- Illustration: Crew Sheet Mockup -->
+      <div class="illustration-col">
+        <div class="crew-mockup">
+          <div class="crew-mockup-header">
+            <h3>2025 Hellbender Alternate</h3>
+            <div class="sub">Crew sheet for Daniel James · Friday, May 15 · 100 mi</div>
+            <div class="crew-mockup-stats">
+              <span>8 crew stations</span>
+              <span>·</span>
+              <span>~30h target</span>
+              <span>·</span>
+              <span>Est. finish 11:00 AM</span>
+            </div>
+          </div>
+
+          <!-- Station 1: Crew access -->
+          <div class="crew-station-card">
+            <div class="crew-station-top">
+              <div class="crew-station-left">
+                <span class="mile-badge">MILE 0.0</span>
+                <span class="station-name">Start/Finish – Race HQ</span>
+              </div>
+              <div class="crew-station-right">
+                <span class="crew-access-chip">✓ Crew access</span>
+                <span class="station-time">5:00 AM</span>
+              </div>
+            </div>
+            <div class="drop-bag-tags">
+              <span class="drop-bag-tag">Headlamp</span>
+              <span class="drop-bag-tag">Poles</span>
+            </div>
+            <div class="crew-note">
+              make sure we have changed the batteries on the headlamp before the race, check all required safety gear
+            </div>
+          </div>
+
+          <!-- Station 2: No crew access -->
+          <div class="crew-station-card">
+            <div class="crew-station-top">
+              <div class="crew-station-left">
+                <span class="mile-badge" style="color:#CBD5E1; background:#F8FAFC;">MILE 7.9</span>
+                <span class="station-name station-name-muted">Kitsuma Aid 1 &amp; 9</span>
+              </div>
+              <div class="crew-station-right">
+                <span class="no-crew-chip">No crew access</span>
+                <span class="station-time station-time-muted">7:22 AM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text -->
+      <div>
+        <div class="feature-badge">04</div>
+        <div class="feature-title">Share with your crew</div>
+        <p class="feature-body">Publish a shareable crew sheet with a single click. Your crew gets a clean, printable page showing exactly when to expect you at each station, what to pull from your drop bag, and any notes you've left them.</p>
+        <p class="feature-body-2">Works on any phone, prints cleanly, and needs no account to view.</p>
+        <a class="feature-link" href="https://planultrarace.com/crew/mn7jrA-wOyPOB-qk" target="_blank" rel="noopener noreferrer">
+          See Daniel's Hellbender plan ↗
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 2 — About Section
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-1">
+  <div class="screen-label">Screen 2 — About section: brief + credible</div>
+
+  <div class="about-section" style="padding-top: 80px;">
+    <div class="about-inner">
+
+      <!-- Left: builder identity -->
+      <div class="builder-card">
+        <div class="builder-avatar">DJ</div>
+        <div class="builder-name">Dan James</div>
+        <div class="builder-tag">Product Manager · Ultra runner</div>
+        <div class="builder-divider"></div>
+        <div class="builder-links">
+          <a class="builder-link" href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn ↗
+          </a>
+          <a class="builder-link" href="https://github.com/londondan/PlanUltra" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+            GitHub ↗
+          </a>
+          <a class="builder-link" href="mailto:danrjames@gmail.com">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            danrjames@gmail.com
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: copy -->
+      <div class="about-content">
+        <div class="about-eyebrow">Why this exists</div>
+        <p class="about-body">I'm a professional product manager who runs ultras in my spare time. I DNF'd Grindstone 100 last year — and while gear wasn't the only reason, scrambling through my drop bags at 2 AM in the cold certainly didn't help.</p>
+        <p class="about-body">I built PlanUltra because I couldn't find a tool that did what I actually needed: lay out every leg of a race, match gear to conditions, and hand my crew a plan they could actually use. It's a side project, not a startup. There's no subscription, no free trial, no catch.</p>
+        <p class="about-body-closing">It's also a live sample of my product work — if you're curious about that side of things, you can find me on <a href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer">LinkedIn</a> or drop me an <a href="mailto:danrjames@gmail.com">email</a>.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 3 — Dark section sequencing
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-2">
+  <div class="screen-label">Screen 3 — How the three dark sections stack together</div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-value">100s</span>
+      <span class="stat-label">of miles planned</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">Free</span>
+      <span class="stat-label">Always</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">GPX</span>
+      <span class="stat-label">Any race file</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">Crew</span>
+      <span class="stat-label">Shareable plans</span>
+    </div>
+  </div>
+
+  <!-- About Section -->
+  <div class="about-section">
+    <div class="about-inner">
+      <div class="builder-card">
+        <div class="builder-avatar">DJ</div>
+        <div class="builder-name">Dan James</div>
+        <div class="builder-tag">Product Manager · Ultra runner</div>
+        <div class="builder-divider"></div>
+        <div class="builder-links">
+          <a class="builder-link" href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn ↗
+          </a>
+          <a class="builder-link" href="mailto:danrjames@gmail.com">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            danrjames@gmail.com
+          </a>
+        </div>
+      </div>
+      <div class="about-content">
+        <div class="about-eyebrow">Why this exists</div>
+        <p class="about-body">I'm a professional product manager who runs ultras in my spare time. I DNF'd Grindstone 100 last year — and while gear wasn't the only reason, scrambling through my drop bags at 2 AM in the cold certainly didn't help.</p>
+        <p class="about-body">I built PlanUltra because I couldn't find a tool that did what I actually needed: lay out every leg of a race, match gear to conditions, and hand my crew a plan they could actually use. It's a side project, not a startup. There's no subscription, no free trial, no catch.</p>
+        <p class="about-body-closing">It's also a live sample of my product work — if you're curious about that side of things, you can find me on <a href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer">LinkedIn</a> or drop me an <a href="mailto:danrjames@gmail.com">email</a>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="bottom-cta">
+    <div class="cta-eyebrow">Ready to plan?</div>
+    <div class="cta-heading">Your best race starts here</div>
+    <p class="cta-body">Join runners who prep smarter, pack cleaner, and show up to the start line ready for every mile.</p>
+    <button class="btn-hero">Get Started</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 4 — Full page context (compressed)
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-3">
+  <div class="screen-label">Screen 4 — Full page section order (condensed overview)</div>
+
+  <div style="max-width: 800px; margin: 32px auto; padding: 0 24px;">
+
+    <!-- Section map -->
+    <div style="background:white; border-radius:12px; border:1px solid #E2E8F0; overflow:hidden; margin-bottom: 24px;">
+
+      <div style="padding:16px 20px; background: linear-gradient(135deg, var(--midnight), var(--deep-ridge)); color:white;">
+        <div style="font-size:11px; opacity:0.5; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">Section 1</div>
+        <div style="font-weight:700;">Navigation</div>
+        <div style="font-size:12px; opacity:0.6; margin-top:2px;">Transparent → Midnight on scroll · No change</div>
+      </div>
+
+      <div style="padding:16px 20px; background: linear-gradient(135deg, var(--midnight), var(--deep-ridge)); color:white; border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:11px; opacity:0.5; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">Section 2</div>
+        <div style="font-weight:700;">Hero</div>
+        <div style="font-size:12px; opacity:0.6; margin-top:2px;">PRD-009 §4 · Copy updated per PRD-015 §3.1</div>
+      </div>
+
+      <div style="padding:16px 20px; background:white; border-top:1px solid #F1F5F9;">
+        <div style="font-size:11px; color:var(--ridge-blue); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; font-weight:700;">Section 3</div>
+        <div style="font-weight:700; color:var(--midnight);">Feature Rows (1–4)</div>
+        <div style="font-size:12px; color:#64748B; margin-top:2px;">PRD-009 §5 + Row 4 added by PRD-015 §1 ← <strong style="color:var(--ridge-blue);">NEW</strong></div>
+      </div>
+
+      <div style="padding:16px 20px; background: var(--midnight); border-top:1px solid rgba(130,199,246,0.1);">
+        <div style="font-size:11px; opacity:0.5; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; color:white;">Section 4</div>
+        <div style="font-weight:700; color:white;">Stats Bar</div>
+        <div style="font-size:12px; color:rgba(130,199,246,0.5); margin-top:2px;">PRD-009 §6 · No change</div>
+      </div>
+
+      <div style="padding:16px 20px; background: var(--midnight); border-top:1px solid rgba(130,199,246,0.1);">
+        <div style="font-size:11px; color:var(--sky); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; font-weight:700; opacity:0.8;">Section 5</div>
+        <div style="font-weight:700; color:white;">About ← <span style="color:var(--sky);">NEW</span></div>
+        <div style="font-size:12px; color:rgba(130,199,246,0.5); margin-top:2px;">PRD-015 §2 · Builder card + "Why this exists" copy</div>
+      </div>
+
+      <div style="padding:16px 20px; background: var(--midnight); border-top:1px solid rgba(130,199,246,0.1);">
+        <div style="font-size:11px; opacity:0.5; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; color:white;">Section 6</div>
+        <div style="font-weight:700; color:white;">Bottom CTA</div>
+        <div style="font-size:12px; color:rgba(130,199,246,0.5); margin-top:2px;">PRD-009 §8 · No change</div>
+      </div>
+
+      <div style="padding:16px 20px; background: var(--midnight); border-top:1px solid rgba(130,199,246,0.1);">
+        <div style="font-size:11px; opacity:0.5; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; color:white;">Section 7</div>
+        <div style="font-weight:700; color:white;">Footer</div>
+        <div style="font-size:12px; color:rgba(130,199,246,0.5); margin-top:2px;">PRD-009 §9 · Copy updated per PRD-015 §3.2</div>
+      </div>
+    </div>
+
+    <!-- Key decisions callout -->
+    <div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:10px; padding:20px; margin-bottom:16px;">
+      <div style="font-size:13px; font-weight:700; color:#166534; margin-bottom:8px;">Key decisions made in this PRD</div>
+      <ul style="font-size:13px; color:#15803D; line-height:1.8; padding-left:16px;">
+        <li>About section is <strong>Midnight background</strong> — sits naturally between Stats Bar and Bottom CTA, no new background color needed</li>
+        <li>Example link uses <strong>Dan's real Hellbender plan</strong> — personal, specific, proves the product works</li>
+        <li><strong>Brief + credible</strong> tone for about section — two paragraphs max, no need for the full DNF narrative</li>
+        <li>Closing italic line <strong>acknowledges the portfolio angle</strong> without making that the primary message</li>
+        <li>Avatar is a <strong>monogram placeholder</strong> — swap for photo without code change</li>
+      </ul>
+    </div>
+
+    <div style="background:#FEF3C7; border:1px solid #F59E0B; border-radius:10px; padding:16px;">
+      <div style="font-size:13px; font-weight:700; color:#92400E; margin-bottom:6px;">Things to fill in before deploying</div>
+      <div style="font-size:13px; color:#B45309; line-height:1.8;">
+        · LinkedIn URL (TODO in code)<br>
+        · Portfolio / GitHub URL (TODO in code)<br>
+        · Optional: real photo to replace DJ monogram avatar
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showScreen(idx, btn) {
+  document.querySelectorAll('.screen').forEach((s, i) => s.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+}
+</script>
+
+</body>
+</html>

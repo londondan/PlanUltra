@@ -1,31 +1,37 @@
-import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
-import { getRacesByUser } from '@/lib/db/races'
-import type { Race } from '@/lib/db/races'
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { buttonVariants } from '@/lib/button-variants'
 import { RaceList } from '@/components/RaceList'
+import { isGuestMode, getGuestRaces } from '@/lib/guest-storage'
+import type { Race } from '@/lib/db/races'
 
-export default async function DashboardPage() {
-  const session = await auth()
-  if (!session?.user?.id) redirect('/auth/signin')
+export default function DashboardPage() {
+  const [races, setRaces] = useState<Race[]>([])
+  const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
-  let races: Race[] = []
-  let dbError = false
-  try {
-    races = await getRacesByUser(session.user.id)
-  } catch (error) {
-    console.error('[DynamoDB] getRacesByUser failed:', error)
-    dbError = true
-  }
+  useEffect(() => setMounted(true), [])
+
+  useEffect(() => {
+    if (!mounted) return
+    if (isGuestMode()) {
+      setRaces(getGuestRaces())
+      setLoading(false)
+    } else {
+      fetch('/api/races')
+        .then((r) => r.json())
+        .then((d) => {
+          setRaces(d.races ?? [])
+          setLoading(false)
+        })
+        .catch(() => setLoading(false))
+    }
+  }, [mounted])
 
   return (
     <div className="space-y-6">
-      {dbError && (
-        <div className="rounded-lg border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          Could not connect to database. Check DynamoDB table name and IAM permissions.
-        </div>
-      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Races</h1>
@@ -36,7 +42,7 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {races.length === 0 ? (
+      {!loading && races.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-secondary p-12 text-center">
           <h3 className="text-lg font-semibold">No races yet</h3>
           <p className="text-sm text-muted-foreground mt-1 mb-4">
@@ -46,8 +52,10 @@ export default async function DashboardPage() {
             Add your first race
           </Link>
         </div>
-      ) : (
-        <RaceList initialRaces={races} />
+      )}
+
+      {!loading && races.length > 0 && (
+        <RaceList initialRaces={races} isGuest={mounted && isGuestMode()} />
       )}
     </div>
   )

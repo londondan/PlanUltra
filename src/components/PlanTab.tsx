@@ -5,6 +5,7 @@ import { SectionCard } from '@/components/SectionCard'
 import { computeSections } from '@/lib/section-utils'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { getGuestRaceById, upsertGuestRace, upsertGuestSection } from '@/lib/guest-storage'
 import type { Race } from '@/lib/db/races'
 import type { AidStation, TrackPoint } from '@/types/gpx'
 import type { ArrivalEstimate } from '@/lib/pace-calculator'
@@ -22,6 +23,7 @@ interface PlanTabProps {
   raceStart: Date
   onSectionPlansChange?: (plans: SectionPlan[]) => void
   onCaloriesPerHourChange?: (cph: number | null) => void
+  isGuest?: boolean
 }
 
 function defaultPlan(raceId: string, section: Section): SectionPlan {
@@ -54,6 +56,7 @@ export function PlanTab({
   raceStart,
   onSectionPlansChange,
   onCaloriesPerHourChange,
+  isGuest,
 }: PlanTabProps) {
   const [sectionPlans, setSectionPlans] = useState<SectionPlan[]>(initialSectionPlans)
   const [caloriesPerHour, setCaloriesPerHour] = useState<number | null>(race.caloriesPerHour ?? null)
@@ -79,15 +82,24 @@ export function PlanTab({
     onCaloriesPerHourChange?.(value)
     if (calDebounceRef.current) clearTimeout(calDebounceRef.current)
     calDebounceRef.current = setTimeout(() => {
-      fetch(`/api/races/${raceId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ caloriesPerHour: value }),
-      })
+      if (isGuest) {
+        const r = getGuestRaceById(raceId)
+        if (r) upsertGuestRace({ ...r, caloriesPerHour: value ?? undefined })
+      } else {
+        fetch(`/api/races/${raceId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ caloriesPerHour: value }),
+        })
+      }
     }, 600)
   }
 
   const handleSave = async (plan: SectionPlan) => {
+    if (isGuest) {
+      upsertGuestSection(raceId, plan)
+      return
+    }
     await fetch(`/api/races/${raceId}/sections/${plan.fromStationOrder}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

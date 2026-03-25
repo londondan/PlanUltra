@@ -19,13 +19,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { deleteGuestRace } from '@/lib/guest-storage'
 import type { Race } from '@/lib/db/races'
 
 interface RaceListProps {
   initialRaces: Race[]
+  isGuest?: boolean
 }
 
-export function RaceList({ initialRaces }: RaceListProps) {
+export function RaceList({ initialRaces, isGuest }: RaceListProps) {
   const router = useRouter()
   const [races, setRaces] = useState<Race[]>(initialRaces)
   const [pendingDelete, setPendingDelete] = useState<Race | null>(null)
@@ -37,6 +39,12 @@ export function RaceList({ initialRaces }: RaceListProps) {
     setDeleting(true)
     setDeleteError(null)
     try {
+      if (isGuest) {
+        deleteGuestRace(pendingDelete.raceId)
+        setRaces((prev) => prev.filter((r) => r.raceId !== pendingDelete.raceId))
+        setPendingDelete(null)
+        return
+      }
       const res = await fetch(`/api/races/${pendingDelete.raceId}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('Delete failed')
       setRaces((prev) => prev.filter((r) => r.raceId !== pendingDelete.raceId))

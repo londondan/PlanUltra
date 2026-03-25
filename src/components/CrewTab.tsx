@@ -8,9 +8,10 @@ import type { Race } from '@/lib/db/races'
 interface CrewTabProps {
   race: Race
   onRaceUpdate: (updates: Partial<Race>) => void
+  isGuest?: boolean
 }
 
-export function CrewTab({ race, onRaceUpdate }: CrewTabProps) {
+export function CrewTab({ race, onRaceUpdate, isGuest }: CrewTabProps) {
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -49,6 +50,20 @@ export function CrewTab({ race, onRaceUpdate }: CrewTabProps) {
     await navigator.clipboard.writeText(shareUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (isGuest) {
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-muted-foreground">
+          Crew sheet sharing requires an account.
+        </p>
+        <Button disabled>Publish crew sheet</Button>
+        <p className="text-xs">
+          <a href="/auth/signin" className="underline">Create a free account →</a>
+        </p>
+      </div>
+    )
   }
 
   if (!isPublished) {

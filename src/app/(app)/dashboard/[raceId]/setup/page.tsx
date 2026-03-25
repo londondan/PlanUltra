@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { isGuestMode, getGuestAidStations, saveGuestAidStations } from '@/lib/guest-storage'
 import type { AidStation } from '@/types/gpx'
 
 interface EditableAidStation extends AidStation {
@@ -28,14 +29,23 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [unit, setUnit] = useState<'mi' | 'km'>('mi')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
-    fetch(`/api/races/${raceId}/aid-stations`)
-      .then((r) => r.json())
-      .then((data) => setStations(data.aidStations ?? []))
-      .catch(() => setError('Failed to load aid stations'))
-      .finally(() => setLoading(false))
-  }, [raceId])
+    if (!mounted) return
+    if (isGuestMode()) {
+      setStations(getGuestAidStations(raceId))
+      setLoading(false)
+    } else {
+      fetch(`/api/races/${raceId}/aid-stations`)
+        .then((r) => r.json())
+        .then((data) => setStations(data.aidStations ?? []))
+        .catch(() => setError('Failed to load aid stations'))
+        .finally(() => setLoading(false))
+    }
+  }, [raceId, mounted])
 
   // Group all stops by physicalName (or name for legacy records) so each physical
   // location is shown once in the setup table.
@@ -109,6 +119,11 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
     setSaving(true)
     setError(null)
     try {
+      if (mounted && isGuestMode()) {
+        saveGuestAidStations(raceId, stations)
+        router.push(`/dashboard/${raceId}`)
+        return
+      }
       const res = await fetch(`/api/races/${raceId}/aid-stations`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

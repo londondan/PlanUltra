@@ -8,9 +8,10 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { parseGPX } from '@/lib/gpx-parser'
+import { parseGPX, extractAidStations } from '@/lib/gpx-parser'
 import { guessTimezoneFromCoords } from '@/lib/timezone'
 import { TimezoneSelect } from '@/components/ui/timezone-select'
+import { isGuestMode, getGuestId, upsertGuestRace, saveGuestAidStations } from '@/lib/guest-storage'
 import type { Race } from '@/lib/db/races'
 
 interface GPXPreview {
@@ -23,6 +24,7 @@ export default function NewRacePage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const userHasManuallySetTz = useRef(false)
+  const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'upload' | 'library'>('library')
   const [name, setName] = useState('')
   const [date, setDate] = useState('')
@@ -37,6 +39,8 @@ export default function NewRacePage() {
   const [libraryRaces, setLibraryRaces] = useState<Race[]>([])
   const [loadingLibrary, setLoadingLibrary] = useState(false)
   const [selectedLibraryRaceId, setSelectedLibraryRaceId] = useState<string | null>(null)
+
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     if (activeTab !== 'library' || libraryRaces.length > 0) return
@@ -81,7 +85,58 @@ export default function NewRacePage() {
     setSubmitting(true)
     setError(null)
 
+    const guest = mounted && isGuestMode()
+
     try {
+      if (guest) {
+        const raceId = crypto.randomUUID()
+        const now = new Date().toISOString()
+
+        if (activeTab === 'library' && selectedLibraryRaceId) {
+          const res = await fetch(`/api/library/races/${selectedLibraryRaceId}`)
+          if (!res.ok) throw new Error('Failed to load library race')
+          const data = await res.json()
+          upsertGuestRace({
+            ...data.race,
+            raceId,
+            userId: getGuestId(),
+            name,
+            date,
+            startTime,
+            timezone,
+            isLibraryRace: false,
+            createdAt: now,
+          })
+          saveGuestAidStations(raceId, data.aidStations ?? [])
+          router.push(`/dashboard/${raceId}/setup`)
+        } else {
+          if (!gpxPreview) {
+            setError('Please upload a GPX file.')
+            setSubmitting(false)
+            return
+          }
+          const { trackPoints, waypoints } = parseGPX(gpxPreview.gpxString)
+          const stations = extractAidStations(waypoints, trackPoints)
+          const startLat = trackPoints[0]?.lat
+          const startLon = trackPoints[0]?.lon
+          upsertGuestRace({
+            raceId,
+            userId: getGuestId(),
+            name,
+            date,
+            startTime,
+            timezone,
+            gpxData: gpxPreview.gpxString,
+            startLat,
+            startLon,
+            createdAt: now,
+          })
+          saveGuestAidStations(raceId, stations)
+          router.push(`/dashboard/${raceId}/setup`)
+        }
+        return
+      }
+
       let res: Response
 
       if (activeTab === 'library' && selectedLibraryRaceId) {

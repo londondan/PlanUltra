@@ -2,7 +2,8 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { NavScrollWatcher } from "./NavScrollWatcher";
-import { MapIllustration, SectionCardsIllustration, DropBagCardsIllustration } from "./LandingFeatures";
+import { MapIllustration, SectionCardsIllustration, DropBagCardsIllustration, CrewSheetMockup } from "./LandingFeatures";
+import { GuestEntryLink } from "@/components/GuestEntryLink";
 
 export default async function HomePage() {
   const session = await auth();
@@ -148,7 +149,7 @@ export default async function HomePage() {
             Because the miles<br />are <em style={{ fontStyle: "normal", color: "var(--sky)" }}>hard</em> enough
           </h1>
           <p style={{ fontSize: "clamp(15px, 2vw, 18px)", color: "rgba(255,255,255,0.75)", maxWidth: 580, margin: "0 auto 36px", lineHeight: 1.65 }}>
-            {"You've done the hard training, now let's pack your drop bags for success. Plan Ultra is a free open source tool to help ultra runners plan how to organize their gear so that they and their crew are prepared for every leg of the race."}
+            {"You've done the hard training. Now let's make sure your gear is ready for every mile. PlanUltra is a free tool built by an ultra runner — no subscription, no account required to explore."}
           </p>
           <Link
             href="/auth/signin"
@@ -169,6 +170,9 @@ export default async function HomePage() {
           </Link>
           <div style={{ marginTop: 14, fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
             Free · No credit card required
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <GuestEntryLink />
           </div>
         </div>
 
@@ -236,7 +240,7 @@ export default async function HomePage() {
         </div>
 
         {/* Row 3: Pack — text left, bag right */}
-        <div className="feature-row" style={{ paddingBottom: 80 }}>
+        <div className="feature-row">
           <div>
             <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "var(--deep-ridge)", color: "white", borderRadius: "50%", fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 14, fontWeight: 800, marginBottom: 16 }}>3</div>
             <h3 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(22px, 2.8vw, 30px)", fontWeight: 800, color: "var(--midnight)", letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>
@@ -250,6 +254,32 @@ export default async function HomePage() {
             </div>
           </div>
           <DropBagCardsIllustration />
+        </div>
+
+        {/* Row 4: Crew sheet — illustration left, text right */}
+        <div className="feature-row feature-row-reverse" style={{ paddingBottom: 80 }}>
+          <div>
+            <div style={{ display: "inline-flex", alignItems: "center", fontFamily: "var(--font-geist-mono, monospace)", fontSize: 11, fontWeight: 700, color: "var(--ridge-blue)", background: "var(--mist)", border: "1px solid rgba(29,124,190,0.2)", padding: "3px 10px", borderRadius: 6, marginBottom: 16 }}>04</div>
+            <h3 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 800, color: "var(--midnight)", letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>
+              Share with your crew
+            </h3>
+            <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 12 }}>
+              Publish a shareable crew sheet with a single click. Your crew gets a clean, printable page showing exactly when to expect you at each station, what to pull from your drop bag, and any notes you&apos;ve left them.
+            </p>
+            <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 20 }}>
+              Works on any phone, prints cleanly, and needs no account to view.
+            </p>
+            <a
+              href="https://planultrarace.com/crew/mn7jrA-wOyPOB-qk"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: 14, color: "var(--ridge-blue)", textDecoration: "none" }}
+              className="crew-link"
+            >
+              See Daniel&apos;s Hellbender plan ↗
+            </a>
+          </div>
+          <CrewSheetMockup />
         </div>
       </section>
 
@@ -278,8 +308,45 @@ export default async function HomePage() {
         </div>
       </div>
 
+      {/* ── About ── */}
+      <section style={{ background: "var(--midnight)", borderTop: "1px solid rgba(130,199,246,0.12)", padding: "72px 48px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <div className="about-grid">
+            {/* Left: identity */}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 48, height: 48, background: "var(--deep-ridge)", borderRadius: "50%", fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 14, fontWeight: 600, color: "var(--sky)", marginBottom: 12 }}>DJ</div>
+              <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 22, fontWeight: 700, color: "white", lineHeight: 1.2 }}>Dan James</div>
+              <div style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 13, color: "rgba(130,199,246,0.7)", marginTop: 4 }}>Product Manager · Ultra runner</div>
+              <div style={{ width: 40, height: 2, background: "var(--ridge-blue)", borderRadius: 2, margin: "12px 0" }} />
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                <a href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }} className="about-link">↗ LinkedIn</a>
+                <a href="https://github.com/londondan/PlanUltra" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }} className="about-link">↗ GitHub</a>
+                <a href="mailto:danrjames@gmail.com" style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }} className="about-link">✉ danrjames@gmail.com</a>
+              </div>
+            </div>
+
+            {/* Right: copy */}
+            <div>
+              <div style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 11, color: "rgba(130,199,246,0.6)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 16 }}>Why this exists</div>
+              <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.75)", lineHeight: 1.7, marginBottom: 16 }}>
+                I&apos;m a professional product manager who runs ultras in my spare time. I DNF&apos;d Grindstone 100 last year — and while gear wasn&apos;t the only reason, scrambling through my drop bags at 2 AM in the cold certainly didn&apos;t help.
+              </p>
+              <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.75)", lineHeight: 1.7, marginBottom: 16 }}>
+                I built PlanUltra because I couldn&apos;t find a tool that did what I actually needed: lay out every leg of a race, match gear to conditions, and hand my crew a plan they could actually use. It&apos;s a side project, not a startup. There&apos;s no subscription, no free trial, no catch.
+              </p>
+              <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.7, fontStyle: "italic" }}>
+                It&apos;s also a live sample of my product work — if you&apos;re curious about that side of things, you can find me on{" "}
+                <a href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(130,199,246,0.8)", textDecoration: "none" }} className="about-link">LinkedIn</a>
+                {" "}or drop me an{" "}
+                <a href="mailto:danrjames@gmail.com" style={{ color: "rgba(130,199,246,0.8)", textDecoration: "none" }} className="about-link">email</a>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Bottom CTA ── */}
-      <section style={{ position: "relative", background: "var(--midnight)", padding: "80px 48px", textAlign: "center", overflow: "hidden" }}>
+      <section style={{ position: "relative", background: "var(--midnight)", borderTop: "1px solid rgba(130,199,246,0.1)", padding: "80px 48px", textAlign: "center", overflow: "hidden" }}>
         <svg
           style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 120, opacity: 0.06, width: "100%" }}
           viewBox="0 0 1440 120"
@@ -318,7 +385,7 @@ export default async function HomePage() {
       {/* ── Footer ── */}
       <footer style={{ background: "var(--midnight)", borderTop: "1px solid rgba(130,199,246,0.12)", padding: "24px 48px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "-0.02em" }}>PlanUltra ▲</div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>Free forever · Built for ultra runners</div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>Free forever · Built by a runner · No subscription</div>
       </footer>
 
       {/* ── Landing page styles ── */}
@@ -378,6 +445,25 @@ export default async function HomePage() {
           }
           .stat-div {
             display: none;
+          }
+        }
+        .about-grid {
+          display: grid;
+          grid-template-columns: 1fr 2fr;
+          gap: 64px;
+          align-items: start;
+        }
+        .about-link:hover {
+          color: white !important;
+          text-decoration: underline !important;
+        }
+        .crew-link:hover {
+          text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+          .about-grid {
+            grid-template-columns: 1fr;
+            gap: 40px;
           }
         }
         @media (max-width: 480px) {
