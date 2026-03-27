@@ -379,13 +379,21 @@ export default async function HomePage() {
           >
             Get Started
           </Link>
+          <div style={{ marginTop: 20 }}>
+            <Link href="/faq" style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>
+              Have questions? See the FAQ →
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* ── Footer ── */}
       <footer style={{ background: "var(--midnight)", borderTop: "1px solid rgba(130,199,246,0.12)", padding: "24px 48px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "-0.02em" }}>PlanUltra ▲</div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>Free forever · Built by a runner · No subscription</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <Link href="/faq" style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>FAQ</Link>
+          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>Free forever · Built by a runner · No subscription</span>
+        </div>
       </footer>
 
       {/* ── Landing page styles ── */}
