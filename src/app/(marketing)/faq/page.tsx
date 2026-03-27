@@ -48,7 +48,7 @@ const faqSchema = {
       name: "Who built PlanUltra?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "PlanUltra was built by Dan James, a product manager and ultramarathon runner based in the UK. Dan DNF'd at Grindstone 100 and built PlanUltra because no existing tool covered the full logistics workflow he needed: aid station layout, gear matching per leg, weather across a multi-day event, and a printable crew sheet. It's a passion project, not a commercial product.",
+        text: "PlanUltra was built by Dan James, a product manager and ultramarathon runner based in Charlotte, NC. Dan DNF'd at Grindstone 100 and built PlanUltra because no existing tool covered the full logistics workflow he needed: aid station layout, gear matching per leg, weather across a multi-day event, and a printable crew sheet. It's a passion project, not a commercial product.",
       },
     },
     {
@@ -88,7 +88,7 @@ const faqSchema = {
       name: "How does pace estimation work?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "You enter a flat pace (minutes per mile or minutes per km) or a target finish time. PlanUltra uses this to estimate your arrival time at each aid station. Phase 1 uses flat-rate pace. A future update will support grade-adjusted pace (accounting for elevation gain and loss using a Naismith-style heuristic), which better matches real ultramarathon performance.",
+        text: "You enter a target finish time and PlanUltra distributes that time across each segment, weighted by distance and elevation. Segments with more climbing or descending are allocated more time than flat segments of the same distance — so a short, steep climb gets more time than a long flat stretch. You can also override the estimated arrival at any aid station to act as a fixed anchor, and PlanUltra redistributes the remaining time around it.",
       },
     },
     {
@@ -96,7 +96,7 @@ const faqSchema = {
       name: "How accurate are the arrival time estimates?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Treat them as planning anchors, not predictions. Flat-pace estimation doesn't account for elevation, fatigue, or aid station stops. They're accurate enough to anchor your weather window, your crew's schedule, and your drop bag planning — which is the intended use. Grade-adjusted pace (Phase 2) will improve accuracy significantly.",
+        text: "Treat them as planning anchors, not predictions. The estimates account for elevation (more time for climbs and descents) but not fatigue, technical terrain, or aid station stops. They're accurate enough to anchor your weather window, your crew's schedule, and your drop bag planning — which is the intended use. For higher accuracy, use the manual override feature to lock in your target time at a key mid-race station.",
       },
     },
     {
@@ -144,7 +144,7 @@ const faqSchema = {
       name: "What is grade-adjusted pace for ultramarathons?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Grade-adjusted pace (GAP) adjusts your per-mile pace to account for elevation change. Running uphill at 15 min/mile might feel equivalent to 10 min/mile on flat ground — GAP normalises for this. Tools like Strava display GAP for activities. PlanUltra Phase 1 uses flat pace; Phase 2 will implement a Naismith-style heuristic to produce more accurate arrival time estimates on hilly courses.",
+        text: "Grade-adjusted pace (GAP) adjusts your per-mile pace to account for elevation change. Running uphill at 15 min/mile might feel equivalent to 10 min/mile on flat ground — GAP normalises for this. Tools like Strava display GAP for activities. PlanUltra's pace calculator uses a terrain-weighted model: each segment is weighted by its gross climbing and descending, so arrival time estimates automatically reflect the difficulty of each leg, not just its distance.",
       },
     },
     {
@@ -213,7 +213,7 @@ const sections = [
       },
       {
         q: "Who built PlanUltra?",
-        a: "PlanUltra was built by Dan James, a product manager and ultramarathon runner based in the UK. Dan DNF'd at Grindstone 100 and built PlanUltra because no existing tool covered the full logistics workflow he needed: aid station layout, gear matching per leg, weather across a multi-day event, and a printable crew sheet. It's a passion project, not a commercial product.",
+        a: "PlanUltra was built by Dan James, a product manager and ultramarathon runner based in Charlotte, NC. Dan DNF'd at Grindstone 100 and built PlanUltra because no existing tool covered the full logistics workflow he needed: aid station layout, gear matching per leg, weather across a multi-day event, and a printable crew sheet. It's a passion project, not a commercial product.",
       },
     ],
   },
@@ -245,11 +245,11 @@ const sections = [
     items: [
       {
         q: "How does pace estimation work?",
-        a: "You enter a flat pace (minutes per mile or minutes per km) or a target finish time. PlanUltra uses this to estimate your arrival time at each aid station. Phase 1 uses flat-rate pace. A future update will support grade-adjusted pace (accounting for elevation gain and loss using a Naismith-style heuristic), which better matches real ultramarathon performance.",
+        a: "You enter a target finish time and PlanUltra distributes that time across each segment, weighted by distance and elevation. Segments with more climbing or descending are allocated more time than flat segments of the same distance — so a short, steep climb gets more time than a long flat stretch. You can also override the estimated arrival at any aid station to act as a fixed anchor, and PlanUltra redistributes the remaining time around it.",
       },
       {
         q: "How accurate are the arrival time estimates?",
-        a: "Treat them as planning anchors, not predictions. Flat-pace estimation doesn't account for elevation, fatigue, or aid station stops. They're accurate enough to anchor your weather window, your crew's schedule, and your drop bag planning — which is the intended use. Grade-adjusted pace (Phase 2) will improve accuracy significantly.",
+        a: "Treat them as planning anchors, not predictions. The estimates account for elevation (more time for climbs and descents) but not fatigue, technical terrain, or aid station stops. They're accurate enough to anchor your weather window, your crew's schedule, and your drop bag planning — which is the intended use. For higher accuracy, use the manual override feature to lock in your target time at a key mid-race station.",
       },
       {
         q: "How does the weather forecast work?",
@@ -279,7 +279,7 @@ const sections = [
       },
       {
         q: "What is grade-adjusted pace for ultramarathons?",
-        a: "Grade-adjusted pace (GAP) adjusts your per-mile pace to account for elevation change. Running uphill at 15 min/mile might feel equivalent to 10 min/mile on flat ground — GAP normalises for this. Tools like Strava display GAP for activities. PlanUltra Phase 1 uses flat pace; Phase 2 will implement a Naismith-style heuristic to produce more accurate arrival time estimates on hilly courses.",
+        a: "Grade-adjusted pace (GAP) adjusts your per-mile pace to account for elevation change. Running uphill at 15 min/mile might feel equivalent to 10 min/mile on flat ground — GAP normalises for this. Tools like Strava display GAP for activities. PlanUltra's pace calculator uses a terrain-weighted model: each segment is weighted by its gross climbing and descending, so arrival time estimates automatically reflect the difficulty of each leg, not just its distance.",
       },
       {
         q: "What is a pacer in ultramarathon running?",
