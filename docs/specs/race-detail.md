@@ -1,5 +1,5 @@
 # System Spec: Race Detail View
-**Last updated:** 2026-03-15
+**Last updated:** 2026-03-25
 **Status:** Shipped
 
 ---
@@ -20,22 +20,23 @@ A breadcrumb and race header show name, date, start time, and total distance in 
 
 ## What it does not do
 
-- Does not persist pace input — the pace entry is in-memory only and resets on page reload.
 - Does not show the packing view or crew view (planned future screens).
 - Does not allow editing race metadata (name, date, start time) from this page.
-- Does not support multiple runners or sharing the view with a crew member.
+- Does not support multiple runners or sharing the view with a crew member (crew sheet is a separate shareable page — PRD-010).
 - Does not show real-time or live tracking data.
 
 ## Page state and data flow
 
 ```
 Mount
-  → GET /api/races/<raceId>       → race metadata + aid stations
+  → GET /api/races/<raceId>       → race metadata (incl. targetFinishMinutes) + aid stations
   → parseGPX(race.gpxData)        → trackPoints (client-side)
+  → if targetFinishMinutes present → calculateArrivalTimes() → arrivalEstimates
 
-User enters pace
-  → calculateArrivalTimes()        → arrivalEstimates (in-memory)
+User enters or changes pace (targetFinishMinutes)
+  → calculateArrivalTimes()        → arrivalEstimates
   → AidStationTable re-renders with estimated arrival times
+  → PATCH /api/races/<raceId>      → persist targetFinishMinutes
 
 arrivalEstimates available
   → fetchForecast(startLat, startLon, raceDate, endDate, timezone)
@@ -57,7 +58,7 @@ arrivalEstimates available
 
 ## Notes for future development
 
-- Pace input is currently ephemeral (in-memory). Persisting the last-used pace to the Race record in DynamoDB would improve the UX on return visits.
+- Pace input (`targetFinishMinutes`) is persisted to the Race record in DynamoDB and restored on page load.
 - The packing view and crew view are distinct screens planned for Phase 2 — they will likely live at `/dashboard/<raceId>/pack` and `/dashboard/<raceId>/crew` (or a shareable `/crew/<token>` route). They will reuse `ArrivalEstimate[]` from the pace calculator and the aid station configuration from setup.
 - The weather fetch is triggered by a `useEffect` that watches `arrivalEstimates`. If pace changes, the weather is re-fetched. This could be debounced to avoid unnecessary API calls while the user is actively typing a pace value.
 - The race detail page re-parses the GPX on every load. For large GPX files this is a noticeable delay. Caching the parsed track points in `sessionStorage` or computing them server-side would improve load time.

@@ -218,6 +218,27 @@ function findFinishWaypoint(
   return null
 }
 
+function computeSegmentElevation(
+  trackPoints: TrackPoint[],
+  cumDist: number[],
+  fromKm: number,
+  toKm: number
+): { grossClimbM: number; grossDescentM: number } {
+  const NOISE_THRESHOLD_M = 2
+  let grossClimbM = 0
+  let grossDescentM = 0
+  for (let i = 1; i < trackPoints.length; i++) {
+    if (cumDist[i] < fromKm) continue
+    if (cumDist[i - 1] > toKm) break
+    const delta = trackPoints[i].ele - trackPoints[i - 1].ele
+    if (Math.abs(delta) > NOISE_THRESHOLD_M) {
+      if (delta > 0) grossClimbM += delta
+      else grossDescentM += Math.abs(delta)
+    }
+  }
+  return { grossClimbM, grossDescentM }
+}
+
 /**
  * Extracts aid stations showing every visit in order.
  * Used for the race pace/planning table where a runner will visit the same station multiple times.
@@ -329,6 +350,8 @@ export function extractAidStations(
       order: i,
       visitNumber: count,
       distanceFromPrev: 0,
+      grossClimbM: 0,
+      grossDescentM: 0,
     }
   })
 
@@ -343,7 +366,13 @@ export function extractAidStations(
   for (let i = 0; i < stations.length; i++) {
     stations[i].distanceFromPrev =
       i === 0 ? 0 : stations[i].distanceFromStart - stations[i - 1].distanceFromStart
-    
+
+    const fromKm = i === 0 ? 0 : stations[i - 1].distanceFromStart
+    const toKm = stations[i].distanceFromStart
+    const elev = computeSegmentElevation(trackPoints, cumDist, fromKm, toKm)
+    stations[i].grossClimbM = elev.grossClimbM
+    stations[i].grossDescentM = elev.grossDescentM
+
     // Auto-flag start/finish with crew access and drop bag availability
     // (Runners can always get crew support and drop bags at start/finish, even on lap 2+)
     if (stations[i].physicalName && startFinishPhysicalNames.has(stations[i].physicalName!)) {

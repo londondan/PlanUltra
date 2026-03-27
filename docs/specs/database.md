@@ -1,5 +1,5 @@
 # System Spec: Database
-**Last updated:** 2026-03-16
+**Last updated:** 2026-03-25
 **Status:** Shipped
 
 ---
@@ -55,8 +55,9 @@ All three access patterns map to single primary key queries — no GSI is curren
   gpxUrl?: string,       // not currently used
   startLat?: number,
   startLon?: number,
-  caloriesPerHour?: number, // race-level default for drop bag planning (PRD-002)
-  createdAt: string      // ISO 8601
+  caloriesPerHour?: number,      // race-level default for drop bag planning (PRD-002)
+  targetFinishMinutes?: number,  // runner's estimated finish time in minutes; persisted on pace entry
+  createdAt: string              // ISO 8601
 }
 ```
 

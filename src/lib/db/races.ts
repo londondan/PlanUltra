@@ -27,6 +27,7 @@ export interface Race {
   startLon?: number
   createdAt: string
   targetFinishMinutes?: number
+  paceOverrides?: Record<string, string>  // keyed by AidStation.order as string, value ISO 8601
   crewShareToken?: string
   crewPublishedAt?: string
   runnerName?: string

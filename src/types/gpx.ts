@@ -20,7 +20,10 @@ export interface AidStation {
   lon: number
   distanceFromStart: number
   distanceFromPrev: number
+  /** @deprecated superseded by grossClimbM / grossDescentM — always 0 */
   elevationGain: number
+  grossClimbM: number      // total metres climbed in segment from prev station
+  grossDescentM: number    // total metres descended in segment from prev station
   hasDropBag: boolean
   hasCrewAccess: boolean
   visitNumber?: number    // 1-indexed per unique station name; defaults to 1

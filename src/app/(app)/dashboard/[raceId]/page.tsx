@@ -238,7 +238,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="pace" className="pt-4">
+          <TabsContent value="pace" className="pt-4" keepMounted>
             <PaceTab
               race={race}
               aidStations={aidStations}

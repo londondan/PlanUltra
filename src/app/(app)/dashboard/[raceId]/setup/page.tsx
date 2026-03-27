@@ -94,6 +94,8 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
       distanceFromStart: 0,
       distanceFromPrev: 0,
       elevationGain: 0,
+      grossClimbM: 0,
+      grossDescentM: 0,
       hasDropBag: false,
       hasCrewAccess: false,
       visitNumber: 1,
