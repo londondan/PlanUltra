@@ -81,54 +81,38 @@ export function CrewStationCard({
     </span>
   )
 
-  // Standard station header row (no-access + finish cards)
+  // Standard station header row (no-access cards)
   const stationHeader = (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 12,
-      }}
-    >
-      <div
+    <div className="stn-hdr" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <span className="stn-mile" style={{ flexShrink: 0 }}>{mileBadgePill}</span>
+      <span
+        className="stn-name"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          flexWrap: 'wrap' as const,
+          fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+          fontSize: 15,
+          fontWeight: 700,
+          color: '#02071E',
           flex: 1,
           minWidth: 0,
         }}
       >
-        {mileBadgePill}
-        <span
-          style={{
-            fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
-            fontSize: 15,
-            fontWeight: 700,
-            color: '#02071E',
-            flex: 1,
-            minWidth: 0,
-          }}
-        >
-          {station.name}
-        </span>
+        {station.name}
+      </span>
+      <div className="stn-right" style={{ flexShrink: 0, textAlign: 'right' }}>
+        {arrivalTime && (
+          <div
+            style={{
+              fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+              fontSize: 16,
+              fontWeight: 700,
+              color: '#1D7CBE',
+              whiteSpace: 'nowrap' as const,
+            }}
+          >
+            {formatTime(arrivalTime)}
+          </div>
+        )}
       </div>
-      {arrivalTime && (
-        <span
-          style={{
-            fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
-            fontSize: 16,
-            fontWeight: 700,
-            color: '#1D7CBE',
-            whiteSpace: 'nowrap' as const,
-            flexShrink: 0,
-          }}
-        >
-          {formatTime(arrivalTime)}
-        </span>
-      )}
     </div>
   )
 
@@ -151,52 +135,36 @@ export function CrewStationCard({
             padding: '14px 18px',
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-            }}
-          >
-            <div
+          <div className="stn-hdr" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span className="stn-mile" style={{ flexShrink: 0 }}>{mileBadgePillSky}</span>
+            <span
+              className="stn-name"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                flexWrap: 'wrap' as const,
+                fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+                fontSize: 15,
+                fontWeight: 700,
+                color: 'white',
                 flex: 1,
                 minWidth: 0,
               }}
             >
-              {mileBadgePillSky}
-              <span
-                style={{
-                  fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: 'white',
-                  flex: 1,
-                  minWidth: 0,
-                }}
-              >
-                {station.name}
-              </span>
+              {station.name}
+            </span>
+            <div className="stn-right" style={{ flexShrink: 0, textAlign: 'right' }}>
+              {arrivalTime && (
+                <div
+                  style={{
+                    fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: '#82C7F6',
+                    whiteSpace: 'nowrap' as const,
+                  }}
+                >
+                  {formatTime(arrivalTime)}
+                </div>
+              )}
             </div>
-            {arrivalTime && (
-              <span
-                style={{
-                  fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: '#82C7F6',
-                  whiteSpace: 'nowrap' as const,
-                  flexShrink: 0,
-                }}
-              >
-                {formatTime(arrivalTime)}
-              </span>
-            )}
           </div>
         </div>
         {/* Finish label */}
@@ -280,37 +248,35 @@ export function CrewStationCard({
 
   // Crew station header (mist background, with green badge)
   const crewStationHeader = (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 12,
-      }}
-    >
-      <div
+    <div className="stn-hdr" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <span className="stn-mile" style={{ flexShrink: 0 }}>{mileBadgePill}</span>
+      <span
+        className="stn-name"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          flexWrap: 'wrap' as const,
+          fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+          fontSize: 15,
+          fontWeight: 700,
+          color: '#02071E',
           flex: 1,
           minWidth: 0,
         }}
       >
-        {mileBadgePill}
-        <span
-          style={{
-            fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
-            fontSize: 15,
-            fontWeight: 700,
-            color: '#02071E',
-            flex: 1,
-            minWidth: 0,
-          }}
-        >
-          {station.name}
-        </span>
+        {station.name}
+      </span>
+      <div className="stn-right" style={{ flexShrink: 0, textAlign: 'right' }}>
+        {arrivalTime && (
+          <div
+            style={{
+              fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+              fontSize: 16,
+              fontWeight: 700,
+              color: '#1D7CBE',
+              whiteSpace: 'nowrap' as const,
+            }}
+          >
+            {formatTime(arrivalTime)}
+          </div>
+        )}
         <span
           style={{
             display: 'inline-flex',
@@ -323,26 +289,12 @@ export function CrewStationCard({
             borderRadius: 5,
             padding: '2px 8px',
             fontWeight: 600,
-            flexShrink: 0,
+            marginTop: 4,
           }}
         >
           ✓ Crew access
         </span>
       </div>
-      {arrivalTime && (
-        <span
-          style={{
-            fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
-            fontSize: 16,
-            fontWeight: 700,
-            color: '#1D7CBE',
-            whiteSpace: 'nowrap' as const,
-            flexShrink: 0,
-          }}
-        >
-          {formatTime(arrivalTime)}
-        </span>
-      )}
     </div>
   )
 

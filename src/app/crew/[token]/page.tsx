@@ -346,6 +346,12 @@ export default async function CrewSheetPage({
           .timeline-dot-inner { background: #1D7CBE !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           a { text-decoration: none !important; color: inherit !important; }
         }
+        @media (max-width: 639px) {
+          .stn-hdr { flex-wrap: wrap !important; gap: 4px 8px !important; align-items: center !important; }
+          .stn-name { order: 1; width: 100%; flex: none !important; font-size: 16px !important; white-space: normal !important; overflow: visible !important; margin-bottom: 2px; }
+          .stn-mile { order: 2; }
+          .stn-right { order: 3; margin-left: auto; }
+        }
       `}</style>
 
       {/* Page wrapper */}
