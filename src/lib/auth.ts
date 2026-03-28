@@ -1,6 +1,7 @@
-import NextAuth, { type Account, type Session } from 'next-auth'
+import NextAuth, { type Account, type Session, type User } from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
 import Google from 'next-auth/providers/google'
+import { createOrUpdateUser } from '@/lib/db/users'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
@@ -16,6 +17,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/auth/signin',
   },
   callbacks: {
+    async signIn({ user, account }: { user: User; account?: Account | null }) {
+      if (account?.providerAccountId && user.email) {
+        await createOrUpdateUser(account.providerAccountId, user.email)
+      }
+      return true
+    },
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user && token.sub) {
         session.user.id = token.sub

@@ -1,4 +1,4 @@
-import { PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
+import { PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { docClient, TABLE_NAME } from '@/lib/db'
 import { randomUUID } from 'crypto'
 import { gzipSync, gunzipSync } from 'zlib'
@@ -191,6 +191,67 @@ export async function updateRace(
 
 export async function getLibraryRaces(): Promise<Race[]> {
   return getRacesByUser(LIBRARY_USER_ID)
+}
+
+export interface RaceActivityDay {
+  date: string  // YYYY-MM-DD (UTC)
+  count: number
+}
+
+export async function getRaceActivity(
+  days: number,
+  excludeUserIds: string[] = []
+): Promise<RaceActivityDay[]> {
+  // Build rolling window — today is always the last entry (rightmost bar).
+  const now = new Date()
+  const since = new Date(now)
+  since.setUTCDate(since.getUTCDate() - (days - 1))
+  since.setUTCHours(0, 0, 0, 0)
+
+  // Collect all calendar days in the window so zeros are always present.
+  const dayMap: Map<string, number> = new Map()
+  for (let i = 0; i < days; i++) {
+    const d = new Date(since)
+    d.setUTCDate(d.getUTCDate() + i)
+    dayMap.set(d.toISOString().slice(0, 10), 0)
+  }
+
+  const excludePKs = new Set([
+    `USER#${LIBRARY_USER_ID}`,
+    ...excludeUserIds.map((id) => `USER#${id}`),
+  ])
+
+  // TODO: add a GSI on createdAt when race count grows to avoid full-table scans.
+  let lastKey: Record<string, unknown> | undefined
+  do {
+    const result = await docClient.send(
+      new ScanCommand({
+        TableName: TABLE_NAME,
+        FilterExpression: 'begins_with(SK, :racePrefix) AND createdAt >= :since',
+        ExpressionAttributeValues: {
+          ':racePrefix': 'RACE#',
+          ':since': since.toISOString(),
+        },
+        ProjectionExpression: 'PK, createdAt',
+        ...(lastKey ? { ExclusiveStartKey: lastKey } : {}),
+      })
+    )
+
+    for (const item of result.Items ?? []) {
+      const pk = item.PK as string
+      if (excludePKs.has(pk)) continue
+      const dateKey = (item.createdAt as string).slice(0, 10)
+      if (dayMap.has(dateKey)) {
+        dayMap.set(dateKey, (dayMap.get(dateKey) ?? 0) + 1)
+      }
+    }
+
+    lastKey = result.LastEvaluatedKey as Record<string, unknown> | undefined
+  } while (lastKey)
+
+  return Array.from(dayMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, count]) => ({ date, count }))
 }
 
 export async function deleteRace(userId: string, raceId: string): Promise<void> {
