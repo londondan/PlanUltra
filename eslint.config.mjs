@@ -29,6 +29,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Marketing scripts (Node.js, not part of the Next.js app)
+    "marketing/**",
   ]),
 ]);
 

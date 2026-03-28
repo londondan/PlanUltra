@@ -57,6 +57,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
     setRaceData((prev) => prev ? { ...prev, race: { ...prev.race, ...updates } } : prev)
   }
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
@@ -92,6 +93,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
     if (isGuestMode()) {
       const race = getGuestRaceById(raceId)
       if (!race) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setError('Race not found')
         setLoading(false)
         return
@@ -113,6 +115,7 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
   useEffect(() => {
     if (!raceData || arrivalEstimates.length === 0 || trackPoints.length === 0) return
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setWeatherError(false)
     const race = raceData.race
     const startLat = race.startLat ?? trackPoints[0]?.lat

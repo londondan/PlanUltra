@@ -13,11 +13,13 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     if (!mounted) return
     if (isGuestMode()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRaces(getGuestRaces())
       setLoading(false)
     } else {

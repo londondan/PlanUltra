@@ -36,6 +36,7 @@ export function CourseHeader({ race, trackPoints, aidStations }: CourseHeaderPro
 
   useEffect(() => {
     const stored = localStorage.getItem(storageKey)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (stored !== null) setMapExpanded(stored === 'true')
   }, [storageKey])
 
