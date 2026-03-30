@@ -391,14 +391,19 @@ export function LocationPanel({ station, raceId: _raceId, onSave }: LocationPane
 
 interface StationCardProps {
   station: AidStation
+  allCrewStations: AidStation[]
   raceId: string
   onSave: (order: number, updates: Partial<AidStation>) => Promise<void>
 }
 
-function CrewStationCardEdit({ station, raceId, onSave }: StationCardProps) {
+function CrewStationCardEdit({ station, allCrewStations, raceId, onSave }: StationCardProps) {
   const [open, setOpen] = useState(false)
   const [hovered, setHovered] = useState(false)
-  const mileBadge = (station.distanceFromStart * KM_TO_MI).toFixed(1)
+  const physicalKey = station.physicalName ?? station.name
+  const visitMiles = allCrewStations
+    .filter(s => (s.physicalName ?? s.name) === physicalKey)
+    .map(s => (s.distanceFromStart * KM_TO_MI).toFixed(1))
+  const mileBadge = visitMiles.join(' & ')
 
   return (
     <div className="rounded-lg border border-[rgba(130,199,246,0.55)] bg-card overflow-hidden shadow-[0_2px_6px_rgba(29,124,190,0.06)]">
@@ -419,6 +424,14 @@ function CrewStationCardEdit({ station, raceId, onSave }: StationCardProps) {
         }}>
           MI {mileBadge}
         </span>
+        {visitMiles.length > 1 && (
+          <span style={{
+            fontSize: 10, color: '#1D7CBE', fontWeight: 500,
+            whiteSpace: 'nowrap', flexShrink: 0,
+          }}>
+            {visitMiles.length} visits
+          </span>
+        )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <p className="text-sm font-bold truncate">{station.name}</p>
         </div>
@@ -509,14 +522,35 @@ export function CrewTab({ race, aidStations, raceId, onRaceUpdate, onAidStationU
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ order, updates }),
     })
-    // Update local state so UI is reactive
-    setLocalStations(prev =>
-      prev.map(s => s.order === order ? { ...s, ...updates } : s)
-    )
+    // Sync location fields to all stations sharing the same physicalName
+    const locationKeys: (keyof AidStation)[] = ['crewParkingCoords', 'crewParkingType', 'crewLocationNotes']
+    const hasLocationUpdate = locationKeys.some(k => k in updates)
+    setLocalStations(prev => {
+      const target = prev.find(s => s.order === order)
+      const physicalKey = target ? (target.physicalName ?? target.name) : null
+      return prev.map(s => {
+        if (s.order === order) return { ...s, ...updates }
+        if (hasLocationUpdate && physicalKey && (s.physicalName ?? s.name) === physicalKey) {
+          const locationUpdates = Object.fromEntries(
+            locationKeys.filter(k => k in updates).map(k => [k, updates[k]])
+          ) as Partial<AidStation>
+          return { ...s, ...locationUpdates }
+        }
+        return s
+      })
+    })
     onAidStationUpdate?.(order, updates)
   }
 
   const crewStations = localStations.filter(s => s.hasCrewAccess && !s.isFinish)
+
+  const seenPhysical = new Set<string>()
+  const uniqueCrewStations = crewStations.filter(s => {
+    const key = s.physicalName ?? s.name
+    if (seenPhysical.has(key)) return false
+    seenPhysical.add(key)
+    return true
+  })
 
   if (isGuest) {
     return (
@@ -601,10 +635,11 @@ export function CrewTab({ race, aidStations, raceId, onRaceUpdate, onAidStationU
             Add parking locations so your crew gets directions and a QR code on their printed sheet.
           </p>
           <div className="space-y-2 mt-2">
-            {crewStations.map(station => (
+            {uniqueCrewStations.map(station => (
               <CrewStationCardEdit
                 key={station.order}
                 station={station}
+                allCrewStations={crewStations}
                 raceId={raceId}
                 onSave={handleStationSave}
               />

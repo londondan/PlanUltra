@@ -50,7 +50,13 @@ export async function PUT(
   // that share the same physicalName so repeated aid stations stay in sync.
   if (typeof body.order === 'number' && body.updates) {
     const updates = body.updates as Partial<AidStation>
-    const flagKeys: (keyof AidStation)[] = ['hasDropBag', 'hasCrewAccess']
+    const flagKeys: (keyof AidStation)[] = [
+      'hasDropBag',
+      'hasCrewAccess',
+      'crewParkingCoords',
+      'crewParkingType',
+      'crewLocationNotes',
+    ]
     const hasFlagUpdate = flagKeys.some((k) => k in updates)
 
     if (hasFlagUpdate) {
