@@ -5,6 +5,7 @@ import { Copy, ExternalLink, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { Race } from '@/lib/db/races'
 import type { AidStation } from '@/types/gpx'
+import type { Coordinates } from '@/lib/maps'
 
 const KM_TO_MI = 0.621371
 
@@ -17,36 +18,14 @@ const PARKING_OPTIONS: { value: ParkingType; icon: string; label: string; desc: 
   { value: 'drop-off',      icon: '🚗',  label: 'Drop-off only',  desc: 'Brief stop, no parking' },
 ]
 
-function parseGoogleMapsCoords(input: string): { lat: number; lng: number } | null {
-  const trimmed = input.trim()
-  // Reject short maps.app.goo.gl links
-  if (trimmed.includes('maps.app.goo.gl')) return null
-
-  // Full Google Maps URL with ?q= param
-  try {
-    const url = new URL(trimmed)
-    const q = url.searchParams.get('q')
-    if (q) {
-      const parts = q.split(',')
-      if (parts.length === 2) {
-        const lat = parseFloat(parts[0])
-        const lng = parseFloat(parts[1])
-        if (!isNaN(lat) && !isNaN(lng)) return { lat, lng }
-      }
-    }
-  } catch {
-    // Not a URL — try raw lat,lng
+function getResolveErrorMessage(reason?: string): string {
+  if (reason === 'coords_not_found') {
+    return "We couldn't extract coordinates from that Google Maps link. Try a fuller Maps link or enter lat,lng directly."
   }
-
-  // Raw lat,lng string
-  const parts = trimmed.split(',')
-  if (parts.length === 2) {
-    const lat = parseFloat(parts[0].trim())
-    const lng = parseFloat(parts[1].trim())
-    if (!isNaN(lat) && !isNaN(lng)) return { lat, lng }
+  if (reason === 'unresolvable_short_link') {
+    return "Couldn't resolve that link right now. Try again or enter lat,lng directly."
   }
-
-  return null
+  return 'Invalid format. Use a Google Maps link or enter lat,lng directly.'
 }
 
 // ─── Location & Parking sub-panel ────────────────────────────────────────────
@@ -57,12 +36,13 @@ interface LocationPanelProps {
   onSave: (order: number, updates: Partial<AidStation>) => Promise<void>
 }
 
-function LocationPanel({ station, raceId: _raceId, onSave }: LocationPanelProps) {
+export function LocationPanel({ station, raceId: _raceId, onSave }: LocationPanelProps) {
   const [coords, setCoords] = useState(station.crewParkingCoords ?? null)
   const [parkingType, setParkingType] = useState<ParkingType | null>(station.crewParkingType ?? null)
   const [notes, setNotes] = useState(station.crewLocationNotes ?? '')
   const [inputValue, setInputValue] = useState('')
   const [inputError, setInputError] = useState('')
+  const [resolving, setResolving] = useState(false)
   const [changing, setChanging] = useState(false)
   const [open, setOpen] = useState(() => !!(station.crewParkingCoords))
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -83,19 +63,38 @@ function LocationPanel({ station, raceId: _raceId, onSave }: LocationPanelProps)
 
   const handleSetLocation = async () => {
     setInputError('')
-    const parsed = parseGoogleMapsCoords(inputValue)
-    if (!parsed) {
-      if (inputValue.includes('maps.app.goo.gl')) {
-        setInputError('Short goo.gl links aren\'t supported yet. Use the full Maps URL or enter lat,lng directly.')
-      } else {
-        setInputError('Invalid format. Use a Google Maps URL with ?q=lat,lng or enter lat,lng directly.')
+    setResolving(true)
+    try {
+      const res = await fetch('/api/maps/resolve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: inputValue }),
+      })
+
+      const data = await res.json() as
+        | { success: true; coords: Coordinates }
+        | { success: false; reason?: string; error?: string }
+
+      if (!res.ok) {
+        setInputError("Couldn't resolve that link right now. Try again or enter lat,lng directly.")
+        return
       }
+
+      if (!data.success) {
+        setInputError(data.error ?? getResolveErrorMessage(data.reason))
+        return
+      }
+
+      setCoords(data.coords)
+      setChanging(false)
+      setInputValue('')
+      await onSave(station.order, { crewParkingCoords: data.coords })
+    } catch {
+      setInputError("Couldn't resolve that link right now. Try again or enter lat,lng directly.")
       return
+    } finally {
+      setResolving(false)
     }
-    setCoords(parsed)
-    setChanging(false)
-    setInputValue('')
-    await onSave(station.order, { crewParkingCoords: parsed })
   }
 
   const handleParkingTypeChange = async (val: ParkingType) => {
@@ -228,20 +227,22 @@ function LocationPanel({ station, raceId: _raceId, onSave }: LocationPanelProps)
                   <button
                     type="button"
                     onClick={handleSetLocation}
+                    disabled={resolving}
                     style={{
                       background: '#1D7CBE', color: 'white', border: 'none',
                       borderRadius: 6, padding: '8px 14px', fontSize: 12, fontWeight: 600,
-                      cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                      cursor: resolving ? 'wait' : 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                      opacity: resolving ? 0.8 : 1,
                     }}
                   >
-                    📍 Set
+                    {resolving ? 'Resolving...' : '📍 Set'}
                   </button>
                 </div>
                 {inputError && (
                   <p style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>{inputError}</p>
                 )}
                 <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 3, lineHeight: 1.4 }}>
-                  e.g. https://maps.google.com/?q=41.7442,-111.8413 · or enter lat,lng directly
+                  e.g. https://maps.google.com/?q=41.7442,-111.8413 · or paste a short maps.app.goo.gl link
                 </p>
               </>
             )}

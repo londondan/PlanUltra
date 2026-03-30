@@ -71,7 +71,7 @@ crewLocationNotes?: string   // free text, max 500 chars
 
 These fields are only meaningful when `crewAccess === true`. They are `null` / absent when not set.
 
-Drive time and distance between consecutive crew stations are **not stored** — they are computed at render time from the `crewParkingCoords` values of adjacent crew-accessible sections using the Google Maps Directions API (see §8).
+Drive time and distance between consecutive crew stations are **not stored** — they are computed at render time from the `crewParkingCoords` values of adjacent crew-accessible sections using the existing Mapbox Directions implementation (see §8).
 
 ---
 
@@ -309,13 +309,13 @@ Each bridge is a single `timeline-row--bridge` grid row (same `44px` dot column 
 
 ### 6.3 Drive time data source
 
-Drive time and distance are fetched from **Google Maps Directions API** at page render time (server component), not stored in the database.
+Drive time and distance are fetched from **Mapbox Directions API** at page render time (server component), not stored in the database.
 
-- Call: `GET https://maps.googleapis.com/maps/api/directions/json?origin={lat1},{lng1}&destination={lat2},{lng2}&mode=driving`
-- Parse: `routes[0].legs[0].duration.text` and `routes[0].legs[0].distance.text`
-- Cache: cache the result per `(origin, destination)` pair for 24 hours (Next.js `fetch` cache or a simple DynamoDB TTL cache). Drive times between aid stations do not change.
+- Call: `GET https://api.mapbox.com/directions/v5/mapbox/driving/{originLng},{originLat};{destLng},{destLat}?access_token=...`
+- Parse: `routes[0].duration` and `routes[0].distance`, then format to display strings in-app (for example `48 min`, `31.0 mi`)
+- Cache: cache the result per `(origin, destination)` pair for 24 hours via Next.js `fetch` revalidation. Drive times between aid stations do not change often enough to justify a shorter TTL.
 - Fallback: if the API call fails or coords are missing for either end, render `"—"` for both time and distance. Do not show an error state on the page.
-- API key: use the existing Google Maps API key (same one used for any existing map features). Add `Directions API` to the enabled APIs in the Google Cloud Console.
+- API token: use the existing `NEXT_PUBLIC_MAPBOX_TOKEN` server-side. No additional Google Directions key is required for bridge drive data.
 
 ---
 
@@ -486,8 +486,8 @@ const qrSvg = await QRCode.toString(mapsUrl, {
 ```
 Inline the resulting SVG directly into the HTML. Do not use an `<img>` tag with a data URL — inline SVG prints correctly and requires no external requests.
 
-**Issue B — Google Maps Directions API**
-Add `GOOGLE_MAPS_API_KEY` to env vars (likely already present). Enable the Directions API in Google Cloud Console if not already enabled. The Directions API call happens in the server component, not client-side, so the key is never exposed to the browser.
+**Issue B — Mapbox Directions API**
+Use the existing `NEXT_PUBLIC_MAPBOX_TOKEN` in the server component when fetching drive segments. No additional Google Directions API setup is required for the bridge blocks. Crew-facing links and QR codes should still point to Google Maps URLs.
 
 Drive segment data should be fetched for all crew-station pairs in a single pass before rendering, not per-card. Pseudocode:
 ```ts
@@ -525,7 +525,7 @@ The segment detail block (gear pills, baggies, crew notes, conditions) is unchan
 |---|---|
 | `src/app/crew/[token]/page.tsx` | Add location block, QR, bridge layout, responsive classes, print styles |
 | `src/lib/data/sections.ts` | Add `crewParkingCoords`, `crewParkingType`, `crewLocationNotes` to Section type and read/write |
-| `src/lib/maps.ts` (new) | `getDriveSegment(origin, dest)` — Directions API call + cache |
+| `src/lib/maps.ts` (new) | `getDriveSegment(origin, dest)` — Mapbox Directions API call + cache |
 | `src/app/(app)/race/[id]/crew/page.tsx` (or equivalent) | Add Location & Parking panel to Crew tab UI (see `docs/specs/mockups/crew-parking-setup.html`) |
 | DynamoDB section schema | Add 3 new optional attributes |
 
@@ -556,7 +556,7 @@ No GSI changes required. These are attributes on existing Section items.
 | `crewParkingCoords`, `crewParkingType`, `crewLocationNotes` fields | Cut-off times, pacer pickup, weigh-in data |
 | Directions link + QR per crew station | Embedded map preview in crew sheet |
 | Segment bridge (non-crew stations collapsed) | Live ETA recalculation |
-| Drive time/distance via Directions API | Runner GPS tracking |
+| Drive time/distance via Mapbox Directions API | Runner GPS tracking |
 | Responsive layout down to 320px | Crew-only native app view |
 | High-contrast print stylesheet | PDF generation server-side |
 | Parking type badge in station header | Calendar event generation (PRD-010 §10.2) |
