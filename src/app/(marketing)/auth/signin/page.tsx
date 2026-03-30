@@ -141,7 +141,7 @@ export default function SignInPage() {
             color: "rgba(255,255,255,0.55)",
             marginBottom: 28,
           }}>
-            Plan your race. Pack your bags. Race ready.
+            Start your first 100-mile plan and I&apos;ll help if you get stuck.
           </p>
 
           <form
@@ -177,7 +177,7 @@ export default function SignInPage() {
           </form>
 
           <p style={{ marginTop: 20, fontSize: 13, color: "rgba(255,255,255,0.35)" }}>
-            Free · No credit card required
+            Free · No credit card required · Founder help available
           </p>
           <div style={{ marginTop: 16 }}>
             <GuestEntryLink />

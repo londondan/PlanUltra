@@ -135,7 +135,7 @@ export default async function HomePage() {
         {/* Hero content */}
         <div style={{ position: "relative", zIndex: 10, textAlign: "center", padding: "80px 24px 60px", maxWidth: 760 }}>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--sky)", marginBottom: 16, opacity: 0.9 }}>
-            Ultra marathon race planning
+            First-time 100-mile race planning
           </div>
           <h1 style={{
             fontFamily: "var(--font-dm-sans, system-ui)",
@@ -146,10 +146,10 @@ export default async function HomePage() {
             lineHeight: 1.08,
             marginBottom: 24,
           }}>
-            Because the miles<br />are <em style={{ fontStyle: "normal", color: "var(--sky)" }}>hard</em> enough
+            Build the race-day plan<br />your <em style={{ fontStyle: "normal", color: "var(--sky)" }}>crew</em> can actually use
           </h1>
           <p style={{ fontSize: "clamp(15px, 2vw, 18px)", color: "rgba(255,255,255,0.75)", maxWidth: 580, margin: "0 auto 36px", lineHeight: 1.65 }}>
-            {"You've done the hard training. Now let's make sure your gear is ready for every mile. PlanUltra is a free tool built by an ultra runner — no subscription, no account required to explore."}
+            {"Training gets you to the start line. PlanUltra helps first-time 100-mile runners turn aid stations, pacing, weather, and crew logistics into one usable race-day plan. Free to use, with founder help available if you want it."}
           </p>
           <Link
             href="/auth/signin"
@@ -166,10 +166,10 @@ export default async function HomePage() {
               letterSpacing: "-0.01em",
             }}
           >
-            Get Started
+            Start Your Plan
           </Link>
           <div style={{ marginTop: 14, fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
-            Free · No credit card required
+            Free · No credit card required · Founder help available
           </div>
           <div style={{ marginTop: 16 }}>
             <GuestEntryLink />
@@ -201,7 +201,7 @@ export default async function HomePage() {
             letterSpacing: "-0.02em",
             marginBottom: 56,
           }}>
-            From the start line to the belt buckle
+            From race-week chaos to a usable plan
           </h2>
         </div>
 
@@ -210,10 +210,10 @@ export default async function HomePage() {
           <div>
             <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "var(--deep-ridge)", color: "white", borderRadius: "50%", fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 14, fontWeight: 800, marginBottom: 16 }}>1</div>
             <h3 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(22px, 2.8vw, 30px)", fontWeight: 800, color: "var(--midnight)", letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>
-              Upload your GPX,<br />{"we'll handle the rest"}
+              Start with your race file,<br />then stop juggling tabs
             </h3>
             <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 20 }}>
-              Drop in your race file and PlanUltra instantly maps every aid station, calculates the elevation profile, and sets up your section boundaries. Your full course, laid out in seconds.
+              Upload a GPX or choose a library race and PlanUltra lays out the course, aid stations, and section structure in one place. No more bouncing between race PDFs, spreadsheets, and screenshots.
             </p>
             <div style={{ fontSize: 13, color: "var(--ridge-blue)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
               → Supports any standard GPX file
@@ -227,10 +227,10 @@ export default async function HomePage() {
           <div>
             <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "var(--deep-ridge)", color: "white", borderRadius: "50%", fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 14, fontWeight: 800, marginBottom: 16 }}>2</div>
             <h3 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(22px, 2.8vw, 30px)", fontWeight: 800, color: "var(--midnight)", letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>
-              Plan every segment,<br />guided by conditions
+              Know what happens<br />between aid stations
             </h3>
             <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 20 }}>
-              Work through each leg of the race knowing what to expect. The app surfaces weather forecasts, flags sunset and sunrise times, and highlights night segments — so you can pack the right gear before you need it.
+              Work through each leg with pace anchors, weather, sunset and sunrise context, and section-level details. It is built to answer the race-week questions that hit hardest before a first hundred.
             </p>
             <div style={{ fontSize: 13, color: "var(--ridge-blue)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
               → Powered by weather forecasts + suncalc
@@ -244,10 +244,10 @@ export default async function HomePage() {
           <div>
             <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "var(--deep-ridge)", color: "white", borderRadius: "50%", fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 14, fontWeight: 800, marginBottom: 16 }}>3</div>
             <h3 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(22px, 2.8vw, 30px)", fontWeight: 800, color: "var(--midnight)", letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>
-              Pack smart,<br />one bag at a time
+              Pack with intent,<br />not guesswork
             </h3>
             <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 20 }}>
-              Your packing plan lists each drop bag once. Every bag shows the gear to collect and a pre-labelled food baggie for each leg — pack them before the race and grab-and-go at each station.
+              Use the planning view to think through drop bags, key gear changes, and what each leg demands. The goal is to arrive at race week with fewer open loops and fewer 2 AM decisions.
             </p>
             <div style={{ fontSize: 13, color: "var(--ridge-blue)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
               → Share your crew plan with a single link
@@ -264,7 +264,7 @@ export default async function HomePage() {
               Share with your crew
             </h3>
             <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 12 }}>
-              Publish a shareable crew sheet with a single click. Your crew gets a clean, printable page showing exactly when to expect you at each station, what to pull from your drop bag, and any notes you&apos;ve left them.
+              Publish a shareable crew sheet with a single click. Your crew gets a clean, printable page showing when to expect you, what to pull from your drop bag, and the notes they will actually need on race day.
             </p>
             <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 20 }}>
               Works on any phone, prints cleanly, and needs no account to view.
@@ -293,17 +293,17 @@ export default async function HomePage() {
           <div className="stat-div" />
           <div style={{ textAlign: "center" }}>
             <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 36, fontWeight: 800, color: "var(--sky)", letterSpacing: "-0.03em", lineHeight: 1 }}>Free</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 500 }}>Always</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 500 }}>For early users</div>
           </div>
           <div className="stat-div" />
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 36, fontWeight: 800, color: "var(--sky)", letterSpacing: "-0.03em", lineHeight: 1 }}>GPX</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 500 }}>Any race file</div>
+            <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 36, fontWeight: 800, color: "var(--sky)", letterSpacing: "-0.03em", lineHeight: 1 }}>Pace</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 500 }}>Weather and timing</div>
           </div>
           <div className="stat-div" />
           <div style={{ textAlign: "center" }}>
             <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 36, fontWeight: 800, color: "var(--sky)", letterSpacing: "-0.03em", lineHeight: 1 }}>Crew</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 500 }}>Shareable plans</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 500 }}>Shareable race sheet</div>
           </div>
         </div>
       </div>
@@ -329,13 +329,13 @@ export default async function HomePage() {
             <div>
               <div style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 11, color: "rgba(130,199,246,0.6)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 16 }}>Why this exists</div>
               <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.75)", lineHeight: 1.7, marginBottom: 16 }}>
-                I&apos;m a professional product manager who runs ultras in my spare time. I DNF&apos;d Grindstone 100 last year — and while gear wasn&apos;t the only reason, scrambling through my drop bags at 2 AM in the cold certainly didn&apos;t help.
+                I&apos;m a product manager who runs ultras in my spare time. I built PlanUltra after DNF&apos;ing Grindstone and realizing I didn&apos;t have a race-day logistics plan my future self or crew could actually use.
               </p>
               <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.75)", lineHeight: 1.7, marginBottom: 16 }}>
-                I built PlanUltra because I couldn&apos;t find a tool that did what I actually needed: lay out every leg of a race, match gear to conditions, and hand my crew a plan they could actually use. It&apos;s a side project, not a startup. There&apos;s no subscription, no free trial, no catch.
+                I built it because first-time 100-mile planning still feels too manual: race PDFs, GPX files, weather tabs, spreadsheets, and half-finished notes. PlanUltra pulls those pieces into one place and gives you something you can actually act on.
               </p>
               <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.7, fontStyle: "italic" }}>
-                It&apos;s also a live sample of my product work — if you&apos;re curious about that side of things, you can find me on{" "}
+                If you&apos;re preparing for your first hundred and want help setting up your plan, send me a note. If you&apos;re curious about my product background, you can also find me on{" "}
                 <a href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(130,199,246,0.8)", textDecoration: "none" }} className="about-link">LinkedIn</a>
                 {" "}or drop me an{" "}
                 <a href="mailto:danrjames@gmail.com" style={{ color: "rgba(130,199,246,0.8)", textDecoration: "none" }} className="about-link">email</a>.
@@ -358,10 +358,10 @@ export default async function HomePage() {
         <div style={{ position: "relative", zIndex: 1 }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--sky)", opacity: 0.7, marginBottom: 14 }}>Ready to plan?</div>
           <h2 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(28px, 5vw, 48px)", fontWeight: 800, color: "white", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 20 }}>
-            Your best race<br />starts here
+            Build the plan before<br />the panic starts
           </h2>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", marginBottom: 36, maxWidth: 440, marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
-            Join runners who prep smarter, pack cleaner, and show up to the start line ready for every mile.
+            If your first 100 is on the calendar, PlanUltra helps you turn your course, pace, weather, and crew logistics into one clear plan.
           </p>
           <Link
             href="/auth/signin"
@@ -377,7 +377,7 @@ export default async function HomePage() {
               boxShadow: "0 4px 20px rgba(29,124,190,0.4)",
             }}
           >
-            Get Started
+            Start Your Plan
           </Link>
           <div style={{ marginTop: 20 }}>
             <Link href="/faq" style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>
@@ -392,7 +392,7 @@ export default async function HomePage() {
         <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "-0.02em" }}>PlanUltra ▲</div>
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
           <Link href="/faq" style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>FAQ</Link>
-          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>Free forever · Built by a runner · No subscription</span>
+          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>Free · Built by a runner · Founder help available</span>
         </div>
       </footer>
 

@@ -14,6 +14,8 @@ const makeStation = (order: number, distanceKm: number): AidStation => ({
   distanceFromStart: distanceKm,
   distanceFromPrev: distanceKm,
   elevationGain: 0,
+  grossClimbM: 0,
+  grossDescentM: 0,
   hasDropBag: false,
   hasCrewAccess: false,
 })

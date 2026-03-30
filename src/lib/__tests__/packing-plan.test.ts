@@ -12,6 +12,8 @@ function makeStation(order: number, name: string): AidStation {
     distanceFromStart: order * 10,
     distanceFromPrev: 10,
     elevationGain: 0,
+    grossClimbM: 0,
+    grossDescentM: 0,
     hasDropBag: false,
     hasCrewAccess: false,
   }

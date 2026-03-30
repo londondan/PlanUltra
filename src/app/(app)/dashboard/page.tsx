@@ -7,6 +7,7 @@ import { RaceList } from '@/components/RaceList'
 import { isGuestMode, getGuestRaces } from '@/lib/guest-storage'
 import type { Race } from '@/lib/db/races'
 import posthog from 'posthog-js'
+import { getAttributionProperties } from '@/lib/marketing-attribution'
 
 export default function DashboardPage() {
   const [races, setRaces] = useState<Race[]>([])
@@ -30,8 +31,7 @@ export default function DashboardPage() {
           setLoading(false)
           if (d.races?.length === 0) {
             if (!localStorage.getItem('pu_signup_tracked')) {
-              const source = new URLSearchParams(window.location.search).get('utm_source') ?? 'direct'
-              posthog.capture('signup', { source })
+              posthog.capture('signup', getAttributionProperties())
               localStorage.setItem('pu_signup_tracked', '1')
             }
           }

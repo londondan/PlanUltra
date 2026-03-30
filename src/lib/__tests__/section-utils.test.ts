@@ -11,6 +11,8 @@ function makeStation(
   distanceFromStart: number,
   opts: Partial<AidStation> = {}
 ): AidStation {
+  const { grossClimbM = 0, grossDescentM = 0, ...rest } = opts
+
   return {
     order,
     name: `Station ${order}`,
@@ -19,9 +21,11 @@ function makeStation(
     distanceFromStart,
     distanceFromPrev: 0,
     elevationGain: 0,
+    grossClimbM,
+    grossDescentM,
     hasDropBag: false,
     hasCrewAccess: false,
-    ...opts,
+    ...rest,
   }
 }
 

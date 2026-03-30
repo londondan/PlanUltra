@@ -1,8 +1,10 @@
 # PlanUltra
 
+Free race planning for first-time 100-mile ultrarunners.
+
 https://planultrarace.com/
 
-A race planning tool for ultramarathon runners. Upload a GPX file, review your aid stations, set your pace, and get a complete race-day plan — including weather forecasts anchored to your estimated position on course.
+A founder-built ultramarathon planning tool that helps runners turn GPX files, aid stations, pacing, weather, and crew logistics into one usable race-day plan. PlanUltra is especially focused on first-time 100-mile runners who want a clearer plan before race week.
 
 ---
 
@@ -16,7 +18,7 @@ Ultra marathon planning is fragmented. Runners piece together information from r
 - **Weather forecast** — hour-by-hour forecast anchored to your race timeline, so you know what conditions to expect at each point on course
 - **Pace calculator** — enter a flat pace or target finish time and get projected arrival times at every aid station
 
-The goal is simple: turn a GPX file and a race date into a complete race-day plan.
+The goal is simple: turn a GPX file and a race date into a complete race-day plan your crew and future self can actually use.
 
 ---
 

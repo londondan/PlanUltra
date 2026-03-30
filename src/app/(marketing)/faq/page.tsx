@@ -2,9 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Ultramarathon Planning FAQ — PlanUltra",
+  title: "First-Time 100-Mile Planning FAQ — PlanUltra",
   description:
-    "Common questions about PlanUltra — the free ultramarathon planning tool. Learn how to plan pacing, drop bags, crew logistics, and weather for 100-mile races.",
+    "Common questions about PlanUltra, the free race-planning tool for first-time 100-mile ultrarunners. Learn how to plan pacing, drop bags, crew logistics, and weather.",
 };
 
 const faqSchema = {
@@ -24,7 +24,7 @@ const faqSchema = {
       name: "Who is PlanUltra for?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Any runner preparing for an ultra marathon — 50K, 50 miles, 100K, 100 miles, or similar multi-hour trail events. It's especially useful for runners tackling their first ultra who feel overwhelmed by the planning, and for experienced runners who want a faster, more structured workflow. Crew members and pacers can also use the output to understand when and where to show up on race day.",
+        text: "PlanUltra is built first for runners preparing for their first 100-mile ultramarathon, especially in the US, where race-day logistics can feel overwhelming. It is also useful for other ultra distances, but the strongest fit today is the runner who wants help turning aid stations, pacing, weather, and crew logistics into one usable plan. Crew members and pacers can also use the output to understand when and where to show up on race day.",
       },
     },
     {
@@ -48,7 +48,7 @@ const faqSchema = {
       name: "Who built PlanUltra?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "PlanUltra was built by Dan James, a product manager and ultramarathon runner based in Charlotte, NC. Dan DNF'd at Grindstone 100 and built PlanUltra because no existing tool covered the full logistics workflow he needed: aid station layout, gear matching per leg, weather across a multi-day event, and a printable crew sheet. It's a passion project, not a commercial product.",
+        text: "PlanUltra was built by Dan James, a product manager and ultramarathon runner based in Charlotte, NC. Dan DNF'd at Grindstone 100 and built PlanUltra because no existing tool covered the full logistics workflow he needed: aid station layout, pacing anchors, weather across a multi-day event, and a crew sheet his crew could actually use. It's a founder-led side project with personal onboarding help available for early users.",
       },
     },
     {
@@ -201,7 +201,7 @@ const sections = [
       },
       {
         q: "Who is PlanUltra for?",
-        a: "Any runner preparing for an ultra marathon — 50K, 50 miles, 100K, 100 miles, or similar multi-hour trail events. It's especially useful for runners tackling their first ultra who feel overwhelmed by the planning, and for experienced runners who want a faster, more structured workflow. Crew members and pacers can also use the output to understand when and where to show up on race day.",
+        a: "PlanUltra is built first for runners preparing for their first 100-mile ultramarathon, especially in the US, where race-day logistics can feel overwhelming. It is also useful for other ultra distances, but the strongest fit today is the runner who wants help turning aid stations, pacing, weather, and crew logistics into one usable plan. Crew members and pacers can also use the output to understand when and where to show up on race day.",
       },
       {
         q: "Is PlanUltra free?",
@@ -213,7 +213,7 @@ const sections = [
       },
       {
         q: "Who built PlanUltra?",
-        a: "PlanUltra was built by Dan James, a product manager and ultramarathon runner based in Charlotte, NC. Dan DNF'd at Grindstone 100 and built PlanUltra because no existing tool covered the full logistics workflow he needed: aid station layout, gear matching per leg, weather across a multi-day event, and a printable crew sheet. It's a passion project, not a commercial product.",
+        a: "PlanUltra was built by Dan James, a product manager and ultramarathon runner based in Charlotte, NC. Dan DNF'd at Grindstone 100 and built PlanUltra because no existing tool covered the full logistics workflow he needed: aid station layout, pacing anchors, weather across a multi-day event, and a crew sheet his crew could actually use. It's a founder-led side project with personal onboarding help available for early users.",
       },
     ],
   },

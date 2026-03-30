@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlanUltra — Homepage Reposition Mockup v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --midnight: #02071E;
+      --deep-ridge: #114574;
+      --ridge-blue: #1D7CBE;
+      --sky: #82C7F6;
+      --mist: #DBF1FA;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--white); color: var(--midnight); line-height: 1.6; }
+
+    /* ── ANNOTATION BAR ── */
+    .annotation-bar {
+      background: #fef9c3; border-bottom: 2px solid #f59e0b;
+      padding: 10px 48px; font-size: 13px; color: #78350f; text-align: center;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--midnight); padding: 16px 48px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .wordmark { color: var(--white); font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+    .wordmark span { color: var(--sky); }
+    nav a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 14px; margin-left: 24px; }
+    .nav-cta {
+      background: var(--ridge-blue); color: white !important;
+      padding: 8px 18px; border-radius: 6px; font-weight: 700; font-size: 14px !important;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(160deg, var(--midnight) 0%, var(--deep-ridge) 100%);
+      padding: 96px 48px 80px; text-align: center;
+    }
+    .hero-eyebrow {
+      font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--sky);
+      opacity: 0.7; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 54px); font-weight: 800; color: var(--white);
+      line-height: 1.15; max-width: 760px; margin: 0 auto 24px; letter-spacing: -0.02em;
+    }
+    .hero h1 em { font-style: normal; color: var(--sky); }
+    .hero-sub {
+      font-size: 18px; color: rgba(255,255,255,0.65);
+      max-width: 560px; margin: 0 auto 40px; line-height: 1.65;
+    }
+    .hero-ctas { display: flex; gap: 16px; justify-content: center; align-items: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--ridge-blue); color: white; padding: 14px 28px;
+      border-radius: 8px; font-weight: 700; font-size: 16px; text-decoration: none; display: inline-block;
+    }
+    .btn-secondary {
+      color: var(--sky); font-size: 15px; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 6px; opacity: 0.85;
+    }
+
+    /* ── CREW SHEET PREVIEW SECTION ── */
+    .crew-preview-wrap {
+      background: var(--white); padding: 80px 32px;
+    }
+    .crew-preview-inner {
+      max-width: 1040px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1.8fr; gap: 64px; align-items: start;
+    }
+    .preview-text { padding-top: 8px; }
+    .section-label {
+      font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--ridge-blue);
+      letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .preview-text h2 {
+      font-size: clamp(24px, 3.5vw, 36px); font-weight: 800; color: var(--midnight);
+      margin-bottom: 16px; letter-spacing: -0.02em; line-height: 1.2;
+    }
+    .preview-text p {
+      font-size: 16px; color: rgba(2,7,30,0.6); line-height: 1.7; margin-bottom: 12px;
+    }
+    .preview-text .detail-list { list-style: none; margin-top: 20px; }
+    .preview-text .detail-list li {
+      font-size: 14px; color: rgba(2,7,30,0.65); padding: 6px 0;
+      border-bottom: 1px solid rgba(130,199,246,0.2);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .preview-text .detail-list li:last-child { border-bottom: none; }
+    .check { color: var(--ridge-blue); font-size: 13px; flex-shrink: 0; }
+
+    /* ── CREW SHEET MOCKUP (PRD-022 aligned) ── */
+    .cs-mockup {
+      border: 1px solid rgba(130,199,246,0.35); border-radius: 16px;
+      overflow: hidden; box-shadow: 0 8px 40px rgba(2,7,30,0.12);
+    }
+
+    /* Header */
+    .cs-header { background: var(--midnight); padding: 20px 24px 18px; }
+    .cs-race-name { font-size: 17px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+    .cs-runner { font-size: 12px; color: rgba(130,199,246,0.7); margin-bottom: 6px; }
+    .cs-stats { font-family: 'Geist Mono', monospace; font-size: 11px; color: rgba(130,199,246,0.45); }
+
+    /* Station list */
+    .cs-list { background: white; padding: 20px; display: flex; flex-direction: column; gap: 0; }
+
+    /* Timeline */
+    .cs-timeline-row { display: flex; gap: 0; }
+    .cs-dot-col { width: 36px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+    .cs-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--sky); border: 2px solid var(--ridge-blue); margin-top: 14px; flex-shrink: 0; }
+    .cs-dot.crew { background: var(--ridge-blue); }
+    .cs-line { width: 2px; background: rgba(130,199,246,0.4); flex: 1; min-height: 12px; }
+    .cs-content { flex: 1; padding-bottom: 10px; }
+
+    /* Station card */
+    .cs-card {
+      border: 1px solid rgba(130,199,246,0.4); border-radius: 10px;
+      overflow: hidden; margin-bottom: 0;
+    }
+    .cs-card.crew-access { border-color: rgba(29,124,190,0.3); }
+
+    .cs-card-header {
+      padding: 12px 16px;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .cs-card.crew-access .cs-card-header { background: var(--mist); }
+
+    .cs-header-left { flex: 1; }
+    .cs-mile { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(17,69,116,0.55); margin-bottom: 3px; }
+    .cs-name { font-size: 15px; font-weight: 700; color: var(--midnight); margin-bottom: 4px; }
+    .cs-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 2px; }
+    .cs-badge {
+      font-family: 'Geist Mono', monospace; font-size: 10px;
+      padding: 2px 8px; border-radius: 5px;
+    }
+    .cs-badge.access-yes { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .cs-badge.access-no { background: transparent; color: rgba(17,69,116,0.45); font-style: italic; font-family: 'DM Sans', sans-serif; }
+    .cs-badge.parking {
+      background: rgba(219,241,250,0.7); color: var(--deep-ridge);
+      border: 1px solid rgba(130,199,246,0.4);
+    }
+    .cs-header-right { text-align: right; flex-shrink: 0; padding-left: 12px; }
+    .cs-eta { font-size: 15px; font-weight: 700; color: var(--ridge-blue); }
+    .cs-eta.muted { color: rgba(17,69,116,0.4); font-weight: 600; }
+
+    /* Location block */
+    .cs-location {
+      background: rgba(219,241,250,0.25); border-bottom: 1px solid rgba(130,199,246,0.25);
+      padding: 12px 16px;
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+    }
+    .cs-location-left { flex: 1; }
+    .cs-directions-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: white; border: 1px solid rgba(29,124,190,0.35); border-radius: 6px;
+      padding: 5px 12px; font-size: 11px; font-weight: 600; color: var(--ridge-blue);
+      font-family: 'DM Sans', sans-serif; margin-bottom: 8px; cursor: pointer;
+      text-decoration: none;
+    }
+    .cs-loc-notes {
+      border-left: 3px solid var(--sky); border-radius: 0 5px 5px 0;
+      background: white; padding: 7px 10px;
+    }
+    .cs-loc-notes-label {
+      font-family: 'Geist Mono', monospace; font-size: 9px;
+      text-transform: uppercase; letter-spacing: 0.08em; color: var(--ridge-blue); margin-bottom: 3px;
+    }
+    .cs-loc-notes p { font-size: 12px; color: var(--deep-ridge); line-height: 1.5; }
+    .cs-qr-block { text-align: center; flex-shrink: 0; }
+    .cs-qr-frame {
+      width: 72px; height: 72px; background: white;
+      border: 1.5px solid rgba(130,199,246,0.55); border-radius: 8px;
+      padding: 5px; display: flex; align-items: center; justify-content: center;
+    }
+    .cs-qr-caption { font-family: 'Geist Mono', monospace; font-size: 8px; color: rgba(17,69,116,0.45); margin-top: 4px; text-align: center; }
+
+    /* Segment detail */
+    .cs-segment { padding: 12px 16px; background: white; border-top: 1px solid rgba(130,199,246,0.2); }
+    .cs-seg-label {
+      font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.08em; color: rgba(17,69,116,0.5); margin-bottom: 8px;
+    }
+    .cs-gear { list-style: none; padding: 0; margin-bottom: 10px; }
+    .cs-gear li { font-size: 13px; color: var(--midnight); padding: 2px 0; }
+    .cs-gear li::before { content: "•  "; color: var(--ridge-blue); }
+    .cs-crew-note {
+      background: rgba(251,191,36,0.12); border-left: 3px solid #f59e0b;
+      padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 8px;
+    }
+    .cs-crew-note-label { font-size: 10px; font-family: 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; color: #92400e; margin-bottom: 3px; }
+    .cs-crew-note p { font-size: 13px; color: var(--midnight); }
+    .cs-quit-note {
+      background: rgba(239,68,68,0.07); border-left: 3px solid rgba(239,68,68,0.5);
+      padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 8px;
+    }
+    .cs-quit-label { font-size: 10px; font-family: 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; color: #991b1b; margin-bottom: 3px; }
+    .cs-quit-note p { font-size: 13px; color: var(--midnight); }
+
+    /* Segment bridge (PRD-022 §6) */
+    .cs-bridge {
+      border: 1px solid rgba(130,199,246,0.28); border-radius: 8px; overflow: hidden;
+      background: #f7fafd; display: flex; margin: 0;
+    }
+    .cs-bridge-drive {
+      min-width: 140px; flex-shrink: 0; border-right: 1px solid rgba(130,199,246,0.25);
+      background: rgba(219,241,250,0.3); padding: 10px 14px;
+    }
+    .cs-bridge-eyebrow { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; color: rgba(17,69,116,0.45); letter-spacing: 0.06em; margin-bottom: 4px; }
+    .cs-bridge-dest { font-size: 12px; font-weight: 700; color: var(--deep-ridge); margin-bottom: 2px; }
+    .cs-bridge-time { font-size: 15px; font-weight: 800; color: var(--ridge-blue); letter-spacing: -0.02em; }
+    .cs-bridge-dist { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(17,69,116,0.45); }
+    .cs-bridge-checkpoints { flex: 1; padding: 10px 14px; }
+    .cs-checkpoint-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+    .cs-cp-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sky); flex-shrink: 0; }
+    .cs-cp-mile {
+      font-family: 'Geist Mono', monospace; font-size: 10px; background: rgba(219,241,250,0.7);
+      border: 1px solid rgba(130,199,246,0.4); border-radius: 4px; padding: 1px 6px; color: var(--deep-ridge);
+    }
+    .cs-cp-name { font-size: 11px; font-weight: 600; color: rgba(17,69,116,0.65); flex: 1; }
+    .cs-cp-eta { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(29,124,190,0.6); }
+
+    /* Conditions chips */
+    .cs-conditions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .cs-chip {
+      font-family: 'Geist Mono', monospace; font-size: 10px; padding: 3px 10px;
+      border-radius: 20px; border: 1px solid;
+    }
+    .cs-chip.night { background: #1e2a4a; color: #a5c4f0; border-color: #3a5080; }
+    .cs-chip.sunrise { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
+    .cs-chip.cold { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+
+    /* Connector spacer between timeline rows */
+    .cs-spacer { height: 8px; }
+
+    /* ── FEATURES ── */
+    .features { background: #f8fbfe; padding: 80px 48px; }
+    .features-inner { max-width: 960px; margin: 0 auto; }
+    .features-header { margin-bottom: 48px; }
+    .features-header h2 { font-size: clamp(22px, 3vw, 32px); font-weight: 800; color: var(--midnight); margin-bottom: 8px; letter-spacing: -0.02em; }
+    .features-header p { font-size: 16px; color: rgba(2,7,30,0.55); }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .feature-card {
+      background: white; border: 1px solid rgba(130,199,246,0.3);
+      border-radius: 14px; padding: 28px;
+    }
+    .feature-num { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--ridge-blue); letter-spacing: 0.1em; margin-bottom: 8px; }
+    .feature-card h3 { font-size: 17px; font-weight: 800; color: var(--midnight); margin-bottom: 10px; line-height: 1.3; }
+    .feature-card p { font-size: 14px; color: rgba(2,7,30,0.65); line-height: 1.65; }
+    .feature-detail { margin-top: 10px; font-size: 13px; color: var(--ridge-blue); padding-top: 10px; border-top: 1px solid rgba(130,199,246,0.25); }
+
+    /* ── HOW IT WORKS ── */
+    .how { background: white; padding: 80px 48px; }
+    .how-inner { max-width: 720px; margin: 0 auto; }
+    .how h2 { font-size: clamp(22px, 3vw, 32px); font-weight: 800; color: var(--midnight); margin-bottom: 8px; letter-spacing: -0.02em; }
+    .how-sub { font-size: 16px; color: rgba(2,7,30,0.55); margin-bottom: 48px; }
+    .how-steps { display: flex; flex-direction: column; }
+    .how-step { display: flex; gap: 24px; padding: 24px 0; border-bottom: 1px solid rgba(130,199,246,0.2); }
+    .how-step:last-child { border-bottom: none; }
+    .step-num { font-family: 'Geist Mono', monospace; font-size: 22px; font-weight: 500; color: var(--sky); min-width: 36px; line-height: 1; padding-top: 3px; }
+    .step-content h3 { font-size: 17px; font-weight: 700; color: var(--midnight); margin-bottom: 4px; }
+    .step-content p { font-size: 14px; color: rgba(2,7,30,0.6); line-height: 1.6; }
+    .step-note { margin-top: 6px; font-size: 13px; color: var(--ridge-blue); font-style: italic; }
+    .how-cta { margin-top: 48px; text-align: center; }
+
+    /* ── BOTTOM CTA ── */
+    .bottom-cta { background: var(--midnight); padding: 80px 48px; text-align: center; }
+    .bottom-cta h2 { font-size: clamp(24px, 4vw, 40px); font-weight: 800; color: var(--white); max-width: 600px; margin: 0 auto 16px; letter-spacing: -0.02em; }
+    .bottom-cta p { font-size: 16px; color: rgba(255,255,255,0.55); max-width: 440px; margin: 0 auto 36px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--midnight); border-top: 1px solid rgba(130,199,246,0.1);
+      padding: 24px 48px; display: flex; justify-content: space-between; align-items: center;
+    }
+    footer p { font-size: 12px; color: rgba(255,255,255,0.35); font-family: 'Geist Mono', monospace; }
+
+    /* QR SVG placeholder */
+    .qr-svg { display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="annotation-bar">
+    <strong>MOCKUP v2 — Homepage Reposition · PRD-022 aligned</strong> · Crew sheet as hero artifact · Segment bridge, drive times, QR per station, parking badges · For review and requirements discussion
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="wordmark">Plan<span>Ultra</span></div>
+    <div>
+      <a href="#">See an example ↗</a>
+      <a href="#" class="nav-cta">Build a crew plan</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">Race day crew planning</div>
+    <h1>Give your crew <em>one link.</em><br>Everything they need is in it.</h1>
+    <p class="hero-sub">
+      PlanUltra builds a shareable crew sheet your team can open on their phone, print as backup, and navigate from at every aid station — no app, no account, works without cell signal.
+    </p>
+    <div class="hero-ctas">
+      <a href="#" class="btn-primary">Build your crew plan — it's free</a>
+      <a href="#" class="btn-secondary">See a real crew sheet ↗</a>
+    </div>
+  </section>
+
+  <!-- CREW SHEET PREVIEW -->
+  <section class="crew-preview-wrap">
+    <div class="crew-preview-inner">
+
+      <!-- Left: text -->
+      <div class="preview-text">
+        <div class="section-label">The crew sheet</div>
+        <h2>This is what your crew gets.</h2>
+        <p>One URL. Open it on any phone. Print it as backup. Navigate directly from it — even without signal.</p>
+        <ul class="detail-list">
+          <li><span class="check">✓</span> Aid station locations with Google Maps QR codes</li>
+          <li><span class="check">✓</span> Drive time between each crew stop</li>
+          <li><span class="check">✓</span> Parking notes and access directions</li>
+          <li><span class="check">✓</span> Exactly what to have ready at each station</li>
+          <li><span class="check">✓</span> Weather, sunrise, and sunset for race day</li>
+          <li><span class="check">✓</span> Intermediate checkpoints so they know where you are</li>
+          <li><span class="check">✓</span> Prints cleanly to A4</li>
+        </ul>
+      </div>
+
+      <!-- Right: crew sheet mockup -->
+      <div class="cs-mockup">
+
+        <!-- Sheet header -->
+        <div class="cs-header">
+          <div class="cs-race-name">2025 Hellbender 100 — Alternate Route</div>
+          <div class="cs-runner">Crew sheet for Daniel James · Friday, May 15</div>
+          <div class="cs-stats">8 crew stations · ~30h target · Est. finish 11:00 AM Sat</div>
+        </div>
+
+        <!-- Station list -->
+        <div class="cs-list">
+
+          <!-- ── STATION 1: Start/Finish — crew access ── -->
+          <div class="cs-timeline-row">
+            <div class="cs-dot-col">
+              <div class="cs-dot crew"></div>
+              <div class="cs-line"></div>
+            </div>
+            <div class="cs-content" style="padding-left: 12px;">
+              <div class="cs-card crew-access">
+                <!-- Header -->
+                <div class="cs-card-header">
+                  <div class="cs-header-left">
+                    <div class="cs-mile">MILE 0.0</div>
+                    <div class="cs-name">Start / Finish — Race HQ</div>
+                    <div class="cs-badges">
+                      <span class="cs-badge access-yes">✓ Crew access</span>
+                      <span class="cs-badge parking">🅿 Parking lot</span>
+                    </div>
+                  </div>
+                  <div class="cs-header-right">
+                    <div class="cs-eta">5:00 AM</div>
+                  </div>
+                </div>
+                <!-- Location block -->
+                <div class="cs-location">
+                  <div class="cs-location-left">
+                    <a class="cs-directions-btn">📍 Directions to crew parking</a>
+                    <div class="cs-loc-notes">
+                      <div class="cs-loc-notes-label">Location notes</div>
+                      <p>Main parking lot off Blue Ridge Parkway milepost 347.6. Walk 200 yards south on the trail to race HQ — follow the orange flags.</p>
+                    </div>
+                  </div>
+                  <div class="cs-qr-block">
+                    <div class="cs-qr-frame">
+                      <!-- QR placeholder SVG (represents real QR linking to Google Maps) -->
+                      <svg class="qr-svg" width="58" height="58" viewBox="0 0 58 58" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="58" height="58" fill="white"/>
+                        <!-- Position detection patterns -->
+                        <rect x="2" y="2" width="18" height="18" rx="2" fill="#114574"/>
+                        <rect x="4" y="4" width="14" height="14" rx="1" fill="white"/>
+                        <rect x="6" y="6" width="10" height="10" rx="1" fill="#114574"/>
+                        <rect x="38" y="2" width="18" height="18" rx="2" fill="#114574"/>
+                        <rect x="40" y="4" width="14" height="14" rx="1" fill="white"/>
+                        <rect x="42" y="6" width="10" height="10" rx="1" fill="#114574"/>
+                        <rect x="2" y="38" width="18" height="18" rx="2" fill="#114574"/>
+                        <rect x="4" y="40" width="14" height="14" rx="1" fill="white"/>
+                        <rect x="6" y="42" width="10" height="10" rx="1" fill="#114574"/>
+                        <!-- Data modules (simplified) -->
+                        <rect x="22" y="2" width="4" height="4" fill="#114574"/>
+                        <rect x="28" y="2" width="4" height="4" fill="#114574"/>
+                        <rect x="34" y="2" width="2" height="4" fill="#114574"/>
+                        <rect x="22" y="8" width="2" height="4" fill="#114574"/>
+                        <rect x="26" y="6" width="4" height="6" fill="#114574"/>
+                        <rect x="32" y="8" width="4" height="4" fill="#114574"/>
+                        <rect x="22" y="14" width="6" height="4" fill="#114574"/>
+                        <rect x="30" y="14" width="8" height="4" fill="#114574"/>
+                        <rect x="2" y="22" width="4" height="4" fill="#114574"/>
+                        <rect x="8" y="22" width="6" height="2" fill="#114574"/>
+                        <rect x="16" y="20" width="4" height="6" fill="#114574"/>
+                        <rect x="22" y="22" width="4" height="4" fill="#114574"/>
+                        <rect x="28" y="20" width="6" height="4" fill="#114574"/>
+                        <rect x="36" y="22" width="4" height="6" fill="#114574"/>
+                        <rect x="42" y="20" width="6" height="4" fill="#114574"/>
+                        <rect x="50" y="22" width="6" height="6" fill="#114574"/>
+                        <rect x="2" y="28" width="6" height="4" fill="#114574"/>
+                        <rect x="10" y="28" width="4" height="6" fill="#114574"/>
+                        <rect x="16" y="28" width="4" height="4" fill="#114574"/>
+                        <rect x="22" y="28" width="6" height="6" fill="#114574"/>
+                        <rect x="30" y="26" width="4" height="8" fill="#114574"/>
+                        <rect x="36" y="28" width="8" height="4" fill="#114574"/>
+                        <rect x="46" y="26" width="4" height="6" fill="#114574"/>
+                        <rect x="52" y="28" width="4" height="4" fill="#114574"/>
+                        <rect x="2" y="34" width="8" height="4" fill="#114574"/>
+                        <rect x="12" y="34" width="6" height="4" fill="#114574"/>
+                        <rect x="22" y="34" width="4" height="4" fill="#114574"/>
+                        <rect x="28" y="34" width="8" height="6" fill="#114574"/>
+                        <rect x="38" y="34" width="4" height="4" fill="#114574"/>
+                        <rect x="44" y="34" width="4" height="4" fill="#114574"/>
+                        <rect x="50" y="34" width="6" height="4" fill="#114574"/>
+                        <rect x="22" y="40" width="6" height="4" fill="#114574"/>
+                        <rect x="30" y="42" width="4" height="6" fill="#114574"/>
+                        <rect x="36" y="40" width="8" height="4" fill="#114574"/>
+                        <rect x="46" y="40" width="4" height="8" fill="#114574"/>
+                        <rect x="52" y="42" width="4" height="4" fill="#114574"/>
+                        <rect x="22" y="46" width="4" height="6" fill="#114574"/>
+                        <rect x="28" y="48" width="8" height="6" fill="#114574"/>
+                        <rect x="38" y="46" width="4" height="10" fill="#114574"/>
+                        <rect x="44" y="50" width="10" height="6" fill="#114574"/>
+                      </svg>
+                    </div>
+                    <div class="cs-qr-caption">Scan for<br>directions</div>
+                  </div>
+                </div>
+                <!-- Segment detail -->
+                <div class="cs-segment">
+                  <div class="cs-seg-label">Next segment: Start → Kitsuma Aid 9</div>
+                  <ul class="cs-gear">
+                    <li>Headlamp (check batteries)</li>
+                    <li>Poles</li>
+                    <li>Warm layer</li>
+                  </ul>
+                  <div class="cs-crew-note">
+                    <div class="cs-crew-note-label">Crew note</div>
+                    <p>First 8 miles are entirely in the dark — fresh batteries in the headlamp before I leave.</p>
+                  </div>
+                  <div class="cs-conditions">
+                    <span class="cs-chip night">🌙 Night start</span>
+                    <span class="cs-chip cold">🌡 38°F at start</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── BRIDGE: Start → Big Mountain (non-crew stations) ── -->
+          <div class="cs-timeline-row" style="margin: 4px 0;">
+            <div class="cs-dot-col">
+              <div class="cs-line" style="flex:none; height: 100%;"></div>
+            </div>
+            <div class="cs-content" style="padding-left: 12px; padding-bottom: 4px;">
+              <div class="cs-bridge">
+                <div class="cs-bridge-drive">
+                  <div class="cs-bridge-eyebrow">🚗 Drive to</div>
+                  <div class="cs-bridge-dest">Big Mountain</div>
+                  <div class="cs-bridge-time">1h 12m</div>
+                  <div class="cs-bridge-dist">48 mi</div>
+                </div>
+                <div class="cs-bridge-checkpoints">
+                  <div class="cs-bridge-eyebrow">Runner checkpoints</div>
+                  <div class="cs-checkpoint-row">
+                    <div class="cs-cp-dot"></div>
+                    <span class="cs-cp-mile">MI 7.9</span>
+                    <span class="cs-cp-name">Kitsuma Aid 1 & 9</span>
+                    <span class="cs-cp-eta">7:22 AM</span>
+                  </div>
+                  <div class="cs-checkpoint-row">
+                    <div class="cs-cp-dot"></div>
+                    <span class="cs-cp-mile">MI 23.4</span>
+                    <span class="cs-cp-name">Cat Gap Aid</span>
+                    <span class="cs-cp-eta">11:05 AM</span>
+                  </div>
+                  <div class="cs-checkpoint-row">
+                    <div class="cs-cp-dot"></div>
+                    <span class="cs-cp-mile">MI 35.1</span>
+                    <span class="cs-cp-name">Chestnut Knob</span>
+                    <span class="cs-cp-eta">1:48 PM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── STATION 2: Big Mountain — crew access ── -->
+          <div class="cs-timeline-row">
+            <div class="cs-dot-col">
+              <div class="cs-dot crew"></div>
+              <div class="cs-line"></div>
+            </div>
+            <div class="cs-content" style="padding-left: 12px;">
+              <div class="cs-card crew-access">
+                <div class="cs-card-header">
+                  <div class="cs-header-left">
+                    <div class="cs-mile">MILE 43.6</div>
+                    <div class="cs-name">Big Mountain Aid Station</div>
+                    <div class="cs-badges">
+                      <span class="cs-badge access-yes">✓ Crew access</span>
+                      <span class="cs-badge parking">🛣 Side of road</span>
+                    </div>
+                  </div>
+                  <div class="cs-header-right">
+                    <div class="cs-eta">3:07 PM</div>
+                  </div>
+                </div>
+                <!-- Location block -->
+                <div class="cs-location">
+                  <div class="cs-location-left">
+                    <a class="cs-directions-btn">📍 Directions to crew parking</a>
+                    <div class="cs-loc-notes">
+                      <div class="cs-loc-notes-label">Location notes</div>
+                      <p>Pull off on the right side of Forest Road 477, just past the cattle gate. Space for about 6 cars. Walk 100 yards down the marked trail to the aid tent.</p>
+                    </div>
+                  </div>
+                  <div class="cs-qr-block">
+                    <div class="cs-qr-frame">
+                      <svg class="qr-svg" width="58" height="58" viewBox="0 0 58 58" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="58" height="58" fill="white"/>
+                        <rect x="2" y="2" width="18" height="18" rx="2" fill="#114574"/>
+                        <rect x="4" y="4" width="14" height="14" rx="1" fill="white"/>
+                        <rect x="6" y="6" width="10" height="10" rx="1" fill="#114574"/>
+                        <rect x="38" y="2" width="18" height="18" rx="2" fill="#114574"/>
+                        <rect x="40" y="4" width="14" height="14" rx="1" fill="white"/>
+                        <rect x="42" y="6" width="10" height="10" rx="1" fill="#114574"/>
+                        <rect x="2" y="38" width="18" height="18" rx="2" fill="#114574"/>
+                        <rect x="4" y="40" width="14" height="14" rx="1" fill="white"/>
+                        <rect x="6" y="42" width="10" height="10" rx="1" fill="#114574"/>
+                        <rect x="22" y="4" width="6" height="4" fill="#114574"/>
+                        <rect x="30" y="2" width="4" height="6" fill="#114574"/>
+                        <rect x="22" y="10" width="4" height="6" fill="#114574"/>
+                        <rect x="28" y="12" width="8" height="4" fill="#114574"/>
+                        <rect x="22" y="18" width="8" height="4" fill="#114574"/>
+                        <rect x="32" y="16" width="4" height="6" fill="#114574"/>
+                        <rect x="4" y="22" width="6" height="4" fill="#114574"/>
+                        <rect x="12" y="22" width="4" height="6" fill="#114574"/>
+                        <rect x="18" y="22" width="4" height="4" fill="#114574"/>
+                        <rect x="24" y="22" width="6" height="6" fill="#114574"/>
+                        <rect x="32" y="22" width="4" height="4" fill="#114574"/>
+                        <rect x="38" y="20" width="6" height="6" fill="#114574"/>
+                        <rect x="46" y="22" width="8" height="4" fill="#114574"/>
+                        <rect x="4" y="30" width="4" height="6" fill="#114574"/>
+                        <rect x="10" y="28" width="8" height="4" fill="#114574"/>
+                        <rect x="20" y="28" width="4" height="8" fill="#114574"/>
+                        <rect x="26" y="30" width="6" height="4" fill="#114574"/>
+                        <rect x="34" y="28" width="4" height="6" fill="#114574"/>
+                        <rect x="40" y="30" width="8" height="4" fill="#114574"/>
+                        <rect x="50" y="28" width="6" height="6" fill="#114574"/>
+                        <rect x="4" y="36" width="8" height="4" fill="#114574"/>
+                        <rect x="14" y="36" width="4" height="4" fill="#114574"/>
+                        <rect x="22" y="36" width="6" height="4" fill="#114574"/>
+                        <rect x="30" y="36" width="4" height="6" fill="#114574"/>
+                        <rect x="36" y="36" width="6" height="4" fill="#114574"/>
+                        <rect x="44" y="36" width="4" height="4" fill="#114574"/>
+                        <rect x="50" y="36" width="6" height="4" fill="#114574"/>
+                        <rect x="24" y="42" width="4" height="6" fill="#114574"/>
+                        <rect x="30" y="44" width="8" height="4" fill="#114574"/>
+                        <rect x="40" y="42" width="4" height="8" fill="#114574"/>
+                        <rect x="46" y="44" width="8" height="4" fill="#114574"/>
+                        <rect x="24" y="50" width="8" height="6" fill="#114574"/>
+                        <rect x="34" y="52" width="4" height="4" fill="#114574"/>
+                        <rect x="40" y="52" width="4" height="4" fill="#114574"/>
+                        <rect x="46" y="50" width="6" height="6" fill="#114574"/>
+                      </svg>
+                    </div>
+                    <div class="cs-qr-caption">Scan for<br>directions</div>
+                  </div>
+                </div>
+                <!-- Segment detail -->
+                <div class="cs-segment">
+                  <div class="cs-seg-label">Next segment: Big Mountain → Pole Line Pass</div>
+                  <ul class="cs-gear">
+                    <li>Poles (if not already running with them)</li>
+                    <li>Refill both soft flasks</li>
+                    <li>Fresh socks if requested</li>
+                  </ul>
+                  <div class="cs-crew-note">
+                    <div class="cs-crew-note-label">Crew note</div>
+                    <p>Sun sets at 8:10 PM — I'll need the headlamp before the next crew stop. Forecast: 38°F by midnight, have the warm layer ready.</p>
+                  </div>
+                  <div class="cs-quit-note">
+                    <div class="cs-quit-label">If I say I want to quit</div>
+                    <p>Remind me why I signed up. Sit me down with food for 10 minutes before we even talk about it. Don't let me DNF before mile 60.</p>
+                  </div>
+                  <div class="cs-conditions">
+                    <span class="cs-chip sunrise">🌅 Sunset 8:10 PM</span>
+                    <span class="cs-chip cold">🌡 38°F overnight</span>
+                    <span class="cs-chip night">🌙 Night section</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── BRIDGE: Big Mountain → Pole Line Pass ── -->
+          <div class="cs-timeline-row" style="margin: 4px 0;">
+            <div class="cs-dot-col">
+              <div class="cs-line" style="flex:none; height: 100%;"></div>
+            </div>
+            <div class="cs-content" style="padding-left: 12px; padding-bottom: 4px;">
+              <div class="cs-bridge">
+                <div class="cs-bridge-drive">
+                  <div class="cs-bridge-eyebrow">🚗 Drive to</div>
+                  <div class="cs-bridge-dest">Pole Line Pass</div>
+                  <div class="cs-bridge-time">34 min</div>
+                  <div class="cs-bridge-dist">22 mi</div>
+                </div>
+                <div class="cs-bridge-checkpoints">
+                  <div class="cs-bridge-eyebrow">Runner checkpoints</div>
+                  <div class="cs-checkpoint-row">
+                    <div class="cs-cp-dot"></div>
+                    <span class="cs-cp-mile">MI 52.1</span>
+                    <span class="cs-cp-name">Upper Creek</span>
+                    <span class="cs-cp-eta">6:44 PM</span>
+                  </div>
+                  <div class="cs-checkpoint-row">
+                    <div class="cs-cp-dot"></div>
+                    <span class="cs-cp-mile">MI 58.3</span>
+                    <span class="cs-cp-name">Greenlee Ford</span>
+                    <span class="cs-cp-eta">9:12 PM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fade out indicator -->
+          <div style="text-align:center; padding: 16px 0 4px; font-family: 'Geist Mono', monospace; font-size: 11px; color: rgba(17,69,116,0.4); letter-spacing: 0.06em;">
+            + 6 more crew stations · Generated by PlanUltra
+          </div>
+
+        </div><!-- /cs-list -->
+      </div><!-- /cs-mockup -->
+
+    </div><!-- /crew-preview-inner -->
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="features-inner">
+      <div class="features-header">
+        <h2>What's in the crew sheet</h2>
+        <p>Built by the runner. Everything the crew needs.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-num">01</div>
+          <h3>Navigate to every aid station — even without signal</h3>
+          <p>Each crew-accessible station includes a Google Maps link and a QR code for offline directions. Remote trailheads, forest roads, unmarked pull-offs — your crew can find them at 3am.</p>
+          <div class="feature-detail">QR code opens Google Maps even without cell service</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">02</div>
+          <h3>Drive time between every crew stop</h3>
+          <p>The sheet tells your crew exactly how long it takes to drive to the next station, so they know whether to leave immediately or whether they have time to rest. No more guessing.</p>
+          <div class="feature-detail">Includes intermediate checkpoints so they can track your progress</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">03</div>
+          <h3>Exactly what to have ready — no questions</h3>
+          <p>Drop bag items, gear, food, note for what to do if you're talking yourself out of the race at mile 70. It's all in the plan. They read it before the race and execute it on the day.</p>
+          <div class="feature-detail">Includes an "if I say I want to quit" note</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">04</div>
+          <h3>Weather, sunrise, and sunset — already there</h3>
+          <p>Your crew knows when to expect you to need a headlamp, what temperature to dress for, and when the sun comes up. PlanUltra pulls conditions for your race date so your crew can prepare, not react.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how">
+    <div class="how-inner">
+      <h2>How it works</h2>
+      <p class="how-sub">Built by the runner. Used by the crew.</p>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h3>Runner sets up the race</h3>
+            <p>Enter your race, aid stations, and cutoff times. PlanUltra maps out the course and pulls weather and light conditions for race day.</p>
+            <div class="step-note">Takes about 20 minutes</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h3>Add crew locations and notes</h3>
+            <p>Drop a pin for each crew-accessible station. Add parking notes, what you'll need at each stop, and anything else your crew should know — including what to do if you want to bail at mile 70.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h3>Share one link with your crew</h3>
+            <p>Your crew gets a single URL. It works on any phone, prints cleanly, and has everything — directions, drive times, gear lists, conditions — no app, no account needed.</p>
+            <div class="step-note">As a bonus, you've also built yourself a solid race plan</div>
+          </div>
+        </div>
+      </div>
+      <div class="how-cta">
+        <a href="#" class="btn-primary">Build your crew plan — it's free</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="bottom-cta">
+    <h2>Your crew is giving up their weekend for you.</h2>
+    <p>Give them everything they need so they can focus on being there for you.</p>
+    <a href="#" class="btn-primary">Build your crew plan</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="wordmark">Plan<span style="color:var(--sky)">Ultra</span></div>
+    <p>Free forever · Built by a runner · No subscription</p>
+  </footer>
+
+</body>
+</html>

@@ -13,6 +13,8 @@ import { guessTimezoneFromCoords } from '@/lib/timezone'
 import { TimezoneSelect } from '@/components/ui/timezone-select'
 import { isGuestMode, getGuestId, upsertGuestRace, saveGuestAidStations } from '@/lib/guest-storage'
 import type { Race } from '@/lib/db/races'
+import posthog from 'posthog-js'
+import { getAttributionProperties } from '@/lib/marketing-attribution'
 
 interface GPXPreview {
   trackPoints: number
@@ -159,6 +161,12 @@ export default function NewRacePage() {
       }
 
       const { race } = await res.json()
+      posthog.capture('race_created', {
+        ...getAttributionProperties(),
+        entryMethod: activeTab,
+        raceId: race.raceId,
+        isLibraryRace: activeTab === 'library',
+      })
       router.push(`/dashboard/${race.raceId}/setup`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
