@@ -29,6 +29,10 @@ export interface AidStation {
   visitNumber?: number    // 1-indexed per unique station name; defaults to 1
   isStart?: boolean
   isFinish?: boolean
+  // PRD-022: crew location data (only meaningful when hasCrewAccess === true)
+  crewParkingCoords?: { lat: number; lng: number }
+  crewParkingType?: 'parking-lot' | 'side-of-road' | 'trailhead' | 'drop-off'
+  crewLocationNotes?: string  // free text, max 500 chars
 }
 
 export interface ParsedGPX {

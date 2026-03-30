@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew Travel — Variation C: Crew-First with Collapsed Runner Segments</title>
+<style>
+  :root {
+    --midnight:   #02071E;
+    --deep-ridge: #114574;
+    --ridge-blue: #1D7CBE;
+    --sky:        #82C7F6;
+    --mist:       #DBF1FA;
+    --white:      #ffffff;
+    --green:      #16a34a;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Geist Sans','Inter',system-ui,sans-serif; background: #f0f4f8; color: var(--midnight); }
+
+  .label-bar { background: var(--midnight); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.4); }
+  .label-bar .logo { font-family: 'DM Sans','Inter',sans-serif; font-weight: 800; color: rgba(255,255,255,0.7); }
+  .variation-tag { background: rgba(130,199,246,0.15); color: var(--sky); padding: 3px 10px; border-radius: 4px; font-size: 11px; letter-spacing: 0.05em; }
+
+  .page { max-width: 800px; margin: 0 auto; background: white; min-height: 100vh; }
+
+  .crew-header { background: var(--midnight); padding: 32px 40px 28px; color: white; }
+  .crew-header .race-name { font-family: 'DM Sans','Inter',sans-serif; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; }
+  .crew-header .sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 6px; }
+  .crew-header .published { font-family: 'Courier New',monospace; font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 10px; }
+
+  .station-list { padding: 28px 32px; }
+
+  /* ── START / FINISH ── */
+  .anchor-bar { background: var(--midnight); border-radius: 8px; padding: 11px 18px; display: flex; align-items: center; justify-content: space-between; margin: 4px 0 0; }
+  .anchor-bar .aname { font-family: 'DM Sans','Inter',sans-serif; font-size: 14px; font-weight: 700; color: white; }
+  .anchor-bar .aeta { font-family: 'Courier New',monospace; font-size: 12px; color: var(--sky); }
+
+  /* ── SEGMENT BRIDGE ── */
+  /* Replaces individual non-crew rows with a single bridge block between crew stations.
+     Shows: drive info left, runner checkpoints right (in a mini sub-list), visually recessed */
+  .segment-bridge {
+    display: flex;
+    gap: 0;
+    margin: 0;
+    border-left: 2px solid rgba(130,199,246,0.25);
+    border-right: 2px solid rgba(130,199,246,0.25);
+    background: #f8fafc;
+  }
+
+  /* Left gutter: drive strip */
+  .bridge-drive {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 14px;
+    border-right: 1px solid rgba(130,199,246,0.2);
+    min-width: 160px;
+    flex-shrink: 0;
+  }
+  .bridge-drive-label {
+    font-family: 'Courier New', monospace;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(17,69,116,0.4);
+  }
+  .bridge-drive-dest {
+    font-size: 12px; font-weight: 600;
+    color: var(--deep-ridge);
+    margin: 1px 0;
+  }
+  .bridge-drive-stat {
+    font-family: 'DM Sans','Inter',sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: var(--ridge-blue);
+  }
+  .bridge-drive-mi {
+    font-family: 'Courier New',monospace;
+    font-size: 10px;
+    color: rgba(17,69,116,0.45);
+  }
+
+  /* Right: runner checkpoints */
+  .bridge-runner {
+    flex: 1;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    justify-content: center;
+  }
+  .bridge-runner-header {
+    font-family: 'Courier New',monospace;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(17,69,116,0.35);
+    margin-bottom: 4px;
+  }
+  .bridge-checkpoint {
+    display: flex; gap: 8px; align-items: center;
+    padding: 2px 0;
+  }
+  .bc-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(130,199,246,0.55);
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .bc-mile { font-family: 'Courier New',monospace; font-size: 10px; color: rgba(17,69,116,0.45); min-width: 44px; }
+  .bc-name { font-size: 11px; font-weight: 500; color: rgba(17,69,116,0.6); flex: 1; }
+  .bc-eta { font-family: 'Courier New',monospace; font-size: 10px; color: rgba(29,124,190,0.55); }
+
+  /* ── CREW STATION CARD ── */
+  .crew-card {
+    background: var(--mist);
+    border: 1.5px solid rgba(130,199,246,0.6);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 6px 0;
+  }
+  .crew-card-header { padding: 14px 18px 10px; }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .header-left { display: flex; flex-direction: column; gap: 3px; }
+  .mile-badge { font-family: 'Courier New',monospace; font-size: 10px; color: rgba(17,69,116,0.5); text-transform: uppercase; letter-spacing: 0.06em; }
+  .station-name { font-family: 'DM Sans','Inter',sans-serif; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; color: var(--midnight); }
+  .badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .crew-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #16a34a; background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.25); padding: 2px 8px; border-radius: 20px; }
+  .parking-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--deep-ridge); background: rgba(17,69,116,0.06); border: 1px solid rgba(17,69,116,0.15); padding: 2px 8px; border-radius: 20px; }
+
+  .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+  .eta-time { font-family: 'DM Sans','Inter',sans-serif; font-size: 18px; font-weight: 700; color: var(--ridge-blue); }
+  .maps-qr { display: flex; align-items: center; gap: 7px; }
+  .maps-link { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--ridge-blue); text-decoration: none; background: rgba(29,124,190,0.08); border: 1px solid rgba(29,124,190,0.25); padding: 3px 9px; border-radius: 20px; }
+  .qr-wrap { width: 42px; height: 42px; border: 1.5px solid rgba(130,199,246,0.5); border-radius: 6px; display: flex; align-items: center; justify-content: center; background: white; }
+  .qr-wrap svg { width: 34px; height: 34px; }
+
+  /* Location notes — sky left border, white-tinted bg */
+  .location-notes {
+    margin: 2px 18px 10px;
+    padding: 7px 12px;
+    background: rgba(255,255,255,0.7);
+    border-left: 3px solid var(--sky);
+    border-radius: 0 6px 6px 0;
+  }
+  .loc-label { font-family: 'Courier New',monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ridge-blue); opacity: 0.7; margin-bottom: 2px; }
+  .loc-text { font-size: 12px; color: var(--deep-ridge); line-height: 1.5; }
+
+  .card-divider { border: none; border-top: 1px solid rgba(130,199,246,0.35); margin: 0 18px; }
+  .card-body { padding: 11px 18px 15px; }
+  .seg-label { font-family: 'Courier New',monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(17,69,116,0.5); margin-bottom: 9px; }
+  .section-label { font-family: 'Courier New',monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--deep-ridge); opacity: 0.6; margin-bottom: 4px; margin-top: 10px; }
+  .gear-list { list-style: none; padding: 0; }
+  .gear-list li { font-size: 13px; color: var(--midnight); padding: 2px 0; }
+  .gear-list li::before { content: '• '; color: var(--sky); }
+  .crew-notes-block { margin-top: 8px; padding: 8px 12px; background: rgba(2,7,30,0.03); border-left: 3px solid rgba(2,7,30,0.1); border-radius: 0 6px 6px 0; font-size: 13px; color: var(--midnight); line-height: 1.55; }
+  .crew-notes-label { font-family: 'Courier New',monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(2,7,30,0.4); margin-bottom: 3px; }
+
+  .annotation { background: #fffbeb; border: 1.5px dashed #d97706; border-radius: 6px; padding: 8px 14px; font-size: 11px; color: #92400e; margin: 0 0 14px; line-height: 1.5; }
+  .annotation strong { color: #78350f; }
+
+  footer { text-align: center; padding: 20px; font-size: 11px; color: rgba(17,69,116,0.35); font-family: 'Courier New',monospace; }
+</style>
+</head>
+<body>
+
+<div class="label-bar">
+  <span class="logo">PlanUltra ▲</span>
+  <span class="variation-tag">VARIATION C — Segment Bridge</span>
+</div>
+
+<div class="page">
+  <div class="crew-header">
+    <div class="race-name">Hardrock 100</div>
+    <div class="sub">Crew sheet for Alex Mercer &nbsp;·&nbsp; July 12, 2026 &nbsp;·&nbsp; 100.5 mi</div>
+    <div class="published">Published March 29, 2026 at 9:14 AM</div>
+  </div>
+
+  <div class="station-list">
+
+    <div class="annotation">
+      <strong>Variation C concept:</strong> Non-crew stations and drive info are <em>merged into a single "segment bridge"</em> between crew cards — a two-panel block showing drive logistics on the left and the runner's intermediate checkpoints on the right. Gives the crew the full picture in a single glanceable unit, and saves the most vertical space of the three options. Single column = print-friendly.
+    </div>
+
+    <!-- START -->
+    <div class="anchor-bar">
+      <span class="aname">🏔 START — Silverton</span>
+      <span class="aeta">6:00 AM</span>
+    </div>
+
+    <!-- ─── segment bridge: Start → Ouray ─── -->
+    <div class="segment-bridge">
+      <div class="bridge-drive">
+        <span class="bridge-drive-label">Drive to</span>
+        <span class="bridge-drive-dest">Ouray</span>
+        <span class="bridge-drive-stat">42 min</span>
+        <span class="bridge-drive-mi">28 mi</span>
+      </div>
+      <div class="bridge-runner">
+        <div class="bridge-runner-header">Runner checkpoints</div>
+        <div class="bridge-checkpoint">
+          <div class="bc-dot"></div>
+          <span class="bc-mile">MI 11.7</span>
+          <span class="bc-name">Cunningham Gulch</span>
+          <span class="bc-eta">8:52a</span>
+        </div>
+        <div class="bridge-checkpoint">
+          <div class="bc-dot"></div>
+          <span class="bc-mile">MI 19.4</span>
+          <span class="bc-name">Grizzly Bear</span>
+          <span class="bc-eta">10:20a</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── CREW STATION: Ouray ─── -->
+    <div class="crew-card">
+      <div class="crew-card-header">
+        <div class="header-top">
+          <div class="header-left">
+            <span class="mile-badge">Mile 27.8</span>
+            <span class="station-name">Ouray</span>
+            <div class="badge-row">
+              <span class="crew-badge">✓ Crew</span>
+              <span class="parking-badge">🅿 Parking lot</span>
+            </div>
+          </div>
+          <div class="header-right">
+            <span class="eta-time">11:44 AM</span>
+            <div class="maps-qr">
+              <a class="maps-link" href="#">📍 Directions</a>
+              <div class="qr-wrap">
+                <svg viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="1" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                  <rect x="4" y="4" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                  <rect x="21" y="1" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                  <rect x="24" y="4" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                  <rect x="1" y="21" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                  <rect x="4" y="24" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                  <rect x="21" y="21" width="4" height="4" fill="#114574" opacity="0.6"/>
+                  <rect x="27" y="21" width="4" height="4" fill="#114574" opacity="0.6"/>
+                  <rect x="21" y="27" width="4" height="4" fill="#114574" opacity="0.6"/>
+                  <rect x="27" y="27" width="4" height="4" fill="#114574" opacity="0.6"/>
+                  <rect x="33" y="21" width="3" height="3" fill="#114574" opacity="0.6"/>
+                  <rect x="33" y="33" width="3" height="3" fill="#114574" opacity="0.6"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="location-notes">
+        <div class="loc-label">📍 Location notes</div>
+        <div class="loc-text">Park in the main lot on 6th Ave. After parking, walk 300 yards north on the trail to the aid station — look for the orange flags.</div>
+      </div>
+      <hr class="card-divider">
+      <div class="card-body">
+        <div class="seg-label">Next segment: Ouray → Engineer</div>
+        <div class="section-label">Grab from drop bag</div>
+        <ul class="gear-list">
+          <li>Trekking poles</li>
+          <li>Warm layer</li>
+        </ul>
+        <div class="crew-notes-label" style="margin-top:12px">Crew notes</div>
+        <div class="crew-notes-block">
+          Fill both soft flasks with electrolytes. Runner will be cold coming off the descent — have the warm layer ready at the tape.
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── segment bridge: Ouray → Grouse ─── -->
+    <div class="segment-bridge">
+      <div class="bridge-drive">
+        <span class="bridge-drive-label">Drive to</span>
+        <span class="bridge-drive-dest">Grouse Gulch</span>
+        <span class="bridge-drive-stat">38 min</span>
+        <span class="bridge-drive-mi">22 mi</span>
+      </div>
+      <div class="bridge-runner">
+        <div class="bridge-runner-header">Runner checkpoints</div>
+        <div class="bridge-checkpoint">
+          <div class="bc-dot"></div>
+          <span class="bc-mile">MI 36.2</span>
+          <span class="bc-name">Engineer</span>
+          <span class="bc-eta">2:05p</span>
+        </div>
+        <div class="bridge-checkpoint">
+          <div class="bc-dot"></div>
+          <span class="bc-mile">MI 42.0</span>
+          <span class="bc-name">Pole Creek</span>
+          <span class="bc-eta">4:22p</span>
+        </div>
+        <div class="bridge-checkpoint">
+          <div class="bc-dot"></div>
+          <span class="bc-mile">MI 49.1</span>
+          <span class="bc-name">Handies Trailhead</span>
+          <span class="bc-eta">5:38p</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── CREW STATION: Grouse Gulch ─── -->
+    <div class="crew-card">
+      <div class="crew-card-header">
+        <div class="header-top">
+          <div class="header-left">
+            <span class="mile-badge">Mile 56.1</span>
+            <span class="station-name">Grouse Gulch</span>
+            <div class="badge-row">
+              <span class="crew-badge">✓ Crew</span>
+              <span class="parking-badge">🛣 Side of road</span>
+            </div>
+          </div>
+          <div class="header-right">
+            <span class="eta-time">6:48 PM</span>
+            <div class="maps-qr">
+              <a class="maps-link" href="#">📍 Directions</a>
+              <div class="qr-wrap">
+                <svg viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="1" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                  <rect x="4" y="4" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                  <rect x="21" y="1" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                  <rect x="24" y="4" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                  <rect x="1" y="21" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                  <rect x="4" y="24" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                  <rect x="21" y="21" width="4" height="4" fill="#114574" opacity="0.6"/>
+                  <rect x="27" y="21" width="4" height="4" fill="#114574" opacity="0.6"/>
+                  <rect x="21" y="27" width="4" height="4" fill="#114574" opacity="0.6"/>
+                  <rect x="27" y="27" width="4" height="4" fill="#114574" opacity="0.6"/>
+                  <rect x="33" y="21" width="3" height="3" fill="#114574" opacity="0.6"/>
+                  <rect x="33" y="33" width="3" height="3" fill="#114574" opacity="0.6"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="location-notes">
+        <div class="loc-label">📍 Location notes</div>
+        <div class="loc-text">No dedicated parking. Pull off on the right shoulder of CR 4. Space is tight — arrive early and leave room for other crew vehicles.</div>
+      </div>
+      <hr class="card-divider">
+      <div class="card-body">
+        <div class="seg-label">Next segment: Grouse Gulch → Handies Peak</div>
+        <div class="section-label">Grab from drop bag</div>
+        <ul class="gear-list">
+          <li>Headlamp (check battery)</li>
+          <li>Rain jacket</li>
+        </ul>
+        <div class="crew-notes-label" style="margin-top:12px">Crew notes</div>
+        <div class="crew-notes-block">
+          Last crew stop before dark. Confirm headlamp is charged. Check in about feet.
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── segment bridge: Grouse → Finish ─── -->
+    <div class="segment-bridge">
+      <div class="bridge-drive">
+        <span class="bridge-drive-label">Drive to</span>
+        <span class="bridge-drive-dest">Silverton (Finish)</span>
+        <span class="bridge-drive-stat">55 min</span>
+        <span class="bridge-drive-mi">31 mi</span>
+      </div>
+      <div class="bridge-runner">
+        <div class="bridge-runner-header">Runner checkpoints</div>
+        <div class="bridge-checkpoint">
+          <div class="bc-dot"></div>
+          <span class="bc-mile">MI 64.3</span>
+          <span class="bc-name">Sherman</span>
+          <span class="bc-eta">10:15p</span>
+        </div>
+        <div class="bridge-checkpoint">
+          <div class="bc-dot"></div>
+          <span class="bc-mile">MI 72.2</span>
+          <span class="bc-name">Burrows Park</span>
+          <span class="bc-eta">1:40a</span>
+        </div>
+        <div class="bridge-checkpoint">
+          <div class="bc-dot"></div>
+          <span class="bc-mile">MI 91.8</span>
+          <span class="bc-name">Cunningham (return)</span>
+          <span class="bc-eta">6:10a</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINISH -->
+    <div class="anchor-bar" style="background: #0e3a1a; margin-bottom: 0;">
+      <span class="aname">🏁 FINISH — Silverton</span>
+      <span class="aeta">~8:30 AM +1</span>
+    </div>
+
+  </div>
+
+  <footer>Generated by PlanUltra &nbsp;·&nbsp; planultrarace.com</footer>
+</div>
+
+</body>
+</html>

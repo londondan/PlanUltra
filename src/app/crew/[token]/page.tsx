@@ -1,3 +1,4 @@
+import QRCode from 'qrcode'
 import { getRaceByCrewToken } from '@/lib/db/races'
 import { getAidStations } from '@/lib/db/aid-stations'
 import { getSectionPlans } from '@/lib/db/sections'
@@ -6,6 +7,7 @@ import { computeSections } from '@/lib/section-utils'
 import { parseGPX } from '@/lib/gpx-parser'
 import { fetchForecast } from '@/lib/weather-client'
 import { alignWeatherToRace, type RaceWeatherEntry } from '@/lib/weather-timeline'
+import { getDriveSegment, type DriveSegment } from '@/lib/maps'
 import { CrewSheetHeader } from '@/components/crew/CrewSheetHeader'
 import { CrewStationCard } from '@/components/crew/CrewStationCard'
 import type { Race } from '@/lib/db/races'
@@ -305,6 +307,88 @@ export default async function CrewSheetPage({
   const raceLat = race.startLat ?? null
   const raceLon = race.startLon ?? null
 
+  // Fetch drive segments between adjacent crew stations with coords
+  const crewStationsWithCoords = sortedStations.filter(
+    (s) => (s.hasCrewAccess || s.isFinish) && s.crewParkingCoords
+  )
+  const driveSegmentMap = new Map<number, DriveSegment | null>()
+  if (crewStationsWithCoords.length >= 2) {
+    const driveResults = await Promise.all(
+      crewStationsWithCoords.slice(0, -1).map((s, i) =>
+        getDriveSegment(s.crewParkingCoords!, crewStationsWithCoords[i + 1].crewParkingCoords!)
+      )
+    )
+    crewStationsWithCoords.slice(0, -1).forEach((s, i) => {
+      driveSegmentMap.set(s.order, driveResults[i])
+    })
+  }
+
+  // Generate QR SVGs for crew stations with parking coords
+  const qrSvgMap = new Map<number, string>()
+  await Promise.all(
+    sortedStations
+      .filter((s) => (s.hasCrewAccess || s.isFinish) && s.crewParkingCoords)
+      .map(async (s) => {
+        const mapsUrl = `https://maps.google.com/?q=${s.crewParkingCoords!.lat},${s.crewParkingCoords!.lng}`
+        try {
+          const svg = await QRCode.toString(mapsUrl, {
+            type: 'svg',
+            color: { dark: '#114574', light: '#ffffff' },
+            margin: 1,
+            width: 80,
+          })
+          qrSvgMap.set(s.order, svg)
+        } catch {
+          // QR generation failed — omit QR for this station
+        }
+      })
+  )
+
+  // Build render items: crew/finish stations with bridge groups between them
+  type BridgeItem = {
+    type: 'bridge'
+    nonCrewStations: AidStation[]
+    destStation: AidStation
+    driveSegment: DriveSegment | null
+  }
+  type StationItem = { type: 'station'; station: AidStation }
+  type RenderItem = StationItem | BridgeItem
+
+  const renderItems: RenderItem[] = []
+  let pendingNonCrew: AidStation[] = []
+  let prevCrewStation: AidStation | null = null
+
+  for (const station of sortedStations) {
+    const isCrewOrFinish = station.hasCrewAccess || station.isFinish
+    if (isCrewOrFinish) {
+      if (prevCrewStation !== null || pendingNonCrew.length > 0) {
+        // Emit bridge before this crew station
+        const originStation = prevCrewStation
+        const driveKey = originStation?.order ?? -1
+        const seg = driveSegmentMap.get(driveKey) ?? null
+        // Only emit bridge if there were non-crew stations between OR there's a prev crew station
+        if (pendingNonCrew.length > 0 || prevCrewStation !== null) {
+          renderItems.push({
+            type: 'bridge',
+            nonCrewStations: pendingNonCrew,
+            destStation: station,
+            driveSegment: seg,
+          })
+        }
+        pendingNonCrew = []
+      }
+      renderItems.push({ type: 'station', station })
+      prevCrewStation = station
+    } else {
+      // First station (start) is typically crew — but if not, still handle
+      if (prevCrewStation === null && renderItems.length === 0) {
+        renderItems.push({ type: 'station', station })
+      } else {
+        pendingNonCrew.push(station)
+      }
+    }
+  }
+
   const raceDate = formatDate(race.date)
   const publishedAt = race.crewPublishedAt ? formatPublishedAt(race.crewPublishedAt) : ''
   const runnerName = race.runnerName || 'your runner'
@@ -338,6 +422,7 @@ export default async function CrewSheetPage({
           body { background: white; }
           .crew-header { background: #1D7CBE !important; }
           .station-card { break-inside: avoid; page-break-inside: avoid; }
+          .segment-bridge { break-inside: avoid; page-break-inside: avoid; }
           .station-card--crew {
             background: white !important;
             border-left: 4px solid #1D7CBE !important;
@@ -345,12 +430,41 @@ export default async function CrewSheetPage({
           .condition-chip { border: 1px solid #114574 !important; background: white !important; }
           .timeline-dot-inner { background: #1D7CBE !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           a { text-decoration: none !important; color: inherit !important; }
+          /* Maps link: show URL as text on print */
+          .maps-link::after {
+            content: " — maps.google.com/?q=" attr(data-lat) "," attr(data-lng);
+            font-size: 9px;
+            color: #114574;
+            font-weight: 400;
+          }
+          .maps-link {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            color: #1D7CBE !important;
+            font-size: 10px !important;
+          }
+          /* QR frame */
+          .qr-frame { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          /* Location block */
+          .crew-location-block { background: #f0f9ff !important; border-bottom: 1px solid #82C7F6 !important; }
+          /* Bridge */
+          .bridge-drive-panel { background: #e8f4fb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .segment-bridge { border: 1px solid #82C7F6 !important; }
+          /* High contrast overrides */
+          .parking-badge { background: #e8f4fb !important; border-color: #82C7F6 !important; color: #114574 !important; }
         }
         @media (max-width: 639px) {
           .stn-hdr { flex-wrap: wrap !important; gap: 4px 8px !important; align-items: center !important; }
           .stn-name { order: 1; width: 100%; flex: none !important; font-size: 16px !important; white-space: normal !important; overflow: visible !important; margin-bottom: 2px; }
           .stn-mile { order: 2; }
           .stn-right { order: 3; margin-left: auto; }
+          /* Location block: stack on mobile */
+          .crew-location-block { flex-direction: column !important; padding: 10px 14px !important; }
+          .qr-frame { width: 72px !important; height: 72px !important; }
+          /* Bridge: stack on mobile */
+          .bridge-inner { flex-direction: column !important; }
+          .bridge-drive-panel { border-right: none !important; border-bottom: 1px solid rgba(130,199,246,0.25) !important; min-width: unset !important; }
         }
       `}</style>
 
@@ -405,9 +519,153 @@ export default async function CrewSheetPage({
               }}
             />
 
-            {sortedStations.map((station, idx) => {
+            {renderItems.map((item, idx) => {
+              const isLast = idx === renderItems.length - 1
+
+              if (item.type === 'bridge') {
+                const { nonCrewStations, destStation, driveSegment } = item
+                return (
+                  <div key={`bridge-${destStation.order}`}>
+                    <div
+                      style={{ display: 'grid', gridTemplateColumns: '44px 1fr', alignItems: 'stretch' }}
+                    >
+                      {/* Gutter — no dot, line passes through */}
+                      <div style={{ minHeight: 48 }} />
+                      {/* Bridge block */}
+                      <div
+                        className="segment-bridge"
+                        style={{
+                          display: 'flex',
+                          border: '1px solid rgba(130,199,246,0.28)',
+                          borderRadius: 8,
+                          overflow: 'hidden',
+                          background: '#f7fafd',
+                          margin: '2px 0',
+                        }}
+                      >
+                        <div
+                          className="bridge-inner"
+                          style={{ display: 'flex', flex: 1 }}
+                        >
+                          {/* Left: drive info */}
+                          <div
+                            className="bridge-drive-panel"
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              gap: 2,
+                              padding: '10px 14px',
+                              minWidth: 152,
+                              flexShrink: 0,
+                              borderRight: '1px solid rgba(130,199,246,0.25)',
+                              background: 'rgba(219,241,250,0.3)',
+                            }}
+                          >
+                            <div style={{
+                              fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+                              fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase' as const,
+                              color: 'rgba(17,69,116,0.45)', marginBottom: 1,
+                            }}>
+                              🚗 Drive to
+                            </div>
+                            <div style={{
+                              fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+                              fontSize: 12, fontWeight: 700, color: '#114574',
+                            }}>
+                              {destStation.name}
+                            </div>
+                            <div style={{
+                              fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+                              fontSize: 15, fontWeight: 800, color: '#1D7CBE',
+                              letterSpacing: '-0.02em', marginTop: 1,
+                            }}>
+                              {driveSegment ? driveSegment.durationText : '—'}
+                            </div>
+                            <div style={{
+                              fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+                              fontSize: 10, color: 'rgba(17,69,116,0.45)',
+                            }}>
+                              {driveSegment ? driveSegment.distanceText : ''}
+                            </div>
+                          </div>
+
+                          {/* Right: runner checkpoints */}
+                          <div style={{
+                            flex: 1, padding: '10px 14px',
+                            display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center',
+                          }}>
+                            <div style={{
+                              fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+                              fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase' as const,
+                              color: 'rgba(17,69,116,0.38)', marginBottom: 2,
+                            }}>
+                              Runner checkpoints
+                            </div>
+                            {nonCrewStations.length === 0 ? (
+                              <div style={{
+                                fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+                                fontSize: 9, letterSpacing: '0.05em', textTransform: 'uppercase' as const,
+                                color: 'rgba(17,69,116,0.35)', fontStyle: 'italic',
+                              }}>
+                                No intermediate checkpoints
+                              </div>
+                            ) : (
+                              nonCrewStations.map((cp) => {
+                                const cpMile = (cp.distanceFromStart * KM_TO_MI).toFixed(1)
+                                const cpArrival = arrivalMap.get(cp.order)?.estimatedArrival ?? null
+                                return (
+                                  <div key={cp.order} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <div style={{
+                                      width: 5, height: 5, borderRadius: '50%',
+                                      background: 'rgba(130,199,246,0.6)',
+                                      border: '1px solid rgba(130,199,246,0.9)',
+                                      flexShrink: 0,
+                                    }} />
+                                    <span style={{
+                                      fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+                                      fontSize: 10, color: '#02071E',
+                                      background: 'rgba(219,241,250,0.7)',
+                                      border: '1px solid rgba(130,199,246,0.4)',
+                                      borderRadius: 4, padding: '1px 6px',
+                                      whiteSpace: 'nowrap' as const, flexShrink: 0,
+                                    }}>
+                                      MI {cpMile}
+                                    </span>
+                                    <span style={{
+                                      fontFamily: 'var(--font-geist-sans), Inter, sans-serif',
+                                      fontSize: 11, fontWeight: 600,
+                                      color: 'rgba(17,69,116,0.65)', flex: 1,
+                                    }}>
+                                      {cp.name}
+                                    </span>
+                                    {cpArrival && (
+                                      <span style={{
+                                        fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+                                        fontSize: 10, color: 'rgba(29,124,190,0.6)',
+                                        whiteSpace: 'nowrap' as const,
+                                      }}>
+                                        {cpArrival.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                      </span>
+                                    )}
+                                  </div>
+                                )
+                              })
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {!isLast && (
+                      <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: '44px 1fr', height: 16 }} />
+                    )}
+                  </div>
+                )
+              }
+
+              // Station item
+              const station = item.station
               const isFinish = !!station.isFinish
-              const isLast = idx === sortedStations.length - 1
               const isCrewAccess = station.hasCrewAccess || isFinish
               const arrivalEst = arrivalMap.get(station.order)
               const arrivalTime = arrivalEst?.estimatedArrival ?? null
@@ -416,52 +674,26 @@ export default async function CrewSheetPage({
 
               const dotStyle: React.CSSProperties = isFinish
                 ? {
-                    width: 14,
-                    height: 14,
-                    borderRadius: '50%',
-                    background: '#02071E',
-                    border: '2px solid #82C7F6',
-                    boxShadow: '0 0 0 3px rgba(130,199,246,0.2)',
-                    flexShrink: 0,
+                    width: 14, height: 14, borderRadius: '50%',
+                    background: '#02071E', border: '2px solid #82C7F6',
+                    boxShadow: '0 0 0 3px rgba(130,199,246,0.2)', flexShrink: 0,
                   }
                 : isCrewAccess
                   ? {
-                      width: 14,
-                      height: 14,
-                      borderRadius: '50%',
-                      background: '#1D7CBE',
-                      border: '2px solid #1D7CBE',
-                      boxShadow: '0 0 0 3px rgba(29,124,190,0.18)',
-                      flexShrink: 0,
+                      width: 14, height: 14, borderRadius: '50%',
+                      background: '#1D7CBE', border: '2px solid #1D7CBE',
+                      boxShadow: '0 0 0 3px rgba(29,124,190,0.18)', flexShrink: 0,
                     }
                   : {
-                      width: 12,
-                      height: 12,
-                      borderRadius: '50%',
-                      background: 'white',
-                      border: '2px solid #82C7F6',
-                      flexShrink: 0,
+                      width: 12, height: 12, borderRadius: '50%',
+                      background: 'white', border: '2px solid #82C7F6', flexShrink: 0,
                     }
 
               return (
                 <div key={station.order}>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '44px 1fr',
-                      alignItems: 'flex-start',
-                    }}
-                  >
+                  <div style={{ display: 'grid', gridTemplateColumns: '44px 1fr', alignItems: 'flex-start' }}>
                     {/* Dot */}
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        paddingTop: 18,
-                        position: 'relative',
-                        zIndex: 1,
-                      }}
-                    >
+                    <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 18, position: 'relative', zIndex: 1 }}>
                       <div className="timeline-dot-inner" style={dotStyle} />
                     </div>
                     {/* Card */}
@@ -474,14 +706,11 @@ export default async function CrewSheetPage({
                       raceLon={raceLon}
                       caloriesPerHour={race.caloriesPerHour ?? null}
                       isFinish={isFinish}
+                      qrSvg={qrSvgMap.get(station.order) ?? null}
                     />
                   </div>
-                  {/* Gap between rows */}
                   {!isLast && (
-                    <div
-                      aria-hidden="true"
-                      style={{ display: 'grid', gridTemplateColumns: '44px 1fr', height: 16 }}
-                    />
+                    <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: '44px 1fr', height: 16 }} />
                   )}
                 </div>
               )

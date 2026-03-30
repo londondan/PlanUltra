@@ -21,6 +21,8 @@ import { calculateArrivalTimes, type ArrivalEstimate } from '@/lib/pace-calculat
 import { isGuestMode, getGuestRaceById, getGuestAidStations, getGuestSections } from '@/lib/guest-storage'
 import type { Race } from '@/lib/db/races'
 import type { SectionPlan } from '@/types/section'
+import posthog from 'posthog-js'
+import { getAttributionProperties } from '@/lib/marketing-attribution'
 
 interface RaceData {
   race: Race
@@ -36,8 +38,6 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
   const [trackPoints, setTrackPoints] = useState<TrackPoint[]>([])
   const [arrivalEstimates, setArrivalEstimates] = useState<ArrivalEstimate[]>([])
   const [weatherEntries, setWeatherEntries] = useState<RaceWeatherEntry[]>([])
-  const [forecastAvailable, setForecastAvailable] = useState(true)
-  const [forecastReason, setForecastReason] = useState<string>()
   const [weatherError, setWeatherError] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -130,8 +130,6 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
     fetchForecast(startLat, startLon, raceDate, endDate, race.timezone)
       .then((result) => {
         if (!result.available) {
-          setForecastAvailable(false)
-          setForecastReason(result.reason)
           return
         }
         const raceStart = new Date(`${raceDate}T${race.startTime}:00`)
@@ -142,6 +140,22 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
         setWeatherError(true)
       })
   }, [arrivalEstimates, raceData, trackPoints])
+
+  useEffect(() => {
+    if (!mounted || !raceData || isGuestMode()) return
+
+    const activationKey = `pu_activated_planner_${raceId}`
+    if (localStorage.getItem(activationKey)) return
+
+    posthog.capture('activated_planner', {
+      ...getAttributionProperties(),
+      raceId,
+      activationStep: activeTab,
+      aidStationCount: raceData.aidStations.length,
+      hasTargetFinish: Boolean(raceData.race.targetFinishMinutes),
+    })
+    localStorage.setItem(activationKey, '1')
+  }, [activeTab, mounted, raceData, raceId])
 
   if (loading) {
     return (
@@ -281,7 +295,13 @@ export default function RaceDetailPage({ params }: { params: Promise<{ raceId: s
           </TabsContent>
 
           <TabsContent value="crew" className="pt-4">
-            <CrewTab race={race} onRaceUpdate={handleRaceUpdate} isGuest={mounted && isGuestMode()} />
+            <CrewTab
+              race={race}
+              aidStations={aidStations}
+              raceId={raceId}
+              onRaceUpdate={handleRaceUpdate}
+              isGuest={mounted && isGuestMode()}
+            />
           </TabsContent>
         </Tabs>
       </div>

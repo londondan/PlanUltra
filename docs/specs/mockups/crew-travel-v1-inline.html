@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew Travel — Variation A: Inline Drive Strip</title>
+<style>
+  :root {
+    --midnight:   #02071E;
+    --deep-ridge: #114574;
+    --ridge-blue: #1D7CBE;
+    --sky:        #82C7F6;
+    --mist:       #DBF1FA;
+    --white:      #ffffff;
+    --green:      #16a34a;
+    --amber:      #d97706;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Geist Sans', 'Inter', system-ui, sans-serif;
+    background: #f0f4f8;
+    color: var(--midnight);
+  }
+
+  .label-bar {
+    background: var(--midnight);
+    padding: 10px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: rgba(255,255,255,0.4);
+  }
+  .label-bar .logo { font-family: 'DM Sans','Inter',sans-serif; font-weight: 800; color: rgba(255,255,255,0.7); }
+  .variation-tag { background: rgba(130,199,246,0.15); color: var(--sky); padding: 3px 10px; border-radius: 4px; font-size: 11px; letter-spacing: 0.05em; }
+
+  .page { max-width: 800px; margin: 0 auto; background: white; min-height: 100vh; }
+
+  /* Header */
+  .crew-header { background: var(--midnight); padding: 32px 40px 28px; color: white; }
+  .crew-header .race-name { font-family: 'DM Sans','Inter',sans-serif; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; }
+  .crew-header .sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 6px; }
+  .crew-header .published { font-family: 'Courier New', monospace; font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 10px; }
+
+  /* Station list container */
+  .station-list { padding: 28px 32px; display: flex; flex-direction: column; gap: 0; }
+
+  /* Connector line between cards */
+  .connector {
+    display: flex; align-items: stretch; gap: 0;
+    flex-direction: column;
+  }
+
+  /* ─── DRIVE STRIP (new) ─── */
+  /* Sits between two crew-accessible stations */
+  .drive-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    margin: 0 6px;
+    background: #f8f9fb;
+    border-left: 2px dashed rgba(130,199,246,0.5);
+    border-right: 2px dashed rgba(130,199,246,0.5);
+  }
+  .drive-icon { font-size: 14px; opacity: 0.7; }
+  .drive-text {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--deep-ridge);
+    opacity: 0.75;
+    flex: 1;
+  }
+  .drive-time {
+    font-family: 'DM Sans','Inter',sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ridge-blue);
+  }
+
+  /* ─── NON-CREW stations — COMPACT (new treatment) ─── */
+  /* Thin row, no card border, just a timeline dot + text */
+  .station-row-compact {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 14px;
+    margin: 0 6px;
+    border-left: 2px solid rgba(130,199,246,0.3);
+    border-right: 2px solid rgba(130,199,246,0.3);
+    position: relative;
+  }
+  .station-row-compact::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(130,199,246,0.45);
+    border: 1.5px solid rgba(130,199,246,0.7);
+  }
+  .compact-mile {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: rgba(17,69,116,0.5);
+    min-width: 52px;
+  }
+  .compact-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(17,69,116,0.65);
+    flex: 1;
+  }
+  .compact-eta {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: rgba(29,124,190,0.6);
+  }
+
+  /* ─── CREW station card ─── */
+  .station-card-crew {
+    background: var(--mist);
+    border: 1.5px solid rgba(130,199,246,0.6);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 6px 0;
+  }
+  .card-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 14px 18px 10px;
+    gap: 10px;
+  }
+  .card-header-left { display: flex; flex-direction: column; gap: 4px; }
+  .mile-badge {
+    font-family: 'Courier New', monospace;
+    font-size: 10px; font-weight: 600;
+    color: rgba(17,69,116,0.55);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .station-name {
+    font-family: 'DM Sans','Inter',sans-serif;
+    font-size: 17px; font-weight: 800;
+    color: var(--midnight);
+    letter-spacing: -0.02em;
+  }
+
+  /* Parking badge row */
+  .parking-row {
+    display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap;
+  }
+  .crew-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600;
+    color: var(--green);
+    background: rgba(22,163,74,0.08);
+    border: 1px solid rgba(22,163,74,0.25);
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .parking-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px;
+    color: var(--deep-ridge);
+    background: rgba(17,69,116,0.06);
+    border: 1px solid rgba(17,69,116,0.15);
+    padding: 2px 8px; border-radius: 20px;
+  }
+
+  .card-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .eta-time {
+    font-family: 'DM Sans','Inter',sans-serif;
+    font-size: 17px; font-weight: 700;
+    color: var(--ridge-blue);
+  }
+
+  /* Maps link + QR row */
+  .maps-row {
+    display: flex; align-items: center; gap: 10px; margin-top: 2px;
+  }
+  .maps-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600;
+    color: var(--ridge-blue);
+    text-decoration: none;
+    background: rgba(29,124,190,0.08);
+    border: 1px solid rgba(29,124,190,0.25);
+    padding: 3px 9px; border-radius: 20px;
+  }
+  .maps-link:hover { background: rgba(29,124,190,0.14); }
+
+  /* QR code placeholder */
+  .qr-wrap {
+    width: 44px; height: 44px;
+    border: 1.5px solid rgba(130,199,246,0.5);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    background: white;
+    flex-shrink: 0;
+  }
+  .qr-wrap svg { width: 36px; height: 36px; }
+
+  /* Location notes (differentiated from crew notes) */
+  .location-notes {
+    margin: 0 18px 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.65);
+    border-left: 3px solid var(--sky);
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+    color: var(--deep-ridge);
+    line-height: 1.5;
+  }
+  .location-notes-label {
+    font-family: 'Courier New', monospace;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ridge-blue); opacity: 0.7; margin-bottom: 3px;
+  }
+
+  .card-divider { border: none; border-top: 1px solid rgba(130,199,246,0.35); margin: 0 18px; }
+
+  .card-body { padding: 12px 18px 16px; }
+  .segment-label {
+    font-family: 'Courier New', monospace;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(17,69,116,0.5); margin-bottom: 10px;
+  }
+  .section-label {
+    font-family: 'Courier New', monospace;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--deep-ridge); opacity: 0.6; margin-bottom: 5px; margin-top: 12px;
+  }
+  .gear-list { list-style: none; padding: 0; }
+  .gear-list li { font-size: 13px; color: var(--midnight); padding: 2px 0; }
+  .gear-list li::before { content: '• '; color: var(--sky); }
+
+  .crew-notes-block {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: rgba(2,7,30,0.03);
+    border-left: 3px solid rgba(2,7,30,0.12);
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: var(--midnight);
+    line-height: 1.55;
+  }
+  .crew-notes-label {
+    font-family: 'Courier New', monospace;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(2,7,30,0.4); margin-bottom: 3px;
+  }
+
+  /* Start / Finish */
+  .station-card-start {
+    background: var(--midnight);
+    border-radius: 8px;
+    padding: 12px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 4px 0;
+  }
+  .station-card-start .sname { font-family: 'DM Sans','Inter',sans-serif; font-size: 14px; font-weight: 700; color: white; }
+  .station-card-start .seta { font-family: 'Courier New',monospace; font-size: 12px; color: var(--sky); }
+
+  /* annotation callout */
+  .annotation {
+    background: #fffbeb;
+    border: 1.5px dashed #d97706;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 11px;
+    color: #92400e;
+    margin: 6px 0;
+    line-height: 1.5;
+  }
+  .annotation strong { color: #78350f; }
+</style>
+</head>
+<body>
+
+<div class="label-bar">
+  <span class="logo">PlanUltra ▲</span>
+  <span class="variation-tag">VARIATION A — Inline Drive Strip</span>
+</div>
+
+<div class="page">
+  <div class="crew-header">
+    <div class="race-name">Hardrock 100</div>
+    <div class="sub">Crew sheet for Alex Mercer &nbsp;·&nbsp; July 12, 2026 &nbsp;·&nbsp; 100.5 mi</div>
+    <div class="published">Published March 29, 2026 at 9:14 AM</div>
+  </div>
+
+  <div class="station-list">
+
+    <!-- START -->
+    <div class="station-card-start">
+      <span class="sname">🏔 START — Silverton</span>
+      <span class="seta">6:00 AM</span>
+    </div>
+
+    <div class="annotation">
+      <strong>Variation A concept:</strong> Non-crew stations are collapsed to a single compact timeline row (dot + name + ETA). Drive time between crew stations appears as a strip <em>between</em> the crew cards, visually bridging the runner's journey from the crew's perspective.
+    </div>
+
+    <!-- compact non-crew stations -->
+    <div class="station-row-compact">
+      <span class="compact-mile">MI 11.7</span>
+      <span class="compact-name">Cunningham Gulch</span>
+      <span class="compact-eta">8:52 AM</span>
+    </div>
+
+    <!-- ─── CREW STATION 1 ─── -->
+    <div class="station-card-crew">
+      <div class="card-header">
+        <div class="card-header-left">
+          <span class="mile-badge">Mile 27.8</span>
+          <span class="station-name">Ouray</span>
+          <div class="parking-row">
+            <span class="crew-badge">✓ Crew</span>
+            <span class="parking-badge">🅿 Parking lot</span>
+          </div>
+        </div>
+        <div class="card-header-right">
+          <span class="eta-time">11:44 AM</span>
+          <div class="maps-row">
+            <a class="maps-link" href="#">📍 Directions</a>
+            <div class="qr-wrap">
+              <!-- Minimal QR placeholder SVG -->
+              <svg viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                <rect x="4" y="4" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                <rect x="21" y="1" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                <rect x="24" y="4" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                <rect x="1" y="21" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                <rect x="4" y="24" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                <rect x="21" y="21" width="4" height="4" fill="#114574" opacity="0.6"/>
+                <rect x="27" y="21" width="4" height="4" fill="#114574" opacity="0.6"/>
+                <rect x="21" y="27" width="4" height="4" fill="#114574" opacity="0.6"/>
+                <rect x="27" y="27" width="4" height="4" fill="#114574" opacity="0.6"/>
+                <rect x="33" y="21" width="3" height="3" fill="#114574" opacity="0.6"/>
+                <rect x="33" y="33" width="3" height="3" fill="#114574" opacity="0.6"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location notes — visually distinct from crew notes -->
+      <div class="location-notes">
+        <div class="location-notes-label">📍 Location notes</div>
+        Park in the main lot on 6th Ave. After parking, walk 300 yards north on the trail to the aid station — look for the orange flags.
+      </div>
+
+      <hr class="card-divider">
+      <div class="card-body">
+        <div class="segment-label">Next segment: Ouray → Engineer</div>
+        <div class="section-label">Grab from drop bag</div>
+        <ul class="gear-list">
+          <li>Trekking poles</li>
+          <li>Warm layer</li>
+        </ul>
+        <div class="crew-notes-label" style="margin-top:12px">Crew notes</div>
+        <div class="crew-notes-block">
+          Fill both soft flasks with electrolytes. Runner will be cold coming off the descent — have the warm layer ready at the tape.
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── DRIVE STRIP: Ouray → Grouse ─── -->
+    <div class="drive-strip">
+      <span class="drive-icon">🚗</span>
+      <span class="drive-text">Drive to next crew stop · Ouray → Grouse Gulch</span>
+      <span class="drive-time">38 min &nbsp;·&nbsp; 22 mi</span>
+    </div>
+
+    <!-- compact non-crew stations while runner is running -->
+    <div class="station-row-compact">
+      <span class="compact-mile">MI 36.2</span>
+      <span class="compact-name">Engineer</span>
+      <span class="compact-eta">2:05 PM</span>
+    </div>
+    <div class="station-row-compact">
+      <span class="compact-mile">MI 42.0</span>
+      <span class="compact-name">Ouray Pole Creek</span>
+      <span class="compact-eta">4:22 PM</span>
+    </div>
+
+    <!-- ─── CREW STATION 2 ─── -->
+    <div class="station-card-crew">
+      <div class="card-header">
+        <div class="card-header-left">
+          <span class="mile-badge">Mile 56.1</span>
+          <span class="station-name">Grouse Gulch</span>
+          <div class="parking-row">
+            <span class="crew-badge">✓ Crew</span>
+            <span class="parking-badge">🛣 Side of road</span>
+          </div>
+        </div>
+        <div class="card-header-right">
+          <span class="eta-time">6:48 PM</span>
+          <div class="maps-row">
+            <a class="maps-link" href="#">📍 Directions</a>
+            <div class="qr-wrap">
+              <svg viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                <rect x="4" y="4" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                <rect x="21" y="1" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                <rect x="24" y="4" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                <rect x="1" y="21" width="15" height="15" rx="1.5" stroke="#114574" stroke-width="1.5" fill="none"/>
+                <rect x="4" y="24" width="9" height="9" rx="0.5" fill="#114574" opacity="0.7"/>
+                <rect x="21" y="21" width="4" height="4" fill="#114574" opacity="0.6"/>
+                <rect x="27" y="21" width="4" height="4" fill="#114574" opacity="0.6"/>
+                <rect x="21" y="27" width="4" height="4" fill="#114574" opacity="0.6"/>
+                <rect x="27" y="27" width="4" height="4" fill="#114574" opacity="0.6"/>
+                <rect x="33" y="21" width="3" height="3" fill="#114574" opacity="0.6"/>
+                <rect x="33" y="33" width="3" height="3" fill="#114574" opacity="0.6"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="location-notes">
+        <div class="location-notes-label">📍 Location notes</div>
+        No dedicated parking. Pull off on the right shoulder of CR 4. Space is tight — arrive early and leave room for other crew vehicles.
+      </div>
+      <hr class="card-divider">
+      <div class="card-body">
+        <div class="segment-label">Next segment: Grouse Gulch → Handies Peak</div>
+        <div class="section-label">Grab from drop bag</div>
+        <ul class="gear-list">
+          <li>Headlamp (check battery)</li>
+          <li>Rain jacket</li>
+        </ul>
+        <div class="crew-notes-label" style="margin-top:12px">Crew notes</div>
+        <div class="crew-notes-block">
+          This is the last crew point before dark. Make sure headlamp is charged and runner has the rain jacket. Check in about feet.
+        </div>
+      </div>
+    </div>
+
+    <!-- FINISH -->
+    <div class="station-card-start" style="background: #0e3a1a; margin-top:8px">
+      <span class="sname">🏁 FINISH — Silverton</span>
+      <span class="seta">~8:30 AM +1</span>
+    </div>
+
+  </div><!-- /station-list -->
+
+  <div style="text-align:center; padding: 20px; font-size:11px; color: rgba(17,69,116,0.35); font-family: 'Courier New',monospace;">
+    Generated by PlanUltra &nbsp;·&nbsp; planultrarace.com
+  </div>
+</div>
+
+</body>
+</html>
