@@ -166,7 +166,7 @@ export default async function HomePage() {
               letterSpacing: "-0.01em",
             }}
           >
-            Start Your Plan
+            Start Your Crew Plan
           </Link>
           <div style={{ marginTop: 14, fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
             Free · No credit card required · Founder help available
@@ -377,7 +377,7 @@ export default async function HomePage() {
               boxShadow: "0 4px 20px rgba(29,124,190,0.4)",
             }}
           >
-            Start Your Plan
+            Start Your Crew Plan
           </Link>
           <div style={{ marginTop: 20 }}>
             <Link href="/faq" style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>
