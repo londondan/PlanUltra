@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { isAdmin } from '@/lib/admin'
 import { getRaceById, updateRace, deleteRace, LIBRARY_USER_ID } from '@/lib/db/races'
-import { deleteAidStations } from '@/lib/db/aid-stations'
+import { getAidStations, saveAidStations, deleteAidStations, updateAidStation } from '@/lib/db/aid-stations'
 import { deleteSectionPlans } from '@/lib/db/sections'
+import { parseGPX, extractAidStations } from '@/lib/gpx-parser'
+import type { AidStation } from '@/types/gpx'
 
 async function checkAdmin() {
   const session = await auth()
@@ -24,6 +26,8 @@ export async function PUT(
 
   const contentType = req.headers.get('content-type') ?? ''
   const updates: Record<string, unknown> = {}
+  let stationUpdates: Array<{ order: number } & Partial<AidStation>> | undefined
+  let gpxString: string | undefined
 
   if (contentType.includes('multipart/form-data')) {
     const form = await req.formData()
@@ -36,10 +40,67 @@ export async function PUT(
     }
   } else {
     const body = await req.json()
-    Object.assign(updates, body)
+    const { stationUpdates: su, gpxString: gs, ...rest } = body
+    stationUpdates = su
+    gpxString = gs
+    Object.assign(updates, rest)
   }
 
+  // Apply race-level field updates
   await updateRace(LIBRARY_USER_ID, raceId, updates as Parameters<typeof updateRace>[2])
+
+  // Apply station location updates (patch only location fields)
+  if (stationUpdates?.length) {
+    await Promise.all(
+      stationUpdates.map(({ order, crewParkingCoords, crewParkingType, crewLocationNotes }) =>
+        updateAidStation(raceId, order, { crewParkingCoords, crewParkingType, crewLocationNotes })
+      )
+    )
+  }
+
+  // GPX re-ingestion
+  if (gpxString) {
+    const existingStations = await getAidStations(raceId)
+    const { trackPoints, waypoints } = parseGPX(gpxString)
+    const newStations = extractAidStations(waypoints, trackPoints)
+
+    const normalise = (s: string) => s.trim().toLowerCase().replace(/\s+/g, ' ')
+    const existingByName = new Map(existingStations.map((s) => [normalise(s.name), s]))
+
+    const mergedStations: AidStation[] = newStations.map((s) => {
+      const match = existingByName.get(normalise(s.name))
+      if (!match) return s
+      return {
+        ...s,
+        crewParkingCoords: match.crewParkingCoords,
+        crewParkingType: match.crewParkingType,
+        crewLocationNotes: match.crewLocationNotes,
+      }
+    })
+
+    try {
+      await deleteAidStations(raceId)
+      await saveAidStations(raceId, mergedStations)
+      await updateRace(LIBRARY_USER_ID, raceId, { gpxData: gpxString })
+    } catch {
+      // Rollback: restore original stations
+      try {
+        await deleteAidStations(raceId)
+        await saveAidStations(raceId, existingStations)
+      } catch { /* best effort */ }
+      return NextResponse.json(
+        { error: 'GPX re-ingestion failed; original stations restored' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      reingested: true,
+      stationCount: mergedStations.length,
+    })
+  }
+
   return NextResponse.json({ success: true })
 }
 

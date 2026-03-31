@@ -34,9 +34,10 @@ interface LocationPanelProps {
   station: AidStation
   raceId: string
   onSave: (order: number, updates: Partial<AidStation>) => Promise<void>
+  onChange?: (updates: Partial<AidStation>) => void
 }
 
-export function LocationPanel({ station, raceId: _raceId, onSave }: LocationPanelProps) {
+export function LocationPanel({ station, raceId: _raceId, onSave, onChange }: LocationPanelProps) {
   const [coords, setCoords] = useState(station.crewParkingCoords ?? null)
   const [parkingType, setParkingType] = useState<ParkingType | null>(station.crewParkingType ?? null)
   const [notes, setNotes] = useState(station.crewLocationNotes ?? '')
@@ -88,7 +89,11 @@ export function LocationPanel({ station, raceId: _raceId, onSave }: LocationPane
       setCoords(data.coords)
       setChanging(false)
       setInputValue('')
-      await onSave(station.order, { crewParkingCoords: data.coords })
+      if (onChange) {
+        onChange({ crewParkingCoords: data.coords })
+      } else {
+        await onSave(station.order, { crewParkingCoords: data.coords })
+      }
     } catch {
       setInputError("Couldn't resolve that link right now. Try again or enter lat,lng directly.")
       return
@@ -99,14 +104,22 @@ export function LocationPanel({ station, raceId: _raceId, onSave }: LocationPane
 
   const handleParkingTypeChange = async (val: ParkingType) => {
     setParkingType(val)
-    await onSave(station.order, { crewParkingType: val })
+    if (onChange) {
+      onChange({ crewParkingType: val })
+    } else {
+      await onSave(station.order, { crewParkingType: val })
+    }
   }
 
   const handleNotesChange = (val: string) => {
     setNotes(val)
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
-      onSave(station.order, { crewLocationNotes: val })
+      if (onChange) {
+        onChange({ crewLocationNotes: val })
+      } else {
+        onSave(station.order, { crewLocationNotes: val })
+      }
     }, 600)
   }
 

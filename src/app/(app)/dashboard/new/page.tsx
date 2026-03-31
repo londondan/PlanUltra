@@ -6,6 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { parseGPX, extractAidStations } from '@/lib/gpx-parser'
@@ -28,6 +35,8 @@ export default function NewRacePage() {
   const userHasManuallySetTz = useRef(false)
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'upload' | 'library'>('library')
+
+  // Upload GPX tab state
   const [name, setName] = useState('')
   const [date, setDate] = useState('')
   const [startTime, setStartTime] = useState('06:00')
@@ -40,7 +49,14 @@ export default function NewRacePage() {
   // Library tab state
   const [libraryRaces, setLibraryRaces] = useState<Race[]>([])
   const [loadingLibrary, setLoadingLibrary] = useState(false)
-  const [selectedLibraryRaceId, setSelectedLibraryRaceId] = useState<string | null>(null)
+
+  // Library confirm dialog state
+  const [selectedLibraryRace, setSelectedLibraryRace] = useState<Race | null>(null)
+  const [dialogDate, setDialogDate] = useState('')
+  const [dialogStartTime, setDialogStartTime] = useState('06:00')
+  const [dialogTimezone, setDialogTimezone] = useState('America/Los_Angeles')
+  const [dialogSubmitting, setDialogSubmitting] = useState(false)
+  const [dialogError, setDialogError] = useState<string | null>(null)
 
   useEffect(() => setMounted(true), [])
 
@@ -70,18 +86,78 @@ export default function NewRacePage() {
   }
 
   const handleLibrarySelect = (race: Race) => {
-    setSelectedLibraryRaceId(race.raceId)
-    setName(race.name)
-    if (race.date) setDate(race.date)
-    if (race.startTime) setStartTime(race.startTime)
-    if (race.timezone) setTimezone(race.timezone)
-    setError(null)
+    setSelectedLibraryRace(race)
+    setDialogDate(race.date ?? '')
+    setDialogStartTime(race.startTime ?? '06:00')
+    setDialogTimezone(race.timezone ?? 'America/Los_Angeles')
+    setDialogError(null)
+  }
+
+  const handleLibraryConfirm = async () => {
+    if (!selectedLibraryRace) return
+    setDialogSubmitting(true)
+    setDialogError(null)
+
+    const guest = mounted && isGuestMode()
+
+    try {
+      if (guest) {
+        const raceId = crypto.randomUUID()
+        const now = new Date().toISOString()
+        const res = await fetch(`/api/library/races/${selectedLibraryRace.raceId}`)
+        if (!res.ok) throw new Error('Failed to load library race')
+        const data = await res.json()
+        upsertGuestRace({
+          ...data.race,
+          raceId,
+          userId: getGuestId(),
+          name: selectedLibraryRace.name,
+          date: dialogDate,
+          startTime: dialogStartTime,
+          timezone: dialogTimezone,
+          isLibraryRace: false,
+          createdAt: now,
+        })
+        saveGuestAidStations(raceId, data.aidStations ?? [])
+        router.push(`/dashboard/${raceId}/setup`)
+      } else {
+        const res = await fetch('/api/races/from-library', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            libraryRaceId: selectedLibraryRace.raceId,
+            date: dialogDate,
+            startTime: dialogStartTime,
+            timezone: dialogTimezone,
+          }),
+        })
+        if (!res.ok) {
+          const data = await res.json()
+          throw new Error(data.error ?? 'Failed to create race')
+        }
+        const { race } = await res.json()
+        posthog.capture('race_created', {
+          ...getAttributionProperties(),
+          entryMethod: 'library',
+          raceId: race.raceId,
+          isLibraryRace: true,
+        })
+        router.push(`/dashboard/${race.raceId}/setup`)
+      }
+    } catch (err) {
+      setDialogError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setDialogSubmitting(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name || !date || !startTime) {
       setError('Please fill in all required fields.')
+      return
+    }
+    if (!gpxPreview) {
+      setError('Please upload a GPX file.')
       return
     }
     setSubmitting(true)
@@ -93,67 +169,32 @@ export default function NewRacePage() {
       if (guest) {
         const raceId = crypto.randomUUID()
         const now = new Date().toISOString()
-
-        if (activeTab === 'library' && selectedLibraryRaceId) {
-          const res = await fetch(`/api/library/races/${selectedLibraryRaceId}`)
-          if (!res.ok) throw new Error('Failed to load library race')
-          const data = await res.json()
-          upsertGuestRace({
-            ...data.race,
-            raceId,
-            userId: getGuestId(),
-            name,
-            date,
-            startTime,
-            timezone,
-            isLibraryRace: false,
-            createdAt: now,
-          })
-          saveGuestAidStations(raceId, data.aidStations ?? [])
-          router.push(`/dashboard/${raceId}/setup`)
-        } else {
-          if (!gpxPreview) {
-            setError('Please upload a GPX file.')
-            setSubmitting(false)
-            return
-          }
-          const { trackPoints, waypoints } = parseGPX(gpxPreview.gpxString)
-          const stations = extractAidStations(waypoints, trackPoints)
-          const startLat = trackPoints[0]?.lat
-          const startLon = trackPoints[0]?.lon
-          upsertGuestRace({
-            raceId,
-            userId: getGuestId(),
-            name,
-            date,
-            startTime,
-            timezone,
-            gpxData: gpxPreview.gpxString,
-            startLat,
-            startLon,
-            createdAt: now,
-          })
-          saveGuestAidStations(raceId, stations)
-          router.push(`/dashboard/${raceId}/setup`)
-        }
+        const { trackPoints, waypoints } = parseGPX(gpxPreview.gpxString)
+        const stations = extractAidStations(waypoints, trackPoints)
+        const startLat = trackPoints[0]?.lat
+        const startLon = trackPoints[0]?.lon
+        upsertGuestRace({
+          raceId,
+          userId: getGuestId(),
+          name,
+          date,
+          startTime,
+          timezone,
+          gpxData: gpxPreview.gpxString,
+          startLat,
+          startLon,
+          createdAt: now,
+        })
+        saveGuestAidStations(raceId, stations)
+        router.push(`/dashboard/${raceId}/setup`)
         return
       }
 
-      let res: Response
-
-      if (activeTab === 'library' && selectedLibraryRaceId) {
-        res = await fetch('/api/races/from-library', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ libraryRaceId: selectedLibraryRaceId, date, startTime, timezone }),
-        })
-      } else {
-        res = await fetch('/api/races', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, date, startTime, timezone, gpx: gpxPreview?.gpxString }),
-        })
-      }
+      const res = await fetch('/api/races', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, date, startTime, timezone, gpx: gpxPreview.gpxString }),
+      })
 
       if (!res.ok) {
         const data = await res.json()
@@ -163,9 +204,9 @@ export default function NewRacePage() {
       const { race } = await res.json()
       posthog.capture('race_created', {
         ...getAttributionProperties(),
-        entryMethod: activeTab,
+        entryMethod: 'upload',
         raceId: race.raceId,
-        isLibraryRace: activeTab === 'library',
+        isLibraryRace: false,
       })
       router.push(`/dashboard/${race.raceId}/setup`)
     } catch (err) {
@@ -176,13 +217,13 @@ export default function NewRacePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Add a race</h1>
-        <p className="text-muted-foreground">Upload a GPX file or choose from our race library</p>
-      </div>
+    <>
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Add a race</h1>
+          <p className="text-muted-foreground">Upload a GPX file or choose from our race library</p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
         <Tabs defaultValue="library" onValueChange={(v) => setActiveTab(v as 'upload' | 'library')}>
           <TabsList className="w-full">
             <TabsTrigger value="library" className="flex-1">Race Library</TabsTrigger>
@@ -202,9 +243,7 @@ export default function NewRacePage() {
                   key={race.raceId}
                   type="button"
                   onClick={() => handleLibrarySelect(race)}
-                  className={`w-full text-left rounded-lg border p-4 transition-colors hover:bg-accent ${
-                    selectedLibraryRaceId === race.raceId ? 'border-primary bg-accent' : ''
-                  }`}
+                  className="w-full text-left rounded-lg border p-4 transition-colors hover:bg-accent"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium">{race.name}</span>
@@ -221,94 +260,164 @@ export default function NewRacePage() {
           </TabsContent>
 
           <TabsContent value="upload" className="space-y-4 pt-4">
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-                dragOver ? 'border-primary bg-primary/5' : 'border-border'
-              }`}
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={handleDrop}
-              onClick={() => fileRef.current?.click()}
-            >
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".gpx"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) handleFile(file)
-                }}
-              />
-              <p className="text-sm font-medium">Drop your GPX file here or click to browse</p>
-              <p className="text-xs text-muted-foreground mt-1">Supports .gpx files</p>
-            </div>
-
-            {gpxPreview && (
-              <div className="flex gap-2">
-                <Badge variant="secondary">{gpxPreview.trackPoints} track points</Badge>
-                <Badge variant="secondary">{gpxPreview.waypoints} waypoints found</Badge>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+                  dragOver ? 'border-primary bg-primary/5' : 'border-border'
+                }`}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                onClick={() => fileRef.current?.click()}
+              >
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".gpx"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) handleFile(file)
+                  }}
+                />
+                <p className="text-sm font-medium">Drop your GPX file here or click to browse</p>
+                <p className="text-xs text-muted-foreground mt-1">Supports .gpx files</p>
               </div>
-            )}
+
+              {gpxPreview && (
+                <div className="flex gap-2">
+                  <Badge variant="secondary">{gpxPreview.trackPoints} track points</Badge>
+                  <Badge variant="secondary">{gpxPreview.waypoints} waypoints found</Badge>
+                </div>
+              )}
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Race details</CardTitle>
+                  <CardDescription>Enter your race date and start time</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Race name</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g. Western States 100"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="date">Race date</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="startTime">Start time</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="startTime"
+                          type="time"
+                          value={startTime}
+                          onChange={(e) => setStartTime(e.target.value)}
+                          required
+                        />
+                        <TimezoneSelect
+                          value={timezone}
+                          onChange={(tz) => { userHasManuallySetTz.current = true; setTimezone(tz) }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {error && (
+                <p className="text-sm text-destructive">{error}</p>
+              )}
+
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? 'Creating...' : 'Create race'}
+              </Button>
+            </form>
           </TabsContent>
         </Tabs>
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Race details</CardTitle>
-            <CardDescription>Enter your race date and start time</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Race name</Label>
+      {/* Library race confirm dialog */}
+      <Dialog
+        open={selectedLibraryRace !== null}
+        onOpenChange={(open) => { if (!open && !dialogSubmitting) setSelectedLibraryRace(null) }}
+      >
+        <DialogContent style={{ maxWidth: 480 }}>
+          <DialogHeader>
+            <DialogTitle>Add this race to your dashboard?</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-1">
+            <p className="font-extrabold text-lg tracking-tight">{selectedLibraryRace?.name}</p>
+            {selectedLibraryRace?.location && (
+              <p className="text-sm text-muted-foreground">{selectedLibraryRace.location}</p>
+            )}
+            {selectedLibraryRace?.libraryDescription && (
+              <p className="text-sm mt-2">{selectedLibraryRace.libraryDescription}</p>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label>Your race date</Label>
               <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Western States 100"
-                required
+                type="date"
+                value={dialogDate}
+                onChange={(e) => setDialogDate(e.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                This is the library race date — update it if your race is on a different date.
+              </p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="date">Race date</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label>Your start time</Label>
                 <Input
-                  id="date"
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  required
+                  type="time"
+                  value={dialogStartTime}
+                  onChange={(e) => setDialogStartTime(e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="startTime">Start time</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="startTime"
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    required
-                  />
-                  <TimezoneSelect
-                    value={timezone}
-                    onChange={(tz) => { userHasManuallySetTz.current = true; setTimezone(tz) }}
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label>Your timezone</Label>
+                <TimezoneSelect value={dialogTimezone} onChange={setDialogTimezone} />
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {error && (
-          <p className="text-sm text-destructive">{error}</p>
-        )}
+          {dialogError && <p className="text-sm text-destructive">{dialogError}</p>}
 
-        <Button type="submit" className="w-full" disabled={submitting}>
-          {submitting ? 'Creating...' : 'Create race'}
-        </Button>
-      </form>
-    </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              disabled={dialogSubmitting}
+              onClick={() => setSelectedLibraryRace(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={!dialogDate || !dialogStartTime || !dialogTimezone || dialogSubmitting}
+              onClick={handleLibraryConfirm}
+            >
+              {dialogSubmitting ? 'Adding…' : 'Add to dashboard →'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 
   async function handleDrop(e: React.DragEvent) {
