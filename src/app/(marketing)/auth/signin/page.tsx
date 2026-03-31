@@ -141,7 +141,7 @@ export default function SignInPage() {
             color: "rgba(255,255,255,0.55)",
             marginBottom: 28,
           }}>
-            Start your first 100-mile plan and I&apos;ll help if you get stuck.
+            We need somewhere to save your plan between sessions — that&apos;s the only reason an account is required.
           </p>
 
           <form
@@ -177,7 +177,7 @@ export default function SignInPage() {
           </form>
 
           <p style={{ marginTop: 20, fontSize: 13, color: "rgba(255,255,255,0.35)" }}>
-            Free · No credit card required · Founder help available
+            Free forever · No subscription · No data sharing
           </p>
           <div style={{ marginTop: 16 }}>
             <GuestEntryLink />
