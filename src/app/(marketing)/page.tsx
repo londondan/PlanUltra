@@ -2,8 +2,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { NavScrollWatcher } from "./NavScrollWatcher";
-import { MapIllustration, SectionCardsIllustration, DropBagCardsIllustration, CrewSheetMockup } from "./LandingFeatures";
-import { GuestEntryLink } from "@/components/GuestEntryLink";
+import { CrewSheetDemo } from "./CrewSheetDemo";
 
 export default async function HomePage() {
   const session = await auth();
@@ -44,23 +43,31 @@ export default async function HomePage() {
             letterSpacing: "-0.03em",
           }}>PlanUltra</span>
         </Link>
-        <Link
-          href="/auth/signin"
-          style={{
-            background: "rgba(255,255,255,0.15)",
-            border: "1.5px solid rgba(255,255,255,0.4)",
-            color: "white",
-            padding: "8px 20px",
-            borderRadius: 8,
-            fontSize: 14,
-            fontWeight: 600,
-            backdropFilter: "blur(8px)",
-            textDecoration: "none",
-            transition: "all 0.2s",
-          }}
-        >
-          Sign in
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <a
+            href="https://planultrarace.com/crew/mn7jrA-wOyPOB-qk"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", textDecoration: "none" }}
+            className="nav-example-link"
+          >
+            See an example ↗
+          </a>
+          <Link
+            href="/auth/signin"
+            style={{
+              background: "var(--ridge-blue)",
+              color: "white",
+              padding: "8px 18px",
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            Build a crew plan
+          </Link>
+        </div>
       </nav>
 
       {/* ── Hero ── */}
@@ -134,45 +141,68 @@ export default async function HomePage() {
 
         {/* Hero content */}
         <div style={{ position: "relative", zIndex: 10, textAlign: "center", padding: "80px 24px 60px", maxWidth: 760 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--sky)", marginBottom: 16, opacity: 0.9 }}>
-            First-time 100-mile race planning
+          <div style={{
+            fontFamily: "var(--font-geist-sans, system-ui)",
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase",
+            color: "var(--sky)", marginBottom: 20, opacity: 0.7,
+          }}>
+            Race day crew planning
           </div>
           <h1 style={{
             fontFamily: "var(--font-dm-sans, system-ui)",
-            fontSize: "clamp(38px, 6vw, 64px)",
+            fontSize: "clamp(32px, 5vw, 54px)",
             fontWeight: 800,
             color: "white",
-            letterSpacing: "-0.03em",
-            lineHeight: 1.08,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.15,
             marginBottom: 24,
           }}>
-            Build the race-day plan<br />your <em style={{ fontStyle: "normal", color: "var(--sky)" }}>crew</em> can actually use
+            Give your crew <em style={{ fontStyle: "normal", color: "var(--sky)" }}>one link.</em><br />
+            Everything they need is in it.
           </h1>
-          <p style={{ fontSize: "clamp(15px, 2vw, 18px)", color: "rgba(255,255,255,0.75)", maxWidth: 580, margin: "0 auto 36px", lineHeight: 1.65 }}>
-            {"Training gets you to the start line. PlanUltra helps first-time 100-mile runners turn aid stations, pacing, weather, and crew logistics into one usable race-day plan. Free to use, with founder help available if you want it."}
+          <p style={{
+            fontFamily: "var(--font-geist-sans, system-ui)",
+            fontSize: 18, color: "rgba(255,255,255,0.65)", maxWidth: 560, margin: "0 auto 36px", lineHeight: 1.65,
+          }}>
+            PlanUltra builds a shareable crew sheet your team can open on their phone, print as backup, and navigate from at every aid station — no app, no account, works without cell signal.
           </p>
-          <Link
-            href="/auth/signin"
-            style={{
-              display: "inline-block",
-              background: "var(--ridge-blue)",
-              color: "white",
-              padding: "14px 36px",
-              borderRadius: 10,
-              fontSize: 16,
-              fontWeight: 700,
-              textDecoration: "none",
-              boxShadow: "0 4px 20px rgba(29,124,190,0.45)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Start Your Crew Plan
-          </Link>
-          <div style={{ marginTop: 14, fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
-            Free · No credit card required · Founder help available
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+            <Link
+              href="/auth/signin"
+              style={{
+                display: "inline-block",
+                background: "var(--ridge-blue)",
+                color: "white",
+                padding: "14px 28px",
+                borderRadius: 10,
+                fontSize: 16,
+                fontWeight: 700,
+                textDecoration: "none",
+                boxShadow: "0 4px 20px rgba(29,124,190,0.45)",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Build your crew plan — it&apos;s free
+            </Link>
+            <a
+              href="https://planultrarace.com/crew/mn7jrA-wOyPOB-qk"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: 15, color: "var(--sky)", textDecoration: "none" }}
+            >
+              See a real crew sheet ↗
+            </a>
           </div>
-          <div style={{ marginTop: 16 }}>
-            <GuestEntryLink />
+          {/* Trust pills */}
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: 24 }}>
+            {["Free forever", "No subscription", "No ads", "Open source"].map(pill => (
+              <span key={pill} style={{
+                fontFamily: "var(--font-geist-mono, monospace)",
+                fontSize: 11, color: "rgba(255,255,255,0.35)",
+                border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20,
+                padding: "3px 12px", background: "transparent",
+              }}>{pill}</span>
+            ))}
           </div>
         </div>
 
@@ -186,160 +216,268 @@ export default async function HomePage() {
         <NavScrollWatcher navId="marketing-nav" />
       </section>
 
-      {/* ── Feature rows ── */}
-      <section style={{ background: "white" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 48px 0" }}>
-          <div style={{ textAlign: "center", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ridge-blue)", marginBottom: 12 }}>
-            Everything you need
-          </div>
-          <h2 style={{
-            fontFamily: "var(--font-dm-sans, system-ui)",
-            fontSize: "clamp(26px, 4vw, 36px)",
-            fontWeight: 800,
-            color: "var(--midnight)",
-            textAlign: "center",
-            letterSpacing: "-0.02em",
-            marginBottom: 56,
-          }}>
-            From race-week chaos to a usable plan
-          </h2>
-        </div>
-
-        {/* Row 1: GPX Upload — text left, map right */}
-        <div className="feature-row">
+      {/* ── Crew Sheet Demo ── */}
+      <section style={{ background: "white", padding: "80px 32px" }}>
+        <div className="crew-demo-grid" style={{ maxWidth: 1040, margin: "0 auto" }}>
+          {/* Text column */}
           <div>
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "var(--deep-ridge)", color: "white", borderRadius: "50%", fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 14, fontWeight: 800, marginBottom: 16 }}>1</div>
-            <h3 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(22px, 2.8vw, 30px)", fontWeight: 800, color: "var(--midnight)", letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>
-              Start with your race file,<br />then stop juggling tabs
-            </h3>
-            <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 20 }}>
-              Upload a GPX or choose a library race and PlanUltra lays out the course, aid stations, and section structure in one place. No more bouncing between race PDFs, spreadsheets, and screenshots.
-            </p>
-            <div style={{ fontSize: 13, color: "var(--ridge-blue)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
-              → Supports any standard GPX file
+            <div style={{
+              fontFamily: "var(--font-geist-mono, system-ui)",
+              fontSize: 11, fontWeight: 700, textTransform: "uppercase",
+              letterSpacing: "0.12em", color: "var(--ridge-blue)", marginBottom: 6,
+            }}>
+              The crew sheet
             </div>
-          </div>
-          <MapIllustration />
-        </div>
-
-        {/* Row 2: Plan — illustration left, text right (reversed) */}
-        <div className="feature-row feature-row-reverse">
-          <div>
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "var(--deep-ridge)", color: "white", borderRadius: "50%", fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 14, fontWeight: 800, marginBottom: 16 }}>2</div>
-            <h3 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(22px, 2.8vw, 30px)", fontWeight: 800, color: "var(--midnight)", letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>
-              Know what happens<br />between aid stations
-            </h3>
-            <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 20 }}>
-              Work through each leg with pace anchors, weather, sunset and sunrise context, and section-level details. It is built to answer the race-week questions that hit hardest before a first hundred.
-            </p>
-            <div style={{ fontSize: 13, color: "var(--ridge-blue)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
-              → Powered by weather forecasts + suncalc
+            <div style={{
+              fontFamily: "var(--font-geist-mono, system-ui)",
+              fontSize: 11, color: "rgba(17,69,116,0.45)", marginBottom: 20,
+            }}>
+              ↓ Real example: 2025 Grindstone 100
             </div>
+            <h2 style={{
+              fontFamily: "var(--font-dm-sans, system-ui)",
+              fontSize: "clamp(24px, 3.5vw, 36px)", fontWeight: 800,
+              color: "var(--midnight)", letterSpacing: "-0.02em", lineHeight: 1.2,
+              marginBottom: 16,
+            }}>
+              This is what your crew gets.
+            </h2>
+            <p style={{ fontSize: 15, color: "rgba(2,7,30,0.65)", lineHeight: 1.7, marginBottom: 24 }}>
+              One URL. Open it on any phone. Print it as backup. Navigate directly from it — even without signal.
+            </p>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column" }}>
+              {[
+                "Aid station locations with Google Maps QR codes",
+                "Drive time between each crew stop",
+                "Parking notes and access directions",
+                "Exactly what to have ready at each station",
+                "Weather, sunrise, and sunset for race day",
+                "Intermediate checkpoints so they know where you are",
+                "Prints cleanly to A4",
+              ].map((item, i) => (
+                <li key={i} style={{
+                  display: "flex", alignItems: "flex-start", gap: 10,
+                  fontSize: 14, color: "rgba(2,7,30,0.65)", lineHeight: 1.5,
+                  padding: "9px 0",
+                  borderTop: i === 0 ? "none" : "1px solid rgba(130,199,246,0.2)",
+                }}>
+                  <span style={{ color: "var(--ridge-blue)", fontWeight: 700, flexShrink: 0 }}>✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
-          <SectionCardsIllustration />
-        </div>
 
-        {/* Row 3: Pack — text left, bag right */}
-        <div className="feature-row">
-          <div>
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "var(--deep-ridge)", color: "white", borderRadius: "50%", fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 14, fontWeight: 800, marginBottom: 16 }}>3</div>
-            <h3 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(22px, 2.8vw, 30px)", fontWeight: 800, color: "var(--midnight)", letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>
-              Pack with intent,<br />not guesswork
-            </h3>
-            <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 20 }}>
-              Use the planning view to think through drop bags, key gear changes, and what each leg demands. The goal is to arrive at race week with fewer open loops and fewer 2 AM decisions.
-            </p>
-            <div style={{ fontSize: 13, color: "var(--ridge-blue)", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
-              → Share your crew plan with a single link
-            </div>
-          </div>
-          <DropBagCardsIllustration />
-        </div>
-
-        {/* Row 4: Crew sheet — illustration left, text right */}
-        <div className="feature-row feature-row-reverse" style={{ paddingBottom: 80 }}>
-          <div>
-            <div style={{ display: "inline-flex", alignItems: "center", fontFamily: "var(--font-geist-mono, monospace)", fontSize: 11, fontWeight: 700, color: "var(--ridge-blue)", background: "var(--mist)", border: "1px solid rgba(29,124,190,0.2)", padding: "3px 10px", borderRadius: 6, marginBottom: 16 }}>04</div>
-            <h3 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 800, color: "var(--midnight)", letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>
-              Share with your crew
-            </h3>
-            <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 12 }}>
-              Publish a shareable crew sheet with a single click. Your crew gets a clean, printable page showing when to expect you, what to pull from your drop bag, and the notes they will actually need on race day.
-            </p>
-            <p style={{ fontSize: 15, color: "var(--deep-ridge)", opacity: 0.85, lineHeight: 1.7, marginBottom: 20 }}>
-              Works on any phone, prints cleanly, and needs no account to view.
-            </p>
-            <a
-              href="https://planultrarace.com/crew/mn7jrA-wOyPOB-qk"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontSize: 14, color: "var(--ridge-blue)", textDecoration: "none" }}
-              className="crew-link"
-            >
-              See Daniel&apos;s Hellbender plan ↗
-            </a>
-          </div>
-          <CrewSheetMockup />
+          {/* Demo column */}
+          <CrewSheetDemo />
         </div>
       </section>
 
-      {/* ── Stats bar ── */}
-      <div style={{ background: "var(--midnight)", padding: "36px 48px" }}>
-        <div className="stats-inner">
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 36, fontWeight: 800, color: "var(--sky)", letterSpacing: "-0.03em", lineHeight: 1 }}>100s</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 500 }}>of miles planned</div>
-          </div>
-          <div className="stat-div" />
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 36, fontWeight: 800, color: "var(--sky)", letterSpacing: "-0.03em", lineHeight: 1 }}>Free</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 500 }}>For early users</div>
-          </div>
-          <div className="stat-div" />
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 36, fontWeight: 800, color: "var(--sky)", letterSpacing: "-0.03em", lineHeight: 1 }}>Pace</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 500 }}>Weather and timing</div>
-          </div>
-          <div className="stat-div" />
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 36, fontWeight: 800, color: "var(--sky)", letterSpacing: "-0.03em", lineHeight: 1 }}>Crew</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 5, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 500 }}>Shareable race sheet</div>
+      {/* ── Feature Cards ── */}
+      <section style={{ background: "#f8fbfe", padding: "80px 32px" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto" }}>
+          <h2 style={{
+            fontFamily: "var(--font-dm-sans, system-ui)",
+            fontSize: "clamp(24px, 3.5vw, 34px)", fontWeight: 800,
+            color: "var(--midnight)", letterSpacing: "-0.02em",
+            textAlign: "center", marginBottom: 8,
+          }}>
+            What&apos;s in the crew sheet
+          </h2>
+          <p style={{ fontSize: 16, color: "rgba(2,7,30,0.5)", textAlign: "center", marginBottom: 40 }}>
+            Built by the runner. Everything the crew needs.
+          </p>
+          <div className="feature-cards-grid">
+            {[
+              {
+                num: "01",
+                title: "Navigate to every aid station — even without signal",
+                body: "Each crew-accessible station includes a Google Maps link and a QR code for offline directions. Remote trailheads, forest roads, unmarked pull-offs — your crew can find them at 3am.",
+                detail: "QR code opens Google Maps even without cell service",
+              },
+              {
+                num: "02",
+                title: "Drive time between every crew stop",
+                body: "The sheet tells your crew exactly how long it takes to drive to the next station, so they know whether to leave immediately or whether they have time to rest. No more guessing.",
+                detail: "Includes intermediate checkpoints so they can track your progress",
+              },
+              {
+                num: "03",
+                title: "Exactly what to have ready — no questions",
+                body: "Drop bag items, gear, food, and what to do if you're talking yourself out of the race at mile 70. It's all in the plan. They read it before the race and execute it on the day.",
+                detail: 'Includes an "if I say I want to quit" note',
+              },
+              {
+                num: "04",
+                title: "Weather, sunrise, and sunset — already there",
+                body: "Your crew knows when to expect you to need a headlamp, what temperature to dress for, and when the sun comes up. PlanUltra pulls conditions for your race date so your crew can prepare, not react.",
+                detail: null,
+              },
+            ].map(card => (
+              <div key={card.num} style={{
+                background: "white",
+                border: "1px solid rgba(130,199,246,0.3)",
+                borderRadius: 14,
+                padding: 28,
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}>
+                <div style={{
+                  fontFamily: "var(--font-geist-mono, monospace)",
+                  fontSize: 11, fontWeight: 700, color: "var(--ridge-blue)",
+                }}>{card.num}</div>
+                <h3 style={{
+                  fontFamily: "var(--font-dm-sans, system-ui)",
+                  fontSize: 17, fontWeight: 800, color: "var(--midnight)",
+                  letterSpacing: "-0.01em", lineHeight: 1.3,
+                }}>{card.title}</h3>
+                <p style={{ fontSize: 14, color: "rgba(2,7,30,0.65)", lineHeight: 1.6, flex: 1 }}>{card.body}</p>
+                {card.detail && (
+                  <div style={{
+                    fontSize: 13, color: "var(--ridge-blue)",
+                    borderTop: "1px solid rgba(130,199,246,0.2)", paddingTop: 10,
+                  }}>{card.detail}</div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── About ── */}
-      <section style={{ background: "var(--midnight)", borderTop: "1px solid rgba(130,199,246,0.12)", padding: "72px 48px" }}>
+      {/* ── How It Works ── */}
+      <section style={{ background: "white", padding: "80px 48px" }}>
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+          <h2 style={{
+            fontFamily: "var(--font-dm-sans, system-ui)",
+            fontSize: "clamp(24px, 3.5vw, 34px)", fontWeight: 800,
+            color: "var(--midnight)", letterSpacing: "-0.02em",
+            textAlign: "center", marginBottom: 8,
+          }}>
+            How it works
+          </h2>
+          <p style={{ fontSize: 16, color: "rgba(2,7,30,0.5)", textAlign: "center", marginBottom: 48 }}>
+            Built by the runner. Used by the crew.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {[
+              {
+                step: "01",
+                title: "Runner sets up the race",
+                body: "Enter your race, aid stations, and cutoff times. PlanUltra maps out the course and pulls weather and light conditions for race day.",
+                note: "Takes about 20 minutes",
+              },
+              {
+                step: "02",
+                title: "Add crew locations and notes",
+                body: "Drop a pin for each crew-accessible station. Add parking notes, what you'll need at each stop, and anything else your crew should know — including what to do if you want to bail at mile 70.",
+                note: null,
+              },
+              {
+                step: "03",
+                title: "Share one link with your crew",
+                body: "Your crew gets a single URL. It works on any phone, prints cleanly, and has everything — directions, drive times, gear lists, conditions — no app, no account needed.",
+                note: "As a bonus, you've also built yourself a solid race plan",
+              },
+            ].map((s, i) => (
+              <div key={s.step} style={{
+                display: "flex", gap: 24, padding: "28px 0",
+                borderTop: i === 0 ? "none" : "1px solid rgba(130,199,246,0.2)",
+              }}>
+                <div style={{
+                  fontFamily: "var(--font-geist-mono, monospace)",
+                  fontSize: 13, fontWeight: 700, color: "var(--sky)",
+                  flexShrink: 0, paddingTop: 2, minWidth: 28,
+                }}>{s.step}</div>
+                <div>
+                  <div style={{
+                    fontFamily: "var(--font-dm-sans, system-ui)",
+                    fontSize: 17, fontWeight: 700, color: "var(--midnight)",
+                    marginBottom: 8,
+                  }}>{s.title}</div>
+                  <p style={{ fontSize: 14, color: "rgba(2,7,30,0.65)", lineHeight: 1.65, marginBottom: s.note ? 8 : 0 }}>
+                    {s.body}
+                  </p>
+                  {s.note && (
+                    <p style={{ fontSize: 13, fontStyle: "italic", color: "var(--ridge-blue)" }}>
+                      &ldquo;{s.note}&rdquo;
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 40 }}>
+            <Link
+              href="/auth/signin"
+              style={{
+                display: "inline-block",
+                background: "var(--ridge-blue)",
+                color: "white",
+                padding: "14px 28px",
+                borderRadius: 10,
+                fontSize: 16,
+                fontWeight: 700,
+                textDecoration: "none",
+                boxShadow: "0 4px 20px rgba(29,124,190,0.3)",
+              }}
+            >
+              Build your crew plan — it&apos;s free
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Builder Identity ── */}
+      <section style={{ background: "var(--midnight)", borderTop: "1px solid rgba(130,199,246,0.1)", padding: "72px 48px" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <div className="about-grid">
             {/* Left: identity */}
             <div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 48, height: 48, background: "var(--deep-ridge)", borderRadius: "50%", fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 14, fontWeight: 600, color: "var(--sky)", marginBottom: 12 }}>DJ</div>
               <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 22, fontWeight: 700, color: "white", lineHeight: 1.2 }}>Dan James</div>
-              <div style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 13, color: "rgba(130,199,246,0.7)", marginTop: 4 }}>Product Manager · Ultra runner</div>
+              <div style={{ fontFamily: "var(--font-geist-mono, monospace)", fontSize: 13, color: "rgba(130,199,246,0.65)", marginTop: 4 }}>Product Manager · Ultra runner</div>
               <div style={{ width: 40, height: 2, background: "var(--ridge-blue)", borderRadius: 2, margin: "12px 0" }} />
-              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                <a href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }} className="about-link">↗ LinkedIn</a>
-                <a href="https://github.com/londondan/PlanUltra" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }} className="about-link">↗ GitHub</a>
-                <a href="mailto:danrjames@gmail.com" style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }} className="about-link">✉ danrjames@gmail.com</a>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <a href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 13, color: "rgba(255,255,255,0.45)", textDecoration: "none" }} className="about-link">↗ LinkedIn</a>
+                <a href="https://github.com/londondan/PlanUltra" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 13, color: "rgba(255,255,255,0.45)", textDecoration: "none" }} className="about-link">↗ GitHub (open source)</a>
+                <a href="mailto:danrjames@gmail.com" style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 13, color: "rgba(255,255,255,0.45)", textDecoration: "none" }} className="about-link">✉ danrjames@gmail.com</a>
               </div>
             </div>
 
             {/* Right: copy */}
             <div>
-              <div style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 11, color: "rgba(130,199,246,0.6)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 16 }}>Why this exists</div>
-              <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.75)", lineHeight: 1.7, marginBottom: 16 }}>
-                I&apos;m a product manager who runs ultras in my spare time. I built PlanUltra after DNF&apos;ing Grindstone and realizing I didn&apos;t have a race-day logistics plan my future self or crew could actually use.
+              <div style={{
+                fontFamily: "var(--font-geist-mono, monospace)",
+                fontSize: 11, color: "rgba(130,199,246,0.55)",
+                textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 16,
+              }}>
+                Why this exists · Why it&apos;s free
+              </div>
+              {/* Fact pills */}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
+                {["Free forever", "No subscription", "No ads", "Open source"].map(pill => (
+                  <span key={pill} style={{
+                    fontFamily: "var(--font-geist-mono, monospace)",
+                    fontSize: 11, color: "rgba(130,199,246,0.75)",
+                    background: "rgba(130,199,246,0.07)", border: "1px solid rgba(130,199,246,0.15)",
+                    borderRadius: 20, padding: "4px 14px",
+                  }}>{pill}</span>
+                ))}
+              </div>
+              <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.72)", lineHeight: 1.75, marginBottom: 16 }}>
+                I&apos;m a product manager who runs ultras on weekends. PlanUltra exists because I wanted a tool like this and couldn&apos;t find one — so I built it. It&apos;s a hobby project, not a startup. There&apos;s no VC money, no growth target, no free trial leading to a paywall.
               </p>
-              <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.75)", lineHeight: 1.7, marginBottom: 16 }}>
-                I built it because first-time 100-mile planning still feels too manual: race PDFs, GPX files, weather tabs, spreadsheets, and half-finished notes. PlanUltra pulls those pieces into one place and gives you something you can actually act on.
+              <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.72)", lineHeight: 1.75, marginBottom: 16 }}>
+                Running the server costs me almost nothing — AWS and Mapbox both have generous free tiers that easily cover a tool at this scale. An account is required so your plan has somewhere to live between sessions; that&apos;s the only reason it exists. The code is open source on{" "}
+                <a href="https://github.com/londondan/PlanUltra" target="_blank" rel="noopener noreferrer" style={{ color: "var(--sky)", textDecoration: "none" }} className="about-link">GitHub</a>
+                {" "}— if you want to fork it, run your own copy, or just look under the hood, go ahead.
               </p>
-              <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.7, fontStyle: "italic" }}>
-                If you&apos;re preparing for your first hundred and want help setting up your plan, send me a note. If you&apos;re curious about my product background, you can also find me on{" "}
-                <a href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(130,199,246,0.8)", textDecoration: "none" }} className="about-link">LinkedIn</a>
-                {" "}or drop me an{" "}
-                <a href="mailto:danrjames@gmail.com" style={{ color: "rgba(130,199,246,0.8)", textDecoration: "none" }} className="about-link">email</a>.
-              </p>
+              <div style={{ borderTop: "1px solid rgba(130,199,246,0.1)", paddingTop: 16 }}>
+                <p style={{ fontFamily: "var(--font-geist-sans, system-ui)", fontSize: 14, fontStyle: "italic", color: "rgba(255,255,255,0.4)", lineHeight: 1.65 }}>
+                  &ldquo;It&apos;s also a live example of my product work. If you&apos;re curious about that side of things, find me on{" "}
+                  <a href="https://www.linkedin.com/in/daniel-james-45863320/" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(130,199,246,0.65)", textDecoration: "none" }} className="about-link">LinkedIn</a>.&rdquo;
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -356,12 +494,15 @@ export default async function HomePage() {
           <path d="M0,100 C100,85 200,78 320,80 C460,83 560,95 700,88 C840,81 940,70 1080,75 C1200,80 1320,90 1440,93 L1440,120 L0,120 Z" fill="white" opacity="0.4" />
         </svg>
         <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--sky)", opacity: 0.7, marginBottom: 14 }}>Ready to plan?</div>
-          <h2 style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: "clamp(28px, 5vw, 48px)", fontWeight: 800, color: "white", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 20 }}>
-            Build the plan before<br />the panic starts
+          <h2 style={{
+            fontFamily: "var(--font-dm-sans, system-ui)",
+            fontSize: "clamp(24px, 4vw, 40px)", fontWeight: 800,
+            color: "white", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 20,
+          }}>
+            Your crew is giving up their weekend for you.
           </h2>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", marginBottom: 36, maxWidth: 440, marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
-            If your first 100 is on the calendar, PlanUltra helps you turn your course, pace, weather, and crew logistics into one clear plan.
+            Give them everything they need so they can focus on being there for you.
           </p>
           <Link
             href="/auth/signin"
@@ -375,9 +516,10 @@ export default async function HomePage() {
               fontWeight: 700,
               textDecoration: "none",
               boxShadow: "0 4px 20px rgba(29,124,190,0.4)",
+              letterSpacing: "-0.01em",
             }}
           >
-            Start Your Crew Plan
+            Build your crew plan
           </Link>
           <div style={{ marginTop: 20 }}>
             <Link href="/faq" style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>
@@ -392,7 +534,10 @@ export default async function HomePage() {
         <div style={{ fontFamily: "var(--font-dm-sans, system-ui)", fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "-0.02em" }}>PlanUltra ▲</div>
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
           <Link href="/faq" style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>FAQ</Link>
-          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>Free · Built by a runner · Founder help available</span>
+          <span style={{
+            fontFamily: "var(--font-geist-mono, monospace)",
+            fontSize: 12, color: "rgba(255,255,255,0.35)",
+          }}>Free forever · Built by a runner · No subscription</span>
         </div>
       </footer>
 
@@ -402,57 +547,26 @@ export default async function HomePage() {
           background: var(--midnight);
           border-bottom: 1px solid rgba(130,199,246,0.15);
         }
-        .feature-row {
+        .crew-demo-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: 1fr 1.8fr;
           gap: 64px;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 80px 48px 0;
-          align-items: center;
-          border-top: 1px solid rgba(130,199,246,0.25);
-        }
-        .feature-row:first-of-type {
-          border-top: none;
-        }
-        .feature-row-reverse {
-          direction: rtl;
-        }
-        .feature-row-reverse > * {
-          direction: ltr;
-        }
-        .stats-inner {
-          max-width: 900px;
-          margin: 0 auto;
-          display: flex;
-          justify-content: space-around;
-          align-items: center;
-          gap: 24px;
-          flex-wrap: wrap;
-        }
-        .stat-div {
-          width: 1px;
-          height: 40px;
-          background: rgba(130,199,246,0.2);
+          align-items: start;
         }
         @media (max-width: 640px) {
-          .feature-row {
+          .crew-demo-grid {
             grid-template-columns: 1fr;
-            gap: 32px;
-            padding: 48px 24px 0;
-          }
-          .feature-row-reverse {
-            direction: ltr;
+            gap: 40px;
           }
         }
-        @media (max-width: 560px) {
-          .stats-inner {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-          }
-          .stat-div {
-            display: none;
+        .feature-cards-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+        }
+        @media (max-width: 640px) {
+          .feature-cards-grid {
+            grid-template-columns: 1fr;
           }
         }
         .about-grid {
@@ -465,10 +579,7 @@ export default async function HomePage() {
           color: white !important;
           text-decoration: underline !important;
         }
-        .crew-link:hover {
-          text-decoration: underline;
-        }
-        @media (max-width: 768px) {
+        @media (max-width: 640px) {
           .about-grid {
             grid-template-columns: 1fr;
             gap: 40px;
@@ -476,6 +587,7 @@ export default async function HomePage() {
         }
         @media (max-width: 480px) {
           nav { padding: 16px 20px; }
+          .nav-example-link { display: none; }
         }
       `}</style>
     </div>
