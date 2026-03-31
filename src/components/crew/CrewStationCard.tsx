@@ -332,11 +332,166 @@ export function CrewStationCard({
     </div>
   )
 
-  // Location block (new in PRD-022)
+  // Location block (PRD-022 Option D — spanning QR sidebar)
   const mapsUrl = station.crewParkingCoords
     ? `https://maps.google.com/?q=${station.crewParkingCoords.lat},${station.crewParkingCoords.lng}`
     : null
   const showLocationBlock = !!station.crewParkingCoords
+
+  // When coords are set, wrap header + location strip in a grid with a spanning QR sidebar
+  const cardTopContent = showLocationBlock ? (
+    <div className="station-card-top" style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}>
+      {/* Left column: header stacked above location strip */}
+      <div className="station-card-left" style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        {/* Mist header */}
+        <div
+          style={{
+            background: '#DBF1FA',
+            padding: '14px 14px 14px 18px',
+            borderBottom: '1px solid rgba(130,199,246,0.4)',
+            borderRight: '1px solid rgba(130,199,246,0.35)',
+          }}
+        >
+          {crewStationHeader}
+        </div>
+
+        {/* Location strip */}
+        <div
+          className="location-strip"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
+            padding: '9px 0 10px 16px',
+            background: 'rgba(219,241,250,0.25)',
+            borderBottom: '1px solid rgba(130,199,246,0.25)',
+            borderRight: '1px solid rgba(130,199,246,0.25)',
+          }}
+        >
+          <a
+            className="maps-link"
+            href={mapsUrl!}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-lat={station.crewParkingCoords!.lat}
+            data-lng={station.crewParkingCoords!.lng}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              fontSize: 11,
+              fontWeight: 600,
+              color: '#1D7CBE',
+              textDecoration: 'none',
+              background: 'white',
+              border: '1px solid rgba(29,124,190,0.35)',
+              borderRadius: 6,
+              padding: '5px 12px',
+              width: 'fit-content',
+            }}
+          >
+            📍 Directions to crew parking
+          </a>
+          {station.crewLocationNotes?.trim() && (
+            <div
+              style={{
+                padding: '7px 11px',
+                background: 'rgba(255,255,255,0.8)',
+                borderLeft: '3px solid #82C7F6',
+                borderRadius: '0 5px 5px 0',
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+                  fontSize: 9,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase' as const,
+                  color: '#1D7CBE',
+                  opacity: 0.75,
+                  marginBottom: 2,
+                }}
+              >
+                Location notes
+              </div>
+              <div
+                style={{
+                  fontFamily: 'var(--font-geist-sans), Inter, sans-serif',
+                  fontSize: 12,
+                  color: '#114574',
+                  lineHeight: 1.5,
+                  whiteSpace: 'pre-wrap' as const,
+                }}
+              >
+                {station.crewLocationNotes}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* QR sidebar — spans full height of header + location strip */}
+      {qrSvg && (
+        <div
+          className="qr-sidebar"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 5,
+            padding: '10px 14px',
+            background: 'rgba(219,241,250,0.18)',
+            borderLeft: '1px solid rgba(130,199,246,0.3)',
+          }}
+        >
+          <div
+            className="qr-frame"
+            style={{
+              width: 72,
+              height: 72,
+              border: '1.5px solid rgba(130,199,246,0.55)',
+              borderRadius: 8,
+              background: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 5,
+              printColorAdjust: 'exact',
+              WebkitPrintColorAdjust: 'exact',
+            } as React.CSSProperties}
+            dangerouslySetInnerHTML={{ __html: qrSvg }}
+          />
+          <div
+            className="qr-caption"
+            style={{
+              fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+              fontSize: 8,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase' as const,
+              color: 'rgba(17,69,116,0.45)',
+              textAlign: 'center',
+              lineHeight: 1.3,
+              width: 72,
+            }}
+          >
+            Scan for<br />directions
+          </div>
+        </div>
+      )}
+    </div>
+  ) : (
+    /* No coords — plain mist header, no wrapper */
+    <div
+      style={{
+        background: '#DBF1FA',
+        padding: '14px 18px',
+        borderBottom: '1px solid rgba(130,199,246,0.4)',
+      }}
+    >
+      {crewStationHeader}
+    </div>
+  )
 
   return (
     <div
@@ -348,134 +503,7 @@ export function CrewStationCard({
         background: 'white',
       }}
     >
-      {/* Mist header */}
-      <div
-        style={{
-          background: '#DBF1FA',
-          padding: '14px 18px',
-          borderBottom: '1px solid rgba(130,199,246,0.4)',
-        }}
-      >
-        {crewStationHeader}
-      </div>
-
-      {/* Location block (between header and body) */}
-      {showLocationBlock && (
-        <div
-          className="crew-location-block"
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 14,
-            padding: '10px 18px 12px',
-            background: 'rgba(219,241,250,0.25)',
-            borderBottom: '1px solid rgba(130,199,246,0.25)',
-          }}
-        >
-          {/* Left: directions link + location notes */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <a
-              className="maps-link"
-              href={mapsUrl!}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-lat={station.crewParkingCoords!.lat}
-              data-lng={station.crewParkingCoords!.lng}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 5,
-                fontSize: 11,
-                fontWeight: 600,
-                color: '#1D7CBE',
-                textDecoration: 'none',
-                background: 'white',
-                border: '1px solid rgba(29,124,190,0.35)',
-                borderRadius: 6,
-                padding: '5px 12px',
-                width: 'fit-content',
-              }}
-            >
-              📍 Directions to crew parking
-            </a>
-            {station.crewLocationNotes?.trim() && (
-              <div
-                style={{
-                  padding: '7px 11px',
-                  background: 'rgba(255,255,255,0.8)',
-                  borderLeft: '3px solid #82C7F6',
-                  borderRadius: '0 5px 5px 0',
-                }}
-              >
-                <div
-                  style={{
-                    fontFamily: 'var(--font-geist-mono), Courier New, monospace',
-                    fontSize: 9,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase' as const,
-                    color: '#1D7CBE',
-                    opacity: 0.75,
-                    marginBottom: 2,
-                  }}
-                >
-                  Location notes
-                </div>
-                <div
-                  style={{
-                    fontFamily: 'var(--font-geist-sans), Inter, sans-serif',
-                    fontSize: 12,
-                    color: '#114574',
-                    lineHeight: 1.5,
-                    whiteSpace: 'pre-wrap' as const,
-                  }}
-                >
-                  {station.crewLocationNotes}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right: QR code */}
-          {qrSvg && (
-            <div
-              className="qr-block"
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}
-            >
-              <div
-                className="qr-frame"
-                style={{
-                  width: 80,
-                  height: 80,
-                  border: '1.5px solid rgba(130,199,246,0.55)',
-                  borderRadius: 8,
-                  background: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 5,
-                  printColorAdjust: 'exact',
-                  WebkitPrintColorAdjust: 'exact',
-                } as React.CSSProperties}
-                dangerouslySetInnerHTML={{ __html: qrSvg }}
-              />
-              <div
-                className="qr-caption"
-                style={{
-                  fontFamily: 'var(--font-geist-mono), Courier New, monospace',
-                  fontSize: 8,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase' as const,
-                  color: 'rgba(17,69,116,0.45)',
-                  textAlign: 'center',
-                  lineHeight: 1.3,
-                }}
-              >
-                Scan for<br />directions
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      {cardTopContent}
 
       {/* White body */}
       <div

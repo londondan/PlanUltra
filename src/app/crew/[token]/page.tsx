@@ -335,7 +335,7 @@ export default async function CrewSheetPage({
             type: 'svg',
             color: { dark: '#114574', light: '#ffffff' },
             margin: 1,
-            width: 80,
+            width: 72,
           })
           qrSvgMap.set(s.order, svg)
         } catch {
@@ -446,8 +446,11 @@ export default async function CrewSheetPage({
           }
           /* QR frame */
           .qr-frame { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          /* Location block */
-          .crew-location-block { background: #f0f9ff !important; border-bottom: 1px solid #82C7F6 !important; }
+          /* Location strip */
+          .location-strip { background: #f0f9ff !important; border-bottom: 1px solid #82C7F6 !important; border-right-color: #82C7F6 !important; }
+          /* QR sidebar — preserve grid on print, high-contrast colours */
+          .station-card-top { display: grid !important; grid-template-columns: 1fr auto !important; }
+          .qr-sidebar { background: #f0f9ff !important; border-left-color: #82C7F6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           /* Bridge */
           .bridge-drive-panel { background: #e8f4fb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .segment-bridge { border: 1px solid #82C7F6 !important; }
@@ -459,12 +462,22 @@ export default async function CrewSheetPage({
           .stn-name { order: 1; width: 100%; flex: none !important; font-size: 16px !important; white-space: normal !important; overflow: visible !important; margin-bottom: 2px; }
           .stn-mile { order: 2; }
           .stn-right { order: 3; margin-left: auto; }
-          /* Location block: stack on mobile */
-          .crew-location-block { flex-direction: column !important; padding: 10px 14px !important; }
-          .qr-frame { width: 72px !important; height: 72px !important; }
+          /* Location strip: shrink QR sidebar at narrow widths, keep grid */
+          .qr-sidebar { padding: 8px 10px !important; }
+          .qr-frame { width: 60px !important; height: 60px !important; }
+          .qr-caption { font-size: 7px !important; width: 60px !important; }
+          .location-strip { padding: 8px 0 9px 12px !important; }
           /* Bridge: stack on mobile */
           .bridge-inner { flex-direction: column !important; }
           .bridge-drive-panel { border-right: none !important; border-bottom: 1px solid rgba(130,199,246,0.25) !important; min-width: unset !important; }
+        }
+        /* At very narrow widths: hide QR sidebar so content fills full width.
+           Scoped to screen so print still shows the QR. */
+        @media screen and (max-width: 400px) {
+          .qr-sidebar { display: none !important; }
+          .station-card-top { grid-template-columns: 1fr !important; }
+          .station-card-left > div:first-child { border-right: none !important; }
+          .location-strip { border-right: none !important; }
         }
       `}</style>
 
