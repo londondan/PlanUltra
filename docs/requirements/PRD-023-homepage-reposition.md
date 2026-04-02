@@ -431,7 +431,7 @@ const qrSvg = await QRCode.toString(mapsUrl, {
   type: 'svg',
   color: { dark: '#114574', light: '#ffffff' },
   margin: 1,
-  width: 62
+  width: 72  // PRD-022 §5.2 spanning sidebar spec
 })
 ```
 Inline the SVG string directly. Do not use `<img>` with a data URL. QR codes must be scannable with a real phone camera — verify before shipping.
