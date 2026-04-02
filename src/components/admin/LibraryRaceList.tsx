@@ -30,7 +30,10 @@ export function LibraryRaceList({ initialRaces }: LibraryRaceListProps) {
     setDeleteError(null)
     try {
       const res = await fetch(`/api/admin/races/${pendingDelete.raceId}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Delete failed')
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error ?? 'Delete failed')
+      }
       setRaces((prev) => prev.filter((r) => r.raceId !== pendingDelete.raceId))
       setPendingDelete(null)
       router.refresh()
