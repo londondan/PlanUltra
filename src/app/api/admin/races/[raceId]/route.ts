@@ -115,9 +115,13 @@ export async function DELETE(
   const race = await getRaceById(LIBRARY_USER_ID, raceId)
   if (!race) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  await deleteAidStations(raceId)
-  await deleteSectionPlans(raceId)
-  await deleteRace(LIBRARY_USER_ID, raceId)
-
-  return NextResponse.json({ success: true })
+  try {
+    await deleteAidStations(raceId)
+    await deleteSectionPlans(raceId)
+    await deleteRace(LIBRARY_USER_ID, raceId)
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }
