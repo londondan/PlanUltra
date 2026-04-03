@@ -52,6 +52,7 @@ export async function updateAidStation(
   const values: Record<string, unknown> = {}
 
   for (const [key, value] of Object.entries(updates)) {
+    if (value === undefined) continue
     expressions.push(`#${key} = :${key}`)
     names[`#${key}`] = key
     values[`:${key}`] = value
