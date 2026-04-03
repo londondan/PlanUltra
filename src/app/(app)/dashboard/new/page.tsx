@@ -119,7 +119,7 @@ export default function NewRacePage() {
           createdAt: now,
         })
         saveGuestAidStations(raceId, data.aidStations ?? [])
-        router.push(`/dashboard/${raceId}/setup`)
+        router.push(`/dashboard/${raceId}/setup?setup=true`)
       } else {
         const res = await fetch('/api/races/from-library', {
           method: 'POST',
@@ -142,7 +142,7 @@ export default function NewRacePage() {
           raceId: race.raceId,
           isLibraryRace: true,
         })
-        router.push(`/dashboard/${race.raceId}/setup`)
+        router.push(`/dashboard/${race.raceId}/setup?setup=true`)
       }
     } catch (err) {
       setDialogError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
@@ -186,7 +186,7 @@ export default function NewRacePage() {
           createdAt: now,
         })
         saveGuestAidStations(raceId, stations)
-        router.push(`/dashboard/${raceId}/setup`)
+        router.push(`/dashboard/${raceId}/setup?setup=true`)
         return
       }
 
@@ -208,7 +208,7 @@ export default function NewRacePage() {
         raceId: race.raceId,
         isLibraryRace: false,
       })
-      router.push(`/dashboard/${race.raceId}/setup`)
+      router.push(`/dashboard/${race.raceId}/setup?setup=true`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
