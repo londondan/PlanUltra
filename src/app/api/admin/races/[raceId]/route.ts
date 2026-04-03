@@ -52,8 +52,8 @@ export async function PUT(
   // Apply station location updates (patch only location fields)
   if (stationUpdates?.length) {
     await Promise.all(
-      stationUpdates.map(({ order, crewParkingCoords, crewParkingType, crewLocationNotes }) =>
-        updateAidStation(raceId, order, { crewParkingCoords, crewParkingType, crewLocationNotes })
+      stationUpdates.map(({ order, crewParkingCoords, crewParkingType, crewLocationNotes, hasCrewAccess }) =>
+        updateAidStation(raceId, order, { crewParkingCoords, crewParkingType, crewLocationNotes, hasCrewAccess })
       )
     )
   }

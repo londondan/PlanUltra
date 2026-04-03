@@ -8,7 +8,12 @@ function compressGPX(gpx: string): string {
 }
 
 function decompressGPX(compressed: string): string {
-  return gunzipSync(Buffer.from(compressed, 'base64')).toString('utf8')
+  try {
+    return gunzipSync(Buffer.from(compressed, 'base64')).toString('utf8')
+  } catch {
+    // Data is uncompressed (raw GPX string) — return as-is
+    return compressed
+  }
 }
 
 export const LIBRARY_USER_ID = '__LIBRARY__'
@@ -168,7 +173,7 @@ export async function updateRace(
     } else {
       setExpressions.push(`#${key} = :${key}`)
       names[`#${key}`] = key
-      values[`:${key}`] = value
+      values[`:${key}`] = key === 'gpxData' ? compressGPX(value as string) : value
     }
   }
 

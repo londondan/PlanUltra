@@ -31,6 +31,7 @@ interface GPXPreview {
 interface AdminRaceFormProps {
   race?: Race
   initialAidStations?: AidStation[]
+  showCreatedBanner?: boolean
 }
 
 const PARKING_ICONS: Record<string, string> = {
@@ -40,7 +41,7 @@ const PARKING_ICONS: Record<string, string> = {
   'drop-off': '🚌',
 }
 
-export function AdminRaceForm({ race, initialAidStations }: AdminRaceFormProps) {
+export function AdminRaceForm({ race, initialAidStations, showCreatedBanner }: AdminRaceFormProps) {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const isEdit = !!race
@@ -59,7 +60,7 @@ export function AdminRaceForm({ race, initialAidStations }: AdminRaceFormProps) 
   // Aid stations panel
   const [aidStations] = useState<AidStation[]>(initialAidStations ?? [])
   const [stationUpdates, setStationUpdates] = useState<Record<number, Partial<AidStation>>>({})
-  const [aidPanelOpen, setAidPanelOpen] = useState(false)
+  const [aidPanelOpen, setAidPanelOpen] = useState(showCreatedBanner ?? false)
   const [expandedStation, setExpandedStation] = useState<number | null>(null)
 
   // GPX replace confirm dialog
@@ -125,12 +126,17 @@ export function AdminRaceForm({ race, initialAidStations }: AdminRaceFormProps) 
         res = await fetch(url, { method, body: form })
       }
 
+      const data = await res.json()
+
       if (!res.ok) {
-        const data = await res.json()
         throw new Error(data.error ?? 'Failed to save race')
       }
 
-      router.push('/admin/race-library')
+      if (!isEdit) {
+        router.push(`/admin/race-library/${data.race.raceId}/edit?created=true`)
+      } else {
+        router.push('/admin/race-library')
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -316,6 +322,13 @@ export function AdminRaceForm({ race, initialAidStations }: AdminRaceFormProps) 
           </CardContent>
         </Card>
 
+        {/* Created banner */}
+        {showCreatedBanner && (
+          <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+            Race created. Now set aid station locations below.
+          </div>
+        )}
+
         {/* Aid Stations panel — only shown when stations exist */}
         {sortedStations.length > 0 && (
           <Card>
@@ -343,7 +356,13 @@ export function AdminRaceForm({ race, initialAidStations }: AdminRaceFormProps) 
                   const isExpanded = expandedStation === station.order
                   const hasCoords = !!(merged.crewParkingCoords)
 
-                  if (!station.hasCrewAccess) {
+                  const toggleCrewAccess = () =>
+                    setStationUpdates((prev) => ({
+                      ...prev,
+                      [station.order]: { ...prev[station.order], hasCrewAccess: !merged.hasCrewAccess },
+                    }))
+
+                  if (!merged.hasCrewAccess) {
                     return (
                       <div
                         key={station.order}
@@ -351,11 +370,16 @@ export function AdminRaceForm({ race, initialAidStations }: AdminRaceFormProps) 
                       >
                         <div className="flex items-center gap-3">
                           <Badge variant="secondary" className="text-xs font-mono">
-                            MI {(station.distanceFromStart / 1609.34).toFixed(1)}
+                            MI {(station.distanceFromStart / 1.60934).toFixed(1)}
                           </Badge>
                           <span className="text-sm font-medium">{station.name}</span>
                         </div>
-                        <span className="text-xs text-muted-foreground italic">No crew access — skip</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground italic">No crew access</span>
+                          <Button type="button" variant="ghost" size="sm" onClick={toggleCrewAccess}>
+                            + Enable crew access
+                          </Button>
+                        </div>
                       </div>
                     )
                   }
@@ -366,12 +390,20 @@ export function AdminRaceForm({ race, initialAidStations }: AdminRaceFormProps) 
                       <div className="px-4 py-3 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
                           <Badge variant="secondary" className="text-xs font-mono shrink-0">
-                            MI {(station.distanceFromStart / 1609.34).toFixed(1)}
+                            MI {(station.distanceFromStart / 1.60934).toFixed(1)}
                           </Badge>
                           <span className="text-sm font-medium truncate">{station.name}</span>
                           <Badge variant="outline" className="text-xs text-green-700 border-green-300 shrink-0">
                             Crew ✓
                           </Badge>
+                          <button
+                            type="button"
+                            className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                            title="Remove crew access"
+                            onClick={toggleCrewAccess}
+                          >
+                            ✕
+                          </button>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           {hasCoords ? (

@@ -8,13 +8,16 @@ import Link from 'next/link'
 
 export default async function EditLibraryRacePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ raceId: string }>
+  searchParams: Promise<{ created?: string }>
 }) {
   const session = await auth()
   if (!isAdmin(session?.user?.email)) redirect('/dashboard')
 
   const { raceId } = await params
+  const { created } = await searchParams
   const race = await getRaceById(LIBRARY_USER_ID, raceId)
   if (!race) notFound()
 
@@ -28,7 +31,7 @@ export default async function EditLibraryRacePage({
       >
         ← Race Library
       </Link>
-      <AdminRaceForm race={race} initialAidStations={aidStations} />
+      <AdminRaceForm race={race} initialAidStations={aidStations} showCreatedBanner={!!created} />
     </div>
   )
 }
