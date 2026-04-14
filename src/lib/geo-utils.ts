@@ -1,3 +1,5 @@
+import type { TrackPoint } from '@/types/gpx'
+
 interface LatLon {
   lat: number
   lon: number
@@ -29,6 +31,51 @@ export function cumulativeDistances(trackPoints: LatLon[]): number[] {
     distances.push(distances[i - 1] + d)
   }
   return distances
+}
+
+export function interpolateAtDistance(
+  distKm: number,
+  cumDist: number[],
+  trackPoints: TrackPoint[]
+): { lat: number; lon: number; ele: number } {
+  if (distKm <= 0) return { lat: trackPoints[0].lat, lon: trackPoints[0].lon, ele: trackPoints[0].ele }
+  const last = trackPoints.length - 1
+  if (distKm >= cumDist[last]) {
+    return { lat: trackPoints[last].lat, lon: trackPoints[last].lon, ele: trackPoints[last].ele }
+  }
+  for (let i = 1; i < cumDist.length; i++) {
+    if (distKm <= cumDist[i]) {
+      const segLen = cumDist[i] - cumDist[i - 1]
+      const ratio = segLen === 0 ? 0 : (distKm - cumDist[i - 1]) / segLen
+      return {
+        lat: trackPoints[i - 1].lat + ratio * (trackPoints[i].lat - trackPoints[i - 1].lat),
+        lon: trackPoints[i - 1].lon + ratio * (trackPoints[i].lon - trackPoints[i - 1].lon),
+        ele: trackPoints[i - 1].ele + ratio * (trackPoints[i].ele - trackPoints[i - 1].ele),
+      }
+    }
+  }
+  return { lat: trackPoints[last].lat, lon: trackPoints[last].lon, ele: trackPoints[last].ele }
+}
+
+export function computeSegmentElevation(
+  trackPoints: TrackPoint[],
+  cumDist: number[],
+  fromKm: number,
+  toKm: number
+): { grossClimbM: number; grossDescentM: number } {
+  const NOISE_THRESHOLD_M = 2
+  let grossClimbM = 0
+  let grossDescentM = 0
+  for (let i = 1; i < trackPoints.length; i++) {
+    if (cumDist[i] < fromKm) continue
+    if (cumDist[i - 1] > toKm) break
+    const delta = trackPoints[i].ele - trackPoints[i - 1].ele
+    if (Math.abs(delta) > NOISE_THRESHOLD_M) {
+      if (delta > 0) grossClimbM += delta
+      else grossDescentM += Math.abs(delta)
+    }
+  }
+  return { grossClimbM, grossDescentM }
 }
 
 export function segmentDistances(

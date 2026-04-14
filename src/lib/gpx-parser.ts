@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser'
 import type { TrackPoint, Waypoint, AidStation, ParsedGPX } from '@/types/gpx'
-import { haversineDistance } from '@/lib/geo-utils'
+import { haversineDistance, computeSegmentElevation } from '@/lib/geo-utils'
 
 const PROXIMITY_THRESHOLD_KM = 0.2
 const MIN_VISIT_SEPARATION_KM = 1.0
@@ -218,26 +218,6 @@ function findFinishWaypoint(
   return null
 }
 
-function computeSegmentElevation(
-  trackPoints: TrackPoint[],
-  cumDist: number[],
-  fromKm: number,
-  toKm: number
-): { grossClimbM: number; grossDescentM: number } {
-  const NOISE_THRESHOLD_M = 2
-  let grossClimbM = 0
-  let grossDescentM = 0
-  for (let i = 1; i < trackPoints.length; i++) {
-    if (cumDist[i] < fromKm) continue
-    if (cumDist[i - 1] > toKm) break
-    const delta = trackPoints[i].ele - trackPoints[i - 1].ele
-    if (Math.abs(delta) > NOISE_THRESHOLD_M) {
-      if (delta > 0) grossClimbM += delta
-      else grossDescentM += Math.abs(delta)
-    }
-  }
-  return { grossClimbM, grossDescentM }
-}
 
 /**
  * Extracts aid stations showing every visit in order.

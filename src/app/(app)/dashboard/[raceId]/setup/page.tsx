@@ -50,6 +50,13 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
   // Validation errors per physicalName key
   const [coordErrors, setCoordErrors] = useState<Record<string, string | null>>({})
 
+  // Add station form state
+  const [addingStation, setAddingStation] = useState(false)
+  const [addName, setAddName] = useState('')
+  const [addMile, setAddMile] = useState('')
+  const [addError, setAddError] = useState<string | null>(null)
+  const [addLoading, setAddLoading] = useState(false)
+
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
@@ -130,6 +137,36 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
     return sorted.map((d) => `MI ${(d * KM_TO_MI).toFixed(1)}`).join(' · ')
   }
 
+  const handleAddStation = async () => {
+    if (!addName.trim()) { setAddError('Station name is required'); return }
+    const mile = parseFloat(addMile)
+    if (isNaN(mile) || mile <= 0) { setAddError('Enter a valid mile marker'); return }
+    setAddError(null)
+    setAddLoading(true)
+    try {
+      const res = await fetch(`/api/races/${raceId}/aid-stations/insert`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ distanceMi: mile, name: addName.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setAddError(data.error ?? 'Failed to add station'); return }
+      const newStations: AidStation[] = data.aidStations
+      setStations(newStations)
+      // Merge new station into coordInputs/parkingExpanded without resetting existing values
+      const newKey = addName.trim()
+      setCoordInputs((prev) => ({ ...prev, [newKey]: { lat: '', lng: '' } }))
+      setParkingExpanded((prev) => ({ ...prev }))
+      setAddingStation(false)
+      setAddName('')
+      setAddMile('')
+    } catch {
+      setAddError('Failed to add station. Please try again.')
+    } finally {
+      setAddLoading(false)
+    }
+  }
+
   const handleSave = async () => {
     // Validate all crew-accessible stations' coordinates
     const newErrors: Record<string, string | null> = {}
@@ -151,14 +188,14 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
       // Build save payload: fan out settings to all visits, null parking when no crew access
       const stationsToSave = stations.map((s) => {
         if (!s.hasCrewAccess) {
-          return { ...s, crewParkingCoords: null, crewParkingType: null, crewLocationNotes: null }
+          return { ...s, crewParkingCoords: undefined, crewParkingType: undefined, crewLocationNotes: undefined }
         }
         const key = s.physicalName ?? s.name
         const { lat = '', lng = '' } = coordInputs[key] ?? {}
         const coords =
           lat.trim() && lng.trim()
             ? { lat: Number(lat), lng: Number(lng) }
-            : null
+            : undefined
         return { ...s, crewParkingCoords: coords }
       })
 
@@ -395,6 +432,65 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Add a station */}
+      {mounted && !isGuestMode() && (
+        <div>
+          {!addingStation ? (
+            <button
+              type="button"
+              onClick={() => setAddingStation(true)}
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <span>+</span> Add a station
+            </button>
+          ) : (
+            <div className="rounded-lg border p-4 space-y-3">
+              <p className="text-sm font-medium">Add a station</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="add-name" className="text-xs">Station name</Label>
+                  <Input
+                    id="add-name"
+                    value={addName}
+                    onChange={(e) => setAddName(e.target.value)}
+                    placeholder="e.g. Meadow Creek"
+                    className="h-8 text-sm"
+                    autoFocus
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="add-mile" className="text-xs">Mile marker</Label>
+                  <Input
+                    id="add-mile"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={addMile}
+                    onChange={(e) => setAddMile(e.target.value)}
+                    placeholder="e.g. 23.3"
+                    className="h-8 text-sm"
+                  />
+                </div>
+              </div>
+              {addError && <p className="text-xs text-destructive">{addError}</p>}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { setAddingStation(false); setAddName(''); setAddMile(''); setAddError(null) }}
+                  disabled={addLoading}
+                >
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={handleAddStation} disabled={addLoading}>
+                  {addLoading ? 'Adding…' : 'Add station →'}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -7,7 +7,7 @@ function compressGPX(gpx: string): string {
   return gzipSync(Buffer.from(gpx, 'utf8')).toString('base64')
 }
 
-function decompressGPX(compressed: string): string {
+export function decompressGPX(compressed: string): string {
   try {
     return gunzipSync(Buffer.from(compressed, 'base64')).toString('utf8')
   } catch {
