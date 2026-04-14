@@ -52,8 +52,8 @@ export async function PUT(
   // Apply station location updates (patch only location fields)
   if (stationUpdates?.length) {
     await Promise.all(
-      stationUpdates.map(({ order, crewParkingCoords, crewParkingType, crewLocationNotes, hasCrewAccess }) =>
-        updateAidStation(raceId, order, { crewParkingCoords, crewParkingType, crewLocationNotes, hasCrewAccess })
+      stationUpdates.map(({ order, crewParkingCoords, crewParkingType, crewLocationNotes, hasCrewAccess, crewParkingCoordsSource }) =>
+        updateAidStation(raceId, order, { crewParkingCoords, crewParkingType, crewLocationNotes, hasCrewAccess, crewParkingCoordsSource })
       )
     )
   }
@@ -68,13 +68,16 @@ export async function PUT(
     const existingByName = new Map(existingStations.map((s) => [normalise(s.name), s]))
 
     const mergedStations: AidStation[] = newStations.map((s) => {
+      const freshCoords = { lat: s.lat, lng: s.lon }
       const match = existingByName.get(normalise(s.name))
-      if (!match) return s
+      if (!match) return { ...s, crewParkingCoords: freshCoords, crewParkingCoordsSource: 'gpx' as const }
+      const adminConfirmed = match.crewParkingCoordsSource === 'admin'
       return {
         ...s,
-        crewParkingCoords: match.crewParkingCoords,
+        crewParkingCoords: adminConfirmed ? match.crewParkingCoords : freshCoords,
         crewParkingType: match.crewParkingType,
         crewLocationNotes: match.crewLocationNotes,
+        crewParkingCoordsSource: adminConfirmed ? 'admin' as const : 'gpx' as const,
       }
     })
 

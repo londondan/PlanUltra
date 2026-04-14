@@ -33,6 +33,8 @@ export interface AidStation {
   crewParkingCoords?: { lat: number; lng: number }
   crewParkingType?: 'parking-lot' | 'side-of-road' | 'trailhead' | 'drop-off'
   crewLocationNotes?: string  // free text, max 500 chars
+  // PRD-025: admin-only provenance metadata; never copied to user races
+  crewParkingCoordsSource?: 'gpx' | 'admin'
 }
 
 export interface ParsedGPX {

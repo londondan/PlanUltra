@@ -47,7 +47,8 @@ export async function POST(req: NextRequest) {
     ])
 
     if (aidStations.length > 0) {
-      await saveAidStations(newRace.raceId, aidStations)
+      const stationsForUser = aidStations.map(({ crewParkingCoordsSource: _src, ...s }) => s)
+      await saveAidStations(newRace.raceId, stationsForUser)
     }
 
     for (const plan of sectionPlans) {

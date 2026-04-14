@@ -77,7 +77,12 @@ export async function POST(req: NextRequest) {
     const { trackPoints, waypoints } = parseGPX(gpxString)
     const aidStations = extractAidStations(waypoints, trackPoints)
     if (aidStations.length > 0) {
-      await saveAidStations(race.raceId, aidStations)
+      const withCoords = aidStations.map((s) => ({
+        ...s,
+        crewParkingCoords: { lat: s.lat, lng: s.lon },
+        crewParkingCoordsSource: 'gpx' as const,
+      }))
+      await saveAidStations(race.raceId, withCoords)
     }
   }
 

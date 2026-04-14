@@ -180,6 +180,11 @@ export function AdminRaceForm({ race, initialAidStations, showCreatedBanner }: A
     ...stationUpdates[station.order],
   })
 
+  const unverifiedCount = sortedStations.filter((s) => {
+    const m = getMergedStation(s)
+    return m.hasCrewAccess && m.crewParkingCoordsSource === 'gpx'
+  }).length
+
   const noopSave = async () => {}
 
   return (
@@ -338,7 +343,12 @@ export function AdminRaceForm({ race, initialAidStations, showCreatedBanner }: A
                 className="w-full flex items-center justify-between text-left"
                 onClick={() => setAidPanelOpen(v => !v)}
               >
-                <CardTitle>Aid Stations</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle>Aid Stations</CardTitle>
+                  {!aidPanelOpen && unverifiedCount > 0 && (
+                    <span className="text-xs text-amber-600 font-medium">⚠ {unverifiedCount} unverified</span>
+                  )}
+                </div>
                 <ChevronDown
                   className="size-4 text-muted-foreground transition-transform"
                   style={{ transform: aidPanelOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
@@ -355,6 +365,7 @@ export function AdminRaceForm({ race, initialAidStations, showCreatedBanner }: A
                   const merged = getMergedStation(station)
                   const isExpanded = expandedStation === station.order
                   const hasCoords = !!(merged.crewParkingCoords)
+                  const isAutoFilled = merged.crewParkingCoordsSource === 'gpx'
 
                   const toggleCrewAccess = () =>
                     setStationUpdates((prev) => ({
@@ -406,7 +417,38 @@ export function AdminRaceForm({ race, initialAidStations, showCreatedBanner }: A
                           </button>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          {hasCoords ? (
+                          {!hasCoords && (
+                            <>
+                              <span className="text-xs text-muted-foreground">No location set</span>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setExpandedStation(isExpanded ? null : station.order)}
+                              >
+                                {isExpanded ? 'Done' : '+ Set location'}
+                              </Button>
+                            </>
+                          )}
+                          {hasCoords && isAutoFilled && (
+                            <>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">Auto-filled</span>
+                                <span className="text-xs text-muted-foreground font-mono">
+                                  {merged.crewParkingCoords!.lat.toFixed(4)}, {merged.crewParkingCoords!.lng.toFixed(4)}
+                                </span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setExpandedStation(isExpanded ? null : station.order)}
+                              >
+                                {isExpanded ? 'Done' : 'Verify'}
+                              </Button>
+                            </>
+                          )}
+                          {hasCoords && !isAutoFilled && (
                             <>
                               <span className="text-xs text-muted-foreground">
                                 {merged.crewParkingType
@@ -423,18 +465,6 @@ export function AdminRaceForm({ race, initialAidStations, showCreatedBanner }: A
                                 {isExpanded ? 'Done' : 'Edit'}
                               </Button>
                             </>
-                          ) : (
-                            <>
-                              <span className="text-xs text-muted-foreground">No location set</span>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setExpandedStation(isExpanded ? null : station.order)}
-                              >
-                                {isExpanded ? 'Done' : '+ Set location'}
-                              </Button>
-                            </>
                           )}
                         </div>
                       </div>
@@ -442,6 +472,11 @@ export function AdminRaceForm({ race, initialAidStations, showCreatedBanner }: A
                       {/* Inline LocationPanel */}
                       {isExpanded && (
                         <div className="border-t">
+                          {isAutoFilled && (
+                            <p className="px-4 pt-3 text-xs text-muted-foreground">
+                              Coordinates auto-filled from GPX waypoint. Confirm the location is correct and add parking details below.
+                            </p>
+                          )}
                           <LocationPanel
                             station={merged}
                             raceId="admin"
@@ -457,7 +492,13 @@ export function AdminRaceForm({ race, initialAidStations, showCreatedBanner }: A
                             <Button
                               type="button"
                               size="sm"
-                              onClick={() => setExpandedStation(null)}
+                              onClick={() => {
+                                setStationUpdates((prev) => ({
+                                  ...prev,
+                                  [station.order]: { ...prev[station.order], crewParkingCoordsSource: 'admin' },
+                                }))
+                                setExpandedStation(null)
+                              }}
                             >
                               Done
                             </Button>

@@ -8,6 +8,22 @@ The production URL is **www.planultrarace.com**.
 
 All requirements documents (PRDs, mockups) go in `docs/requirements/`. Do not use `requirements/` at the project root.
 
+## Quality Checks
+
+After implementing any fix or feature, verify it doesn't break adjacent functionality. Run the app and test the happy path plus one edge case before committing.
+
+## Debugging Guidelines
+
+When debugging, identify and confirm the root cause before applying fixes. Do not cascade multiple speculative fixes — if the first attempt doesn't work, stop and re-analyze rather than trying adjacent changes that may destabilize the system.
+
+## Tech Stack
+
+This is a TypeScript project using Next.js, DynamoDB, and Amplify. Always check dependency version compatibility (especially @types packages) before adding or updating dependencies. Use `npm ls <package>` to verify.
+
+## UI Guidelines
+
+After making UI changes, check for contrast/accessibility issues — verify text is readable against its background and interactive elements are visually discoverable.
+
 ## UI Components: shadcn v4 / Base UI
 
 This project uses **shadcn v4** (`base-nova` style) built on **`@base-ui/react`**.
