@@ -44,11 +44,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields: name, date, startTime' }, { status: 400 })
   }
 
+  let parsedGPX: ReturnType<typeof parseGPX> | undefined
+  if (gpxString) {
+    try {
+      parsedGPX = parseGPX(gpxString)
+    } catch {
+      return NextResponse.json({ error: 'Invalid GPX file' }, { status: 400 })
+    }
+  }
+
   const race = await createRace(session.user.id, { name, date, startTime, timezone, gpxData: gpxString })
 
-  if (gpxString) {
-    const { trackPoints, waypoints } = parseGPX(gpxString)
-    const aidStations = extractAidStations(waypoints, trackPoints)
+  if (parsedGPX) {
+    const aidStations = extractAidStations(parsedGPX.waypoints, parsedGPX.trackPoints)
     if (aidStations.length > 0) {
       await saveAidStations(race.raceId, aidStations)
     }

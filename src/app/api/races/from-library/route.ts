@@ -39,7 +39,6 @@ export async function POST(req: NextRequest) {
     startTime,
     timezone,
   })
-
   try {
     const [aidStations, sectionPlans] = await Promise.all([
       getAidStations(libraryRaceId),

@@ -39,7 +39,12 @@ export async function getAidStations(raceId: string): Promise<AidStation[]> {
     })
   )
 
-  return (result.Items ?? []).map((item: Record<string, unknown>) => item as unknown as AidStation)
+  return (result.Items ?? []).map((item: Record<string, unknown>) => {
+    // Strip DynamoDB key attributes — they must not bleed into station objects and
+    // override the recomputed SK when saving after a renumber (e.g. insert a station).
+    const { PK: _pk, SK: _sk, ...station } = item
+    return station as unknown as AidStation
+  })
 }
 
 export async function updateAidStation(
@@ -75,19 +80,31 @@ export async function updateAidStation(
 }
 
 export async function deleteAidStations(raceId: string): Promise<void> {
-  const stations = await getAidStations(raceId)
-  if (stations.length === 0) return
+  const result = await docClient.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
+      ExpressionAttributeValues: {
+        ':pk': `RACE#${raceId}`,
+        ':prefix': 'AID#',
+      },
+      ProjectionExpression: 'SK',
+    })
+  )
 
-  const chunks = chunkArray(stations, 25)
+  const items = result.Items ?? []
+  if (items.length === 0) return
+
+  const chunks = chunkArray(items, 25)
   for (const chunk of chunks) {
     await docClient.send(
       new BatchWriteCommand({
         RequestItems: {
-          [TABLE_NAME]: chunk.map((s) => ({
+          [TABLE_NAME]: chunk.map((item) => ({
             DeleteRequest: {
               Key: {
                 PK: `RACE#${raceId}`,
-                SK: `AID#${String(s.order).padStart(4, '0')}`,
+                SK: item.SK as string,
               },
             },
           })),

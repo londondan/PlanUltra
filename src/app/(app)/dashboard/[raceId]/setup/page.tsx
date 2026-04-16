@@ -50,6 +50,8 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
   // Validation errors per physicalName key
   const [coordErrors, setCoordErrors] = useState<Record<string, string | null>>({})
 
+  const [hasGPX, setHasGPX] = useState(true)
+
   // Add station form state
   const [addingStation, setAddingStation] = useState(false)
   const [addName, setAddName] = useState('')
@@ -68,8 +70,12 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
           loaded = getGuestAidStations(raceId)
         } else {
           const res = await fetch(`/api/races/${raceId}/aid-stations`)
+          if (!res.ok) {
+            throw new Error('Race not found')
+          }
           const data = await res.json()
           loaded = data.aidStations ?? []
+          setHasGPX(data.hasGPX ?? false)
         }
         setStations(loaded)
 
@@ -436,7 +442,12 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
       )}
 
       {/* Add a station */}
-      {mounted && !isGuestMode() && (
+      {mounted && !isGuestMode() && !hasGPX && !loading && stations.length === 0 && (
+        <p className="text-xs text-muted-foreground">
+          This race has no route file — aid stations can&apos;t be added manually.
+        </p>
+      )}
+      {mounted && !isGuestMode() && hasGPX && (
         <div>
           {!addingStation ? (
             <button

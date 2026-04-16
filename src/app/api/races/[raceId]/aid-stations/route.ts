@@ -20,7 +20,7 @@ export async function GET(
   }
 
   const aidStations = await getAidStations(raceId)
-  return NextResponse.json({ aidStations })
+  return NextResponse.json({ aidStations, hasGPX: !!race.gpxData })
 }
 
 export async function PUT(
