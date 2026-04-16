@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { getRaceById, decompressGPX } from '@/lib/db/races'
-import { getAidStations } from '@/lib/db/aid-stations'
 import { parseGPX } from '@/lib/gpx-parser'
 import { cumulativeDistances, interpolateAtDistance, computeSegmentElevation } from '@/lib/geo-utils'
 import type { AidStation } from '@/types/gpx'
@@ -27,7 +26,7 @@ export async function POST(
   }
 
   const body = await req.json()
-  const { distanceMi, name } = body as { distanceMi: unknown; name: unknown }
+  const { distanceMi, name, currentStations } = body as { distanceMi: unknown; name: unknown; currentStations: unknown }
 
   if (typeof name !== 'string' || !name.trim()) {
     return NextResponse.json({ error: 'Station name is required' }, { status: 400 })
@@ -57,11 +56,11 @@ export async function POST(
     )
   }
 
-  // Get existing stations
-  const existingStations = await getAidStations(raceId)
-  if (existingStations.length === 0) {
+  // Use the client's current in-memory stations so multiple adds before saving all persist
+  if (!Array.isArray(currentStations) || currentStations.length === 0) {
     return NextResponse.json({ error: 'No aid stations found for this race' }, { status: 400 })
   }
+  const existingStations = currentStations as AidStation[]
 
   // Sort by distanceFromStart to ensure correct ordering
   const sorted = [...existingStations].sort((a, b) => a.distanceFromStart - b.distanceFromStart)

@@ -153,7 +153,7 @@ export default function SetupPage({ params }: { params: Promise<{ raceId: string
       const res = await fetch(`/api/races/${raceId}/aid-stations/insert`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ distanceMi: mile, name: addName.trim() }),
+        body: JSON.stringify({ distanceMi: mile, name: addName.trim(), currentStations: stations }),
       })
       const data = await res.json()
       if (!res.ok) { setAddError(data.error ?? 'Failed to add station'); return }
