@@ -226,11 +226,7 @@ describe('DELETE /api/races/[raceId]', () => {
       createdAt: '2024-01-01T00:00:00Z',
     })
 
-    const { deleteAidStations } = await import('@/lib/db/aid-stations')
     const { deleteRace } = await import('@/lib/db/races')
-    const { deleteSectionPlans } = await import('@/lib/db/sections')
-    vi.mocked(deleteAidStations).mockResolvedValueOnce(undefined)
-    vi.mocked(deleteSectionPlans).mockResolvedValueOnce(undefined)
     vi.mocked(deleteRace).mockResolvedValueOnce(undefined)
 
     const { DELETE } = await import('@/app/api/races/[raceId]/route')

@@ -3,8 +3,7 @@ import { auth } from '@/lib/auth'
 import { isAdmin } from '@/lib/admin'
 import { getRaceById, updateRace, deleteRace, LIBRARY_USER_ID } from '@/lib/db/races'
 import { getAidStations, saveAidStations, deleteAidStations, updateAidStation } from '@/lib/db/aid-stations'
-import { deleteSectionPlans } from '@/lib/db/sections'
-import { parseGPX, extractAidStations } from '@/lib/gpx-parser'
+import { parseAndExtractStations } from '@/lib/gpx-ingest'
 import type { AidStation } from '@/types/gpx'
 
 async function checkAdmin() {
@@ -61,8 +60,12 @@ export async function PUT(
   // GPX re-ingestion
   if (gpxString) {
     const existingStations = await getAidStations(raceId)
-    const { trackPoints, waypoints } = parseGPX(gpxString)
-    const newStations = extractAidStations(waypoints, trackPoints)
+    let newStations: ReturnType<typeof parseAndExtractStations>
+    try {
+      newStations = parseAndExtractStations(gpxString)
+    } catch {
+      return NextResponse.json({ error: 'Invalid GPX file' }, { status: 400 })
+    }
 
     const normalise = (s: string) => s.trim().toLowerCase().replace(/\s+/g, ' ')
     const existingByName = new Map(existingStations.map((s) => [normalise(s.name), s]))
@@ -119,8 +122,6 @@ export async function DELETE(
   if (!race) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   try {
-    await deleteAidStations(raceId)
-    await deleteSectionPlans(raceId)
     await deleteRace(LIBRARY_USER_ID, raceId)
     return NextResponse.json({ success: true })
   } catch (err) {

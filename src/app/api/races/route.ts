@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { createRace, getRacesByUser } from '@/lib/db/races'
 import { saveAidStations } from '@/lib/db/aid-stations'
-import { parseGPX, extractAidStations } from '@/lib/gpx-parser'
+import { parseAndExtractStations } from '@/lib/gpx-ingest'
 
 export async function GET() {
   const session = await auth()
@@ -44,10 +44,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields: name, date, startTime' }, { status: 400 })
   }
 
-  let parsedGPX: ReturnType<typeof parseGPX> | undefined
+  let aidStations: ReturnType<typeof parseAndExtractStations> = []
   if (gpxString) {
     try {
-      parsedGPX = parseGPX(gpxString)
+      aidStations = parseAndExtractStations(gpxString)
     } catch {
       return NextResponse.json({ error: 'Invalid GPX file' }, { status: 400 })
     }
@@ -55,11 +55,8 @@ export async function POST(req: NextRequest) {
 
   const race = await createRace(session.user.id, { name, date, startTime, timezone, gpxData: gpxString })
 
-  if (parsedGPX) {
-    const aidStations = extractAidStations(parsedGPX.waypoints, parsedGPX.trackPoints)
-    if (aidStations.length > 0) {
-      await saveAidStations(race.raceId, aidStations)
-    }
+  if (aidStations.length > 0) {
+    await saveAidStations(race.raceId, aidStations)
   }
 
   return NextResponse.json({ race }, { status: 201 })

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { getRaceById, updateRace, deleteRace } from '@/lib/db/races'
-import { getAidStations, deleteAidStations } from '@/lib/db/aid-stations'
-import { getSectionPlans, deleteSectionPlans } from '@/lib/db/sections'
+import { getAidStations } from '@/lib/db/aid-stations'
+import { getSectionPlans } from '@/lib/db/sections'
 
 export async function GET(
   _req: NextRequest,
@@ -79,8 +79,6 @@ export async function DELETE(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  await deleteAidStations(raceId)
-  await deleteSectionPlans(raceId)
   await deleteRace(session.user.id, raceId)
   return NextResponse.json({ success: true })
 }

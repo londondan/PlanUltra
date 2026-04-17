@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { isAdmin } from '@/lib/admin'
 import { createRace, getLibraryRaces, LIBRARY_USER_ID } from '@/lib/db/races'
 import { saveAidStations } from '@/lib/db/aid-stations'
-import { parseGPX, extractAidStations } from '@/lib/gpx-parser'
+import { parseAndExtractStations } from '@/lib/gpx-ingest'
 
 async function checkAdmin() {
   const session = await auth()
@@ -62,6 +62,16 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // Parse before creating the race so invalid GPX returns 400 without a ghost race
+  let rawStations: ReturnType<typeof parseAndExtractStations> = []
+  if (gpxString) {
+    try {
+      rawStations = parseAndExtractStations(gpxString)
+    } catch {
+      return NextResponse.json({ error: 'Invalid GPX file' }, { status: 400 })
+    }
+  }
+
   const race = await createRace(LIBRARY_USER_ID, {
     name,
     date,
@@ -73,17 +83,13 @@ export async function POST(req: NextRequest) {
     isLibraryRace: true,
   })
 
-  if (gpxString) {
-    const { trackPoints, waypoints } = parseGPX(gpxString)
-    const aidStations = extractAidStations(waypoints, trackPoints)
-    if (aidStations.length > 0) {
-      const withCoords = aidStations.map((s) => ({
-        ...s,
-        crewParkingCoords: { lat: s.lat, lng: s.lon },
-        crewParkingCoordsSource: 'gpx' as const,
-      }))
-      await saveAidStations(race.raceId, withCoords)
-    }
+  if (rawStations.length > 0) {
+    const withCoords = rawStations.map((s) => ({
+      ...s,
+      crewParkingCoords: { lat: s.lat, lng: s.lon },
+      crewParkingCoordsSource: 'gpx' as const,
+    }))
+    await saveAidStations(race.raceId, withCoords)
   }
 
   return NextResponse.json({ race }, { status: 201 })

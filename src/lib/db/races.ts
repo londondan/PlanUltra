@@ -1,5 +1,7 @@
 import { PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { docClient, TABLE_NAME } from '@/lib/db'
+import { deleteAidStations } from '@/lib/db/aid-stations'
+import { deleteSectionPlans } from '@/lib/db/sections'
 import { randomUUID } from 'crypto'
 import { gzipSync, gunzipSync } from 'zlib'
 
@@ -260,6 +262,7 @@ export async function getRaceActivity(
 }
 
 export async function deleteRace(userId: string, raceId: string): Promise<void> {
+  await Promise.all([deleteAidStations(raceId), deleteSectionPlans(raceId)])
   await docClient.send(
     new DeleteCommand({
       TableName: TABLE_NAME,
