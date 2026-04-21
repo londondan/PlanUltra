@@ -46,6 +46,10 @@ export interface Race {
   isLibraryRace?: boolean
   libraryDescription?: string | null
   location?: string | null
+  rdName?: string
+  rdPhone?: string
+  rdEmail?: string
+  raceWebsiteUrl?: string
 }
 
 export async function getRaceByCrewToken(token: string): Promise<Race | null> {
