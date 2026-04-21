@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { getRaceById, createRace, deleteRace, LIBRARY_USER_ID } from '@/lib/db/races'
+import { getRaceById, createRace, deleteRace, LIBRARY_USER_ID, type Race } from '@/lib/db/races'
 import { getSectionPlans, upsertSectionPlan } from '@/lib/db/sections'
 import { getAidStations, saveAidStations } from '@/lib/db/aid-stations'
 
@@ -20,25 +20,33 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Library race not found' }, { status: 403 })
   }
 
-  // Strip library-only and identity fields; override with user's date/time/timezone
-  const {
-    raceId: _libId,
-    userId: _libUser,
-    createdAt: _created,
-    crewShareToken: _token,
-    crewPublishedAt: _pub,
-    runnerName: _runner,
-    isLibraryRace: _isLib,
-    libraryDescription: _desc,
-    ...libraryFields
-  } = libraryRace
-
-  const newRace = await createRace(session.user.id, {
-    ...libraryFields,
+  // RACE FACTS — copied verbatim from library.
+  // date / startTime / timezone are overridden by the user's input (they may be
+  // registering for a different year's edition or running in a different timezone).
+  const raceFacts: Omit<Race, 'raceId' | 'userId' | 'createdAt'> = {
+    name: libraryRace.name,
     date,
     startTime,
     timezone,
-  })
+    gpxData: libraryRace.gpxData,
+    gpxUrl: libraryRace.gpxUrl,
+    startLat: libraryRace.startLat,
+    startLon: libraryRace.startLon,
+    location: libraryRace.location,
+    rdName: libraryRace.rdName,
+    rdPhone: libraryRace.rdPhone,
+    rdEmail: libraryRace.rdEmail,
+    raceWebsiteUrl: libraryRace.raceWebsiteUrl,
+    // RUNNER PLAN — initialised fresh; never copied from library.
+    // caloriesPerHour, targetFinishMinutes, paceOverrides, crewShareToken,
+    // crewPublishedAt, runnerName, paceMode, paceMin, paceSec,
+    // finishHours, finishMins — all absent (undefined by default).
+    //
+    // LIBRARY ONLY — not carried to user races.
+    // isLibraryRace, libraryDescription — absent.
+  }
+
+  const newRace = await createRace(session.user.id, raceFacts)
   try {
     const [aidStations, sectionPlans] = await Promise.all([
       getAidStations(libraryRaceId),
