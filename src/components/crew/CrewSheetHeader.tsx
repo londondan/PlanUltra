@@ -1,3 +1,4 @@
+import React from 'react'
 import { PrintButton } from './PrintButton'
 
 interface CrewSheetHeaderProps {
@@ -10,6 +11,7 @@ interface CrewSheetHeaderProps {
   aidStationCount: number
   targetFinish: string | null
   estFinish: string | null
+  transitToggle?: React.ReactNode  // optional transit mode toggle, rendered at bottom of header
 }
 
 export function CrewSheetHeader({
@@ -22,6 +24,7 @@ export function CrewSheetHeader({
   aidStationCount,
   targetFinish,
   estFinish,
+  transitToggle,
 }: CrewSheetHeaderProps) {
   const stats: { val: string | number; lbl: string }[] = [
     { val: crewStationCount, lbl: 'Crew stations' },
@@ -146,6 +149,20 @@ export function CrewSheetHeader({
                 </span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Transit mode toggle — only rendered when crew home base is set */}
+        {transitToggle && (
+          <div
+            className="transit-toggle-wrapper"
+            style={{
+              marginTop: 16,
+              paddingTop: 14,
+              borderTop: '1px solid rgba(130,199,246,0.15)',
+            }}
+          >
+            {transitToggle}
           </div>
         )}
       </div>

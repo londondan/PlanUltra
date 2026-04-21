@@ -50,6 +50,11 @@ export interface Race {
   rdPhone?: string
   rdEmail?: string
   raceWebsiteUrl?: string
+  crewHomeBase?: {
+    lat: number
+    lng: number
+    label?: string  // display name shown on crew sheet, max 80 chars. Defaults to "Home base" if absent.
+  }
 }
 
 export async function getRaceByCrewToken(token: string): Promise<Race | null> {

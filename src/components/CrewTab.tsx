@@ -400,6 +400,252 @@ export function LocationPanel({ station, raceId: _raceId, onSave, onChange }: Lo
   )
 }
 
+// ─── Crew Home Base panel ─────────────────────────────────────────────────────
+
+interface HomeBasePanelProps {
+  race: Race
+  raceId: string
+  onRaceUpdate: (updates: Partial<Race>) => void
+}
+
+function HomeBasePanel({ race, raceId, onRaceUpdate }: HomeBasePanelProps) {
+  const [coords, setCoords] = useState<Coordinates | null>(
+    race.crewHomeBase ? { lat: race.crewHomeBase.lat, lng: race.crewHomeBase.lng } : null
+  )
+  const [label, setLabel] = useState(race.crewHomeBase?.label ?? '')
+  const [inputValue, setInputValue] = useState('')
+  const [inputError, setInputError] = useState('')
+  const [resolving, setResolving] = useState(false)
+  const [changing, setChanging] = useState(false)
+  const [open, setOpen] = useState(!!(race.crewHomeBase))
+  const labelDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const isSet = !!coords
+  const statusLabel = !isSet
+    ? 'Not set'
+    : `✓ Set · ${label || 'Home base'}`
+
+  const saveHomeBase = async (newCoords: Coordinates | null, newLabel?: string) => {
+    const resolvedLabel = newLabel !== undefined ? newLabel : label
+    const val = newCoords
+      ? { lat: newCoords.lat, lng: newCoords.lng, ...(resolvedLabel ? { label: resolvedLabel } : {}) }
+      : null
+    await fetch(`/api/races/${raceId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ crewHomeBase: val }),
+    })
+    onRaceUpdate({ crewHomeBase: val ?? undefined })
+  }
+
+  const handleSetLocation = async () => {
+    setInputError('')
+    setResolving(true)
+    try {
+      const res = await fetch('/api/maps/resolve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: inputValue }),
+      })
+      const data = await res.json() as
+        | { success: true; coords: Coordinates }
+        | { success: false; reason?: string; error?: string }
+      if (!res.ok || !data.success) {
+        setInputError((!data.success && data.error) ? data.error : getResolveErrorMessage((!data.success && data.reason) || undefined))
+        return
+      }
+      setCoords(data.coords)
+      setChanging(false)
+      setInputValue('')
+      await saveHomeBase(data.coords)
+    } catch {
+      setInputError("Couldn't resolve that link right now. Try again or enter lat,lng directly.")
+    } finally {
+      setResolving(false)
+    }
+  }
+
+  const handleLabelChange = (val: string) => {
+    const trimmed = val.slice(0, 80)
+    setLabel(trimmed)
+    if (labelDebounce.current) clearTimeout(labelDebounce.current)
+    labelDebounce.current = setTimeout(() => {
+      if (coords) saveHomeBase(coords, trimmed)
+    }, 600)
+  }
+
+  const handleClear = async () => {
+    setCoords(null)
+    setLabel('')
+    setInputValue('')
+    setChanging(false)
+    await saveHomeBase(null)
+  }
+
+  return (
+    <div style={{ borderTop: '1px solid rgba(130,199,246,0.25)' }}>
+      {/* Header */}
+      <button
+        type="button"
+        className="w-full flex items-center justify-between gap-3 text-left"
+        style={{ padding: '10px 16px', background: open ? '#fafcfe' : 'white', cursor: 'pointer' }}
+        onClick={() => setOpen(v => !v)}
+      >
+        <div className="flex items-center gap-2">
+          <span style={{ fontSize: 14 }}>🏠</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#114574', letterSpacing: '0.01em' }}>
+            Crew Home Base
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span style={{ fontSize: 11, color: isSet ? '#15803d' : '#94a3b8', fontWeight: isSet ? 600 : 400 }}>
+            {statusLabel}
+          </span>
+          <ChevronDown
+            className="size-3"
+            style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', color: '#94a3b8' }}
+          />
+        </div>
+      </button>
+
+      {/* Body */}
+      {open && (
+        <div style={{
+          padding: '14px 16px 16px',
+          background: '#fafcfe',
+          borderTop: '1px solid rgba(130,199,246,0.2)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 14,
+        }}>
+          {/* Tip banner when nothing set */}
+          {!isSet && (
+            <div style={{
+              background: 'rgba(219,241,250,0.5)',
+              border: '1px solid rgba(130,199,246,0.4)',
+              borderRadius: 7,
+              padding: '10px 12px',
+              fontSize: 12,
+              color: '#114574',
+            }}>
+              🏠 Add your crew&apos;s hotel or campsite so the crew sheet can show drive times from base to each station. Useful when there&apos;s a long gap and crew might head back between checkpoints.
+            </div>
+          )}
+
+          {/* HOME BASE LOCATION field */}
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 600, color: '#64748b', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 6 }}>
+              Home Base Location
+            </p>
+            {isSet && !changing ? (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: '#f0fdf4',
+                border: '1px solid #86efac',
+                borderRadius: 6,
+                padding: '8px 10px',
+                gap: 8,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 13 }}>✅</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#15803d' }}>Location set</span>
+                  <span style={{ fontFamily: 'var(--font-geist-mono, monospace)', fontSize: 10, color: '#166534' }}>
+                    {coords!.lat.toFixed(4)}, {coords!.lng.toFixed(4)}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button
+                    type="button"
+                    onClick={() => { setInputValue(`${coords!.lat},${coords!.lng}`); setInputError(''); setChanging(true) }}
+                    style={{ fontSize: 11, color: '#15803d', background: 'transparent', border: '1px solid #86efac', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}
+                  >
+                    Change
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    style={{ fontSize: 11, color: '#94a3b8', background: 'transparent', border: 'none', padding: '2px 4px', cursor: 'pointer' }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => { setInputValue(e.target.value); setInputError('') }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSetLocation() }}
+                    placeholder="Paste a Google Maps link or enter lat, lng…"
+                    style={{
+                      flex: 1,
+                      fontSize: 12,
+                      padding: '6px 10px',
+                      border: `1px solid ${inputError ? '#ef4444' : '#e2e8f0'}`,
+                      borderRadius: 6,
+                      outline: 'none',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSetLocation}
+                    disabled={resolving || !inputValue.trim()}
+                    style={{
+                      fontSize: 12, fontWeight: 600, color: 'white',
+                      background: '#1D7CBE', border: 'none', borderRadius: 6,
+                      padding: '6px 12px', cursor: 'pointer', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {resolving ? 'Checking…' : 'Set location'}
+                  </button>
+                </div>
+                {inputError && (
+                  <p style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>{inputError}</p>
+                )}
+                <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                  e.g. your hotel, campsite, or staging area
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* LOCATION LABEL field — only shown when coords are set */}
+          {isSet && (
+            <div>
+              <p style={{ fontSize: 11, fontWeight: 600, color: '#64748b', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 6 }}>
+                Location Label <span style={{ fontWeight: 400, color: '#94a3b8', textTransform: 'none' }}>(optional)</span>
+              </p>
+              <input
+                type="text"
+                value={label}
+                onChange={(e) => handleLabelChange(e.target.value)}
+                placeholder="e.g. Best Western Auburn, Camp Site B"
+                maxLength={80}
+                style={{
+                  width: '100%',
+                  fontSize: 12,
+                  padding: '6px 10px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 6,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                This name appears on the crew sheet when base-to-station drive times are shown.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Station card ─────────────────────────────────────────────────────────────
 
 interface StationCardProps {
@@ -636,6 +882,11 @@ export function CrewTab({ race, aidStations, raceId, onRaceUpdate, onAidStationU
           </Button>
         </div>
       )}
+
+      {/* Crew Home Base */}
+      <div className="rounded-lg border border-[rgba(130,199,246,0.55)] bg-card overflow-hidden shadow-[0_2px_6px_rgba(29,124,190,0.06)]">
+        <HomeBasePanel race={race} raceId={raceId} onRaceUpdate={onRaceUpdate} />
+      </div>
 
       {/* Crew stations — Location & Parking */}
       {crewStations.length > 0 && (

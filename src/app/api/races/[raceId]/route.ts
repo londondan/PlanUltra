@@ -17,6 +17,7 @@ const RUNNER_PLAN_FIELDS = new Set([
   'paceSec',
   'finishHours',
   'finishMins',
+  'crewHomeBase',
 ])
 
 export async function GET(

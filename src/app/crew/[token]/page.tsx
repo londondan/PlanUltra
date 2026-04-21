@@ -323,6 +323,20 @@ export default async function CrewSheetPage({
     })
   }
 
+  // Fetch base-to-station drive segments when crew home base is set
+  const homeBase = race.crewHomeBase ?? null
+  const baseToStationMap = new Map<number, DriveSegment | null>()
+  if (homeBase && crewStationsWithCoords.length > 0) {
+    const b2sResults = await Promise.all(
+      crewStationsWithCoords.map((s) =>
+        getDriveSegment(homeBase, s.crewParkingCoords!)
+      )
+    )
+    crewStationsWithCoords.forEach((s, i) => {
+      baseToStationMap.set(s.order, b2sResults[i])
+    })
+  }
+
   // Generate QR SVGs for crew stations with parking coords
   const qrSvgMap = new Map<number, string>()
   await Promise.all(
@@ -350,6 +364,7 @@ export default async function CrewSheetPage({
     nonCrewStations: AidStation[]
     destStation: AidStation
     driveSegment: DriveSegment | null
+    baseToStation: DriveSegment | null
   }
   type StationItem = { type: 'station'; station: AidStation }
   type RenderItem = StationItem | BridgeItem
@@ -373,6 +388,7 @@ export default async function CrewSheetPage({
             nonCrewStations: pendingNonCrew,
             destStation: station,
             driveSegment: seg,
+            baseToStation: baseToStationMap.get(station.order) ?? null,
           })
         }
         pendingNonCrew = []
@@ -413,6 +429,50 @@ export default async function CrewSheetPage({
     arrivalEstimates.length > 0
       ? formatTime(arrivalEstimates[arrivalEstimates.length - 1].estimatedArrival)
       : null
+
+  const transitToggleNode = homeBase ? (
+    <div
+      id="transit-toggle"
+      data-current-mode="s2s"
+      style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
+    >
+      <span style={{
+        fontFamily: 'var(--font-geist-sans), Inter, sans-serif',
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.5)',
+      }}>
+        Drive times:
+      </span>
+      <button
+        data-toggle-target="s2s"
+        className="toggle-btn toggle-selected"
+        style={{
+          fontFamily: 'var(--font-geist-sans), Inter, sans-serif',
+          fontSize: 13,
+          padding: '4px 12px',
+          borderRadius: 20,
+          border: '1px solid rgba(130,199,246,0.4)',
+          cursor: 'pointer',
+        }}
+      >
+        Station → Station
+      </button>
+      <button
+        data-toggle-target="b2s"
+        className="toggle-btn"
+        style={{
+          fontFamily: 'var(--font-geist-sans), Inter, sans-serif',
+          fontSize: 13,
+          padding: '4px 12px',
+          borderRadius: 20,
+          border: '1px solid rgba(130,199,246,0.4)',
+          cursor: 'pointer',
+        }}
+      >
+        Base → Station
+      </button>
+    </div>
+  ) : null
 
   return (
     <>
@@ -456,7 +516,11 @@ export default async function CrewSheetPage({
           .segment-bridge { border: 1px solid #82C7F6 !important; }
           /* High contrast overrides */
           .parking-badge { background: #e8f4fb !important; border-color: #82C7F6 !important; color: #114574 !important; }
+          /* Hide transit toggle on print — always show s2s times */
+          .transit-toggle-wrapper { display: none !important; }
         }
+        .toggle-btn { background: transparent; color: rgba(255,255,255,0.6); }
+        .toggle-btn.toggle-selected { background: #1D7CBE; color: white; border-color: #1D7CBE !important; }
         @media (max-width: 639px) {
           .stn-hdr { flex-wrap: wrap !important; gap: 4px 8px !important; align-items: center !important; }
           .stn-name { order: 1; width: 100%; flex: none !important; font-size: 16px !important; white-space: normal !important; overflow: visible !important; margin-bottom: 2px; }
@@ -500,6 +564,7 @@ export default async function CrewSheetPage({
           aidStationCount={aidStationCount}
           targetFinish={targetFinish}
           estFinish={estFinish}
+          transitToggle={transitToggleNode}
         />
 
         {/* Station list */}
@@ -536,7 +601,7 @@ export default async function CrewSheetPage({
               const isLast = idx === renderItems.length - 1
 
               if (item.type === 'bridge') {
-                const { nonCrewStations, destStation, driveSegment } = item
+                const { nonCrewStations, destStation, driveSegment, baseToStation } = item
                 return (
                   <div key={`bridge-${destStation.order}`}>
                     <div
@@ -547,6 +612,14 @@ export default async function CrewSheetPage({
                       {/* Bridge block */}
                       <div
                         className="segment-bridge"
+                        {...(homeBase ? {
+                          'data-s2s-time': driveSegment?.durationText ?? '',
+                          'data-s2s-dist': driveSegment?.distanceText ?? '',
+                          'data-b2s-time': baseToStation?.durationText ?? '',
+                          'data-b2s-dist': baseToStation?.distanceText ?? '',
+                          'data-base-label': homeBase.label || 'Home base',
+                          'data-dest-label': destStation.name,
+                        } : {})}
                         style={{
                           display: 'flex',
                           border: '1px solid rgba(130,199,246,0.28)',
@@ -575,7 +648,7 @@ export default async function CrewSheetPage({
                               background: 'rgba(219,241,250,0.3)',
                             }}
                           >
-                            <div style={{
+                            <div className="bridge-label" style={{
                               fontFamily: 'var(--font-geist-mono), Courier New, monospace',
                               fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase' as const,
                               color: 'rgba(17,69,116,0.45)', marginBottom: 1,
@@ -588,19 +661,32 @@ export default async function CrewSheetPage({
                             }}>
                               {destStation.name}
                             </div>
-                            <div style={{
+                            <div className="bridge-duration" style={{
                               fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
                               fontSize: 15, fontWeight: 800, color: '#1D7CBE',
                               letterSpacing: '-0.02em', marginTop: 1,
                             }}>
                               {driveSegment ? driveSegment.durationText : '—'}
                             </div>
-                            <div style={{
+                            <div className="bridge-distance" style={{
                               fontFamily: 'var(--font-geist-mono), Courier New, monospace',
                               fontSize: 10, color: 'rgba(17,69,116,0.45)',
                             }}>
                               {driveSegment ? driveSegment.distanceText : ''}
                             </div>
+                            {homeBase && (
+                              <div
+                                className="bridge-sublabel"
+                                style={{
+                                  fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+                                  fontSize: 9, color: 'rgba(17,69,116,0.38)',
+                                  letterSpacing: '0.05em', marginTop: 1,
+                                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                                }}
+                              >
+                                Station → Station
+                              </div>
+                            )}
                           </div>
 
                           {/* Right: runner checkpoints */}
@@ -774,6 +860,45 @@ export default async function CrewSheetPage({
           </a>
         </div>
       </div>
+
+      {homeBase && (
+        <script dangerouslySetInnerHTML={{ __html: `
+(function(){
+  var toggle = document.getElementById('transit-toggle');
+  if (!toggle) return;
+  toggle.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-toggle-target]');
+    if (!btn) return;
+    var mode = btn.dataset.toggleTarget;
+    toggle.dataset.currentMode = mode;
+    toggle.querySelectorAll('[data-toggle-target]').forEach(function(b) {
+      b.classList.toggle('toggle-selected', b.dataset.toggleTarget === mode);
+    });
+    document.querySelectorAll('.segment-bridge[data-s2s-time]').forEach(function(bridge) {
+      var labelEl = bridge.querySelector('.bridge-label');
+      var durEl = bridge.querySelector('.bridge-duration');
+      var distEl = bridge.querySelector('.bridge-distance');
+      var subEl = bridge.querySelector('.bridge-sublabel');
+      if (mode === 's2s') {
+        if (labelEl) labelEl.textContent = '\uD83D\uDE97 Drive to';
+        if (durEl) durEl.textContent = bridge.dataset.s2sTime || '\u2014';
+        if (distEl) distEl.textContent = bridge.dataset.s2sDist || '';
+        if (subEl) subEl.textContent = 'Station \u2192 Station';
+      } else {
+        if (labelEl) labelEl.textContent = '\uD83D\uDE97 From base';
+        if (durEl) durEl.textContent = bridge.dataset.b2sTime || '\u2014';
+        if (distEl) distEl.textContent = bridge.dataset.b2sDist || '';
+        if (subEl) {
+          subEl.textContent = bridge.dataset.b2sTime
+            ? (bridge.dataset.baseLabel + ' \u2192 ' + bridge.dataset.destLabel)
+            : 'Route unavailable';
+        }
+      }
+    });
+  });
+})();
+        ` }} />
+      )}
     </>
   )
 }
