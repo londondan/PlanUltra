@@ -37,6 +37,8 @@ interface CrewStationCardProps {
   caloriesPerHour: number | null
   isFinish: boolean
   qrSvg?: string | null
+  visitIndex?: number
+  visitTotal?: number
 }
 
 export function CrewStationCard({
@@ -49,6 +51,8 @@ export function CrewStationCard({
   caloriesPerHour,
   isFinish,
   qrSvg,
+  visitIndex,
+  visitTotal,
 }: CrewStationCardProps) {
   const mileBadge = (station.distanceFromStart * KM_TO_MI).toFixed(1)
 
@@ -92,23 +96,42 @@ export function CrewStationCard({
     </span>
   )
 
+  const visitSublabel = (visitTotal ?? 1) > 1 ? (
+    <span
+      className="visit-sublabel"
+      style={{
+        display: 'block',
+        fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+        fontSize: 12,
+        fontWeight: 700,
+        color: '#1D7CBE',
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase' as const,
+        marginTop: 3,
+      }}
+    >
+      Visit {visitIndex} of {visitTotal}
+    </span>
+  ) : null
+
   // Standard station header row (no-access cards)
   const stationHeader = (
     <div className="stn-hdr" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
       {mileBadgePill}
-      <span
-        className="stn-name"
-        style={{
-          fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
-          fontSize: 15,
-          fontWeight: 700,
-          color: '#02071E',
-          flex: 1,
-          minWidth: 0,
-        }}
-      >
-        {station.name}
-      </span>
+      <div className="station-name-wrap" style={{ flex: 1, minWidth: 0 }}>
+        <span
+          className="stn-name"
+          style={{
+            fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+            fontSize: 15,
+            fontWeight: 700,
+            color: '#02071E',
+          }}
+        >
+          {station.name}
+        </span>
+        {visitSublabel}
+      </div>
       <div className="stn-right" style={{ flexShrink: 0, textAlign: 'right' }}>
         {arrivalTime && (
           <div
@@ -148,19 +171,20 @@ export function CrewStationCard({
         >
           <div className="stn-hdr" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span className="stn-mile" style={{ flexShrink: 0 }}>{mileBadgePillSky}</span>
-            <span
-              className="stn-name"
-              style={{
-                fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
-                fontSize: 15,
-                fontWeight: 700,
-                color: 'white',
-                flex: 1,
-                minWidth: 0,
-              }}
-            >
-              {station.name}
-            </span>
+            <div className="station-name-wrap" style={{ flex: 1, minWidth: 0 }}>
+              <span
+                className="stn-name"
+                style={{
+                  fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: 'white',
+                }}
+              >
+                {station.name}
+              </span>
+              {visitSublabel}
+            </div>
             <div className="stn-right" style={{ flexShrink: 0, textAlign: 'right' }}>
               {arrivalTime && (
                 <div
@@ -264,19 +288,20 @@ export function CrewStationCard({
   const crewStationHeader = (
     <div className="stn-hdr" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
       {mileBadgePill}
-      <span
-        className="stn-name"
-        style={{
-          fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
-          fontSize: 15,
-          fontWeight: 700,
-          color: '#02071E',
-          flex: 1,
-          minWidth: 0,
-        }}
-      >
-        {station.name}
-      </span>
+      <div className="station-name-wrap" style={{ flex: 1, minWidth: 0 }}>
+        <span
+          className="stn-name"
+          style={{
+            fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+            fontSize: 15,
+            fontWeight: 700,
+            color: '#02071E',
+          }}
+        >
+          {station.name}
+        </span>
+        {visitSublabel}
+      </div>
       <div className="stn-right" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
         {arrivalTime && (
           <div

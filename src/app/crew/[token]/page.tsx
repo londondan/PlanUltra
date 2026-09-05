@@ -1,4 +1,5 @@
 import QRCode from 'qrcode'
+import { getStationVisitInfo } from '@/lib/utils/station-display'
 import { getRaceByCrewToken } from '@/lib/db/races'
 import { getAidStations } from '@/lib/db/aid-stations'
 import { getSectionPlans } from '@/lib/db/sections'
@@ -243,6 +244,9 @@ export default async function CrewSheetPage({
   ])
 
   const sortedStations = [...aidStations].sort((a, b) => a.order - b.order)
+  const visitInfo = getStationVisitInfo(sortedStations)
+  const visitInfoMap = new Map(sortedStations.map((s, i) => [s.order, visitInfo[i]]))
+
   const totalDistanceKm =
     sortedStations.length > 0
       ? sortedStations[sortedStations.length - 1].distanceFromStart
@@ -659,7 +663,7 @@ export default async function CrewSheetPage({
                               fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
                               fontSize: 12, fontWeight: 700, color: '#114574',
                             }}>
-                              {destStation.name}
+                              {visitInfoMap.get(destStation.order)?.displayName ?? destStation.name}
                             </div>
                             <div className="bridge-duration" style={{
                               fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
@@ -806,6 +810,8 @@ export default async function CrewSheetPage({
                       caloriesPerHour={race.caloriesPerHour ?? null}
                       isFinish={isFinish}
                       qrSvg={qrSvgMap.get(station.order) ?? null}
+                      visitIndex={visitInfoMap.get(station.order)?.visitIndex ?? 1}
+                      visitTotal={visitInfoMap.get(station.order)?.visitTotal ?? 1}
                     />
                   </div>
                   {!isLast && (

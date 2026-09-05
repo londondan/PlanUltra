@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { SectionCard } from '@/components/SectionCard'
 import { computeSections } from '@/lib/section-utils'
+import { disambiguateStationNames } from '@/lib/utils/station-display'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { getGuestRaceById, upsertGuestRace, upsertGuestSection } from '@/lib/guest-storage'
@@ -63,6 +64,10 @@ export function PlanTab({
   const calDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const sections = computeSections(aidStations, arrivalEstimates, weatherEntries, trackPoints, raceStart)
+
+  const sortedForDisambig = [...aidStations].sort((a, b) => a.order - b.order)
+  const displayNames = disambiguateStationNames(sortedForDisambig)
+  const stationDisplayMap = new Map(sortedForDisambig.map((s, i) => [s.order, displayNames[i]]))
 
   const handleChange = (order: number, updates: Partial<SectionPlan>) => {
     const idx = sectionPlans.findIndex((p) => p.fromStationOrder === order)
@@ -145,6 +150,8 @@ export function PlanTab({
           onSave={handleSave}
           raceLat={race.startLat ?? trackPoints[0]?.lat}
           raceLon={race.startLon ?? trackPoints[0]?.lon}
+          fromDisplayName={stationDisplayMap.get(section.fromStation.order)}
+          toDisplayName={stationDisplayMap.get(section.toStation.order)}
         />
       ))}
     </div>

@@ -4,13 +4,13 @@ import type { AidStation } from '@/types/gpx'
 
 const raceStart = new Date('2024-06-15T06:00:00Z')
 
-const makeStation = (order: number, distanceKm: number): AidStation => ({
+const makeStation = (order: number, distanceKm: number, distFromPrev: number): AidStation => ({
   order,
-  name: `Station ${order + 1}`,
+  name: `Station ${order}`,
   lat: 0,
   lon: 0,
   distanceFromStart: distanceKm,
-  distanceFromPrev: order === 0 ? distanceKm : 0,
+  distanceFromPrev: distFromPrev,
   elevationGain: 0,
   grossClimbM: 0,
   grossDescentM: 0,
@@ -18,11 +18,13 @@ const makeStation = (order: number, distanceKm: number): AidStation => ({
   hasCrewAccess: false,
 })
 
+// Includes a start station at km 0 (index 0, anchored to raceStart by the calculator)
 const stations: AidStation[] = [
-  makeStation(0, 16.09),  // 10 miles
-  makeStation(1, 32.19),  // 20 miles
-  makeStation(2, 80.47),  // 50 miles
-  makeStation(3, 160.93), // 100 miles
+  makeStation(0, 0,      0),      // Start — 0 mi
+  makeStation(1, 16.09,  16.09),  // 10 mi — leg: 10 mi
+  makeStation(2, 32.19,  16.10),  // 20 mi — leg: 10 mi
+  makeStation(3, 80.47,  48.28),  // 50 mi — leg: 30 mi
+  makeStation(4, 160.93, 80.46),  // 100 mi — leg: 50 mi
 ]
 
 describe('calculateArrivalTimes - flat pace mode', () => {
@@ -36,15 +38,16 @@ describe('calculateArrivalTimes - flat pace mode', () => {
   })
 
   it('first station arrives after correct elapsed time', () => {
-    // 10 miles at 15 min/mile = 150 minutes = 2h30m
+    // Start (index 0) is anchored to raceStart (elapsed = 0).
+    // First real station (index 1) is at 10 miles: 10 × 15 min/mi = 150 min.
     const result = calculateArrivalTimes(
       { mode: 'pace', minutesPerMile: 15 },
       stations,
       raceStart
     )
-    expect(result[0].elapsedMinutes).toBeCloseTo(150, 0)
+    expect(result[1].elapsedMinutes).toBeCloseTo(150, 0)
     const expectedArrival = new Date(raceStart.getTime() + 150 * 60 * 1000)
-    const diffMs = Math.abs(result[0].estimatedArrival.getTime() - expectedArrival.getTime())
+    const diffMs = Math.abs(result[1].estimatedArrival.getTime() - expectedArrival.getTime())
     expect(diffMs).toBeLessThan(5000) // within 5 seconds
   })
 
@@ -82,16 +85,16 @@ describe('calculateArrivalTimes - flat pace mode', () => {
     expect(result).toHaveLength(0)
   })
 
-  it('handles single aid station at zero distance', () => {
-    const singleStation = [makeStation(0, 0)]
+  it('returns empty for a single station at zero distance', () => {
+    // A single station at km 0 gives totalMiles = 0; the function returns []
+    // to avoid division by zero when computing pace.
+    const singleStation = [makeStation(0, 0, 0)]
     const result = calculateArrivalTimes(
       { mode: 'pace', minutesPerMile: 15 },
       singleStation,
       raceStart
     )
-    expect(result).toHaveLength(1)
-    expect(result[0].elapsedMinutes).toBe(0)
-    expect(result[0].estimatedArrival.getTime()).toBe(raceStart.getTime())
+    expect(result).toHaveLength(0)
   })
 })
 

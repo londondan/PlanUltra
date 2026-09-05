@@ -17,6 +17,8 @@ interface SectionCardProps {
   onSave: (plan: SectionPlan) => void
   raceLat?: number
   raceLon?: number
+  fromDisplayName?: string
+  toDisplayName?: string
 }
 
 function formatDuration(minutes: number): string {
@@ -43,7 +45,7 @@ const gearPillStyle = (key: string, checked: boolean): React.CSSProperties => {
     : { backgroundColor: '#f1f5f9', color: '#475569', borderColor: '#f1f5f9' }
 }
 
-export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, raceLat, raceLon }: SectionCardProps) {
+export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, raceLat, raceLon, fromDisplayName, toDisplayName }: SectionCardProps) {
   const [open, setOpen] = useState(false)
   const [saved, setSaved] = useState(false)
   const [hovered, setHovered] = useState(false)
@@ -128,7 +130,7 @@ export function SectionCard({ section, plan, caloriesPerHour, onChange, onSave, 
         {/* Center: title + chips */}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold">
-            {fromStation.name} → {toStation.name}
+            {fromDisplayName ?? fromStation.name} → {toDisplayName ?? toStation.name}
           </p>
           <div className="flex flex-wrap gap-1 mt-1">
             <span className="text-xs text-muted-foreground">{distanceMiles.toFixed(1)} mi</span>

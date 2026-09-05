@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { calculateArrivalTimesWithOverrides, type ArrivalEstimate } from '@/lib/pace-calculator'
+import { disambiguateStationNames } from '@/lib/utils/station-display'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -74,6 +75,10 @@ export function PaceTab({ race, aidStations, raceStart, onArrivalEstimatesChange
     targetMinutes && totalMiles > 0
       ? calculateArrivalTimesWithOverrides(targetMinutes, aidStations, raceStart, localOverrides)
       : []
+
+  const sortedForDisambig = [...aidStations].sort((a, b) => a.order - b.order)
+  const displayNames = disambiguateStationNames(sortedForDisambig)
+  const stationDisplayMap = new Map(sortedForDisambig.map((s, i) => [s.order, displayNames[i]]))
 
   const avgMinutesPerMile = targetMinutes && totalMiles > 0 ? targetMinutes / totalMiles : null
 
@@ -266,8 +271,8 @@ export function PaceTab({ race, aidStations, raceStart, onArrivalEstimatesChange
                     const endMileMi = (currentStation?.distanceFromStart ?? 0) * KM_TO_MI
                     const legDistMi = endMileMi - startMileMi
                     const segmentLabel = prevStation
-                      ? `${prevStation.name} → ${est.name}`
-                      : `Start → ${est.name}`
+                      ? `${stationDisplayMap.get(prevStation.order) ?? prevStation.name} → ${stationDisplayMap.get(est.order) ?? est.name}`
+                      : `Start → ${stationDisplayMap.get(est.order) ?? est.name}`
 
                     const prevElapsedMin = i > 0 ? estimates[i - 1].elapsedMinutes : 0
                     const segmentMinutes = est.elapsedMinutes - prevElapsedMin
