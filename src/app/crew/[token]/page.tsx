@@ -481,47 +481,237 @@ export default async function CrewSheetPage({
   return (
     <>
       <style>{`
+        @page { size: letter; margin: 0.4in; }
         @media print {
+          body { background: white; font-size: 11px; }
+
+          /* Hide screen-only elements */
           .print-hide { display: none !important; }
-          body { background: white; }
-          .crew-header { background: #1D7CBE !important; }
-          .station-card { break-inside: avoid; page-break-inside: avoid; }
-          .segment-bridge { break-inside: avoid; page-break-inside: avoid; }
-          .station-card--crew {
-            background: white !important;
-            border-left: 4px solid #1D7CBE !important;
+          .transit-toggle-wrapper { display: none !important; }
+          .bridge-screen { display: none !important; }
+
+          /* Show print-only elements */
+          .bridge-print { display: block !important; }
+
+          /* ── Header: compact strip ── */
+          .crew-header {
+            background: none !important;
+            border-bottom: 3px solid #1D7CBE !important;
+            padding: 0 0 8px 0 !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: flex-end !important;
+            color: #02071E !important;
           }
-          .condition-chip { border: 1px solid #114574 !important; background: white !important; }
-          .timeline-dot-inner { background: #1D7CBE !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          a { text-decoration: none !important; color: inherit !important; }
-          /* Maps link: show URL as text on print */
-          .maps-link::after {
-            content: " — maps.google.com/?q=" attr(data-lat) "," attr(data-lng);
-            font-size: 9px;
-            color: #114574;
-            font-weight: 400;
+          .crew-header-left { display: block !important; flex: 1 !important; min-width: 0 !important; }
+          .crew-header-right {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 16px !important;
+            border-top: none !important;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            flex-wrap: nowrap !important;
+            align-items: flex-end !important;
+          }
+          .crew-hdr-racename {
+            color: #02071E !important;
+            font-size: 17px !important;
+            margin-bottom: 2px !important;
+          }
+          .crew-hdr-runner {
+            color: #114574 !important;
+            font-size: 10.5px !important;
+            margin-bottom: 2px !important;
+          }
+          .crew-hdr-meta {
+            color: #114574 !important;
+            font-size: 10.5px !important;
+            margin-bottom: 0 !important;
+          }
+          .crew-hdr-published {
+            color: #114574 !important;
+            font-size: 8px !important;
+            margin-top: 3px !important;
+          }
+          .header-stat { align-items: flex-end !important; }
+          .hstat-val {
+            color: #1D7CBE !important;
+            font-size: 14px !important;
+          }
+          .hstat-lbl {
+            color: #114574 !important;
+            font-size: 8px !important;
+          }
+
+          /* ── Station card ── */
+          .station-card { break-inside: avoid; page-break-inside: avoid; }
+          .station-card--crew {
+            border: 1px solid #1D7CBE !important;
+            border-left: 4px solid #1D7CBE !important;
+            border-radius: 4px !important;
+            overflow: visible !important;
+            margin: 5px 0 !important;
+          }
+          .station-header-mist {
+            background: none !important;
+            padding: 5px 8px !important;
+            border-bottom-color: #82C7F6 !important;
+            border-right-color: #82C7F6 !important;
+          }
+          .crew-access-badge { display: none !important; }
+          .parking-badge {
+            background: none !important;
+            border: 1px solid #1D7CBE !important;
+            color: #114574 !important;
+          }
+          .stn-mile {
+            background: none !important;
+            border: 1px solid #1D7CBE !important;
+            color: #114574 !important;
+            font-size: 8.5px !important;
+            padding: 1px 5px !important;
+          }
+          .stn-name { font-size: 12.5px !important; color: #02071E !important; }
+
+          /* ── Location strip ── */
+          .station-card-top { display: grid !important; grid-template-columns: 1fr auto !important; }
+          .location-strip {
+            background: none !important;
+            padding: 3px 8px 6px !important;
+            border-bottom: none !important;
+            border-right: none !important;
+            gap: 3px !important;
           }
           .maps-link {
-            background: transparent !important;
+            background: none !important;
             border: none !important;
             padding: 0 !important;
             color: #1D7CBE !important;
-            font-size: 10px !important;
+            font-size: 8.5px !important;
+            font-weight: 600 !important;
           }
-          /* QR frame */
-          .qr-frame { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          /* Location strip */
-          .location-strip { background: #f0f9ff !important; border-bottom: 1px solid #82C7F6 !important; border-right-color: #82C7F6 !important; }
-          /* QR sidebar — preserve grid on print, high-contrast colours */
-          .station-card-top { display: grid !important; grid-template-columns: 1fr auto !important; }
-          .qr-sidebar { background: #f0f9ff !important; border-left-color: #82C7F6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          /* Bridge */
-          .bridge-drive-panel { background: #e8f4fb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .segment-bridge { border: 1px solid #82C7F6 !important; }
-          /* High contrast overrides */
-          .parking-badge { background: #e8f4fb !important; border-color: #82C7F6 !important; color: #114574 !important; }
-          /* Hide transit toggle on print — always show s2s times */
-          .transit-toggle-wrapper { display: none !important; }
+          .maps-link::after {
+            content: " — maps.google.com/?q=" attr(data-lat) "," attr(data-lng);
+            font-size: 8.5px;
+            color: #114574;
+            font-weight: 400;
+          }
+          .location-notes-block {
+            padding: 2px 0 2px 6px !important;
+            border-left: 2px solid #82C7F6 !important;
+            border-radius: 0 !important;
+            background: none !important;
+          }
+          .location-notes-block > div:first-child { display: none !important; }
+          .location-notes-block > div:last-child {
+            font-size: 9px !important;
+            line-height: 1.3 !important;
+            color: #114574 !important;
+          }
+
+          /* ── QR sidebar ── */
+          .qr-sidebar {
+            background: none !important;
+            border-left-color: #82C7F6 !important;
+            padding: 4px 6px !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .qr-frame {
+            width: 46px !important;
+            height: 46px !important;
+            border-color: #1D7CBE !important;
+            border-radius: 3px !important;
+            padding: 2px !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .qr-caption {
+            font-size: 6.3px !important;
+            color: #114574 !important;
+            width: 46px !important;
+          }
+
+          /* ── Bridge (print version) ── */
+          .segment-bridge {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            display: block !important;
+            border: 1px solid #82C7F6 !important;
+            border-radius: 4px !important;
+            background: none !important;
+            margin: 3px 0 !important;
+            padding: 0 !important;
+          }
+          .bridge-print {
+            padding: 4px 8px 5px !important;
+          }
+          .bridge-print-drive {
+            font-size: 9.5px !important;
+            font-weight: 700 !important;
+            color: #114574 !important;
+            display: flex !important;
+            align-items: baseline !important;
+            gap: 4px !important;
+            flex-wrap: wrap !important;
+          }
+          .bridge-print-time { color: #1D7CBE !important; font-weight: 800 !important; }
+          .bridge-print-none { font-weight: 400 !important; color: #114574 !important; }
+          .bridge-print-cp {
+            display: flex !important;
+            align-items: center !important;
+            gap: 7px !important;
+            font-size: 9px !important;
+            color: #114574 !important;
+            padding: 1.5px 0 !important;
+            margin-top: 1.5px !important;
+          }
+          .bridge-print-dot {
+            display: inline-block !important;
+            width: 4px !important;
+            height: 4px !important;
+            border-radius: 50% !important;
+            background: #82C7F6 !important;
+            border: 1px solid #1D7CBE !important;
+            flex-shrink: 0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .bridge-print-mi {
+            font-family: 'Courier New', monospace !important;
+            font-size: 8px !important;
+            border: 1px solid #82C7F6 !important;
+            color: #114574 !important;
+            padding: 0 4px !important;
+            border-radius: 3px !important;
+            white-space: nowrap !important;
+          }
+          .bridge-print-name { flex: 1 !important; font-weight: 500 !important; }
+          .bridge-print-eta {
+            font-family: 'Courier New', monospace !important;
+            font-size: 8.5px !important;
+            color: #1D7CBE !important;
+            font-weight: 600 !important;
+            white-space: nowrap !important;
+          }
+
+          /* ── Gear pills: comma-separated on print ── */
+          .gear-pill-container { gap: 0 !important; flex-wrap: wrap !important; }
+          .gear-pill {
+            background: none !important;
+            border: none !important;
+            font-size: 9px !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            color: #114574 !important;
+          }
+          .gear-pill:not(:last-child)::after { content: " ·"; }
+
+          /* ── Misc ── */
+          .condition-chip { border: 1px solid #114574 !important; background: white !important; }
+          .timeline-dot-inner { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          a { text-decoration: none !important; color: inherit !important; }
         }
         .toggle-btn { background: transparent; color: rgba(255,255,255,0.6); }
         .toggle-btn.toggle-selected { background: #1D7CBE; color: white; border-color: #1D7CBE !important; }
@@ -633,8 +823,39 @@ export default async function CrewSheetPage({
                           margin: '2px 0',
                         }}
                       >
+                        {/* Print-only: single-line drive + compact checkpoint list */}
+                        <div className="bridge-print" style={{ display: 'none' }}>
+                          <div className="bridge-print-drive">
+                            {'🚗 Drive to '}
+                            {visitInfoMap.get(destStation.order)?.displayName ?? destStation.name}
+                            {' — '}
+                            <span className="bridge-print-time">
+                              {driveSegment ? driveSegment.durationText : '—'}
+                            </span>
+                            {driveSegment && ` · ${driveSegment.distanceText}`}
+                            {nonCrewStations.length === 0 && (
+                              <span className="bridge-print-none"> — No intermediate checkpoints</span>
+                            )}
+                          </div>
+                          {nonCrewStations.map((cp) => {
+                            const cpMile = (cp.distanceFromStart * KM_TO_MI).toFixed(1)
+                            const cpArrival = arrivalMap.get(cp.order)?.estimatedArrival ?? null
+                            return (
+                              <div key={cp.order} className="bridge-print-cp">
+                                <span className="bridge-print-dot" />
+                                <span className="bridge-print-mi">MI {cpMile}</span>
+                                <span className="bridge-print-name">{cp.name}</span>
+                                {cpArrival && (
+                                  <span className="bridge-print-eta">
+                                    {cpArrival.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                  </span>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
                         <div
-                          className="bridge-inner"
+                          className="bridge-inner bridge-screen"
                           style={{ display: 'flex', flex: 1 }}
                         >
                           {/* Left: drive info */}

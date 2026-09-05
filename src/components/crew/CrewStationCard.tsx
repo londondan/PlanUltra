@@ -318,6 +318,7 @@ export function CrewStationCard({
         )}
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <span
+            className="crew-access-badge"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -370,6 +371,7 @@ export function CrewStationCard({
       <div className="station-card-left" style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* Mist header */}
         <div
+          className="station-header-mist"
           style={{
             background: '#DBF1FA',
             padding: '14px 14px 14px 18px',
@@ -419,6 +421,7 @@ export function CrewStationCard({
           </a>
           {station.crewLocationNotes?.trim() && (
             <div
+              className="location-notes-block"
               style={{
                 padding: '7px 11px',
                 background: 'rgba(255,255,255,0.8)',
@@ -508,6 +511,7 @@ export function CrewStationCard({
   ) : (
     /* No coords — plain mist header, no wrapper */
     <div
+      className="station-header-mist"
       style={{
         background: '#DBF1FA',
         padding: '14px 18px',
@@ -568,10 +572,11 @@ export function CrewStationCard({
         {gearItems.length > 0 && (
           <div>
             <p style={LABEL_STYLE}>Grab from drop bag</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            <div className="gear-pill-container" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {gearItems.map((item) => (
                 <span
                   key={item}
+                  className="gear-pill"
                   style={{
                     background: '#DBF1FA',
                     border: '1px solid rgba(130,199,246,0.5)',

@@ -72,49 +72,56 @@ export function CrewSheetHeader({
           color: 'white',
         }}
       >
-        <p
-          style={{
-            fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
-            fontSize: 26,
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            color: 'white',
-            marginBottom: 6,
-          }}
-        >
-          {raceName}
-        </p>
-        <p
-          style={{
-            fontSize: 13,
-            color: '#82C7F6',
-            marginBottom: 4,
-          }}
-        >
-          Crew sheet for {runnerName}
-        </p>
-        <p
-          style={{
-            fontSize: 12,
-            color: 'rgba(255,255,255,0.5)',
-            marginBottom: 12,
-          }}
-        >
-          {raceDate} · {totalMiles} mi
-        </p>
-        <p
-          style={{
-            fontFamily: 'var(--font-geist-mono), Courier New, monospace',
-            fontSize: 10,
-            color: 'rgba(255,255,255,0.28)',
-          }}
-        >
-          Published {publishedAt}
-        </p>
+        <div className="crew-header-left">
+          <p
+            className="crew-hdr-racename"
+            style={{
+              fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
+              fontSize: 26,
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              color: 'white',
+              marginBottom: 6,
+            }}
+          >
+            {raceName}
+          </p>
+          <p
+            className="crew-hdr-runner"
+            style={{
+              fontSize: 13,
+              color: '#82C7F6',
+              marginBottom: 4,
+            }}
+          >
+            Crew sheet for {runnerName}
+          </p>
+          <p
+            className="crew-hdr-meta"
+            style={{
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: 12,
+            }}
+          >
+            {raceDate} · {totalMiles} mi
+          </p>
+          <p
+            className="crew-hdr-published"
+            style={{
+              fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+              fontSize: 10,
+              color: 'rgba(255,255,255,0.28)',
+            }}
+          >
+            Published {publishedAt}
+          </p>
+        </div>
 
         {/* Stats row */}
         {showStats && (
           <div
+            className="crew-header-right"
             style={{
               display: 'flex',
               gap: 24,
@@ -125,8 +132,9 @@ export function CrewSheetHeader({
             }}
           >
             {stats.map(({ val, lbl }) => (
-              <div key={lbl} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <div key={lbl} className="header-stat" style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <span
+                  className="hstat-val"
                   style={{
                     fontFamily: 'var(--font-dm-sans), Inter, sans-serif',
                     fontSize: 18,
@@ -138,6 +146,7 @@ export function CrewSheetHeader({
                   {val}
                 </span>
                 <span
+                  className="hstat-lbl"
                   style={{
                     fontSize: 10,
                     color: 'rgba(255,255,255,0.35)',
