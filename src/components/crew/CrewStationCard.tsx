@@ -476,8 +476,8 @@ export function CrewStationCard({
           <div
             className="qr-frame"
             style={{
-              width: 72,
-              height: 72,
+              width: 96,
+              height: 96,
               border: '1.5px solid rgba(130,199,246,0.55)',
               borderRadius: 8,
               background: 'white',
@@ -500,7 +500,7 @@ export function CrewStationCard({
               color: 'rgba(17,69,116,0.45)',
               textAlign: 'center',
               lineHeight: 1.3,
-              width: 72,
+              width: 96,
             }}
           >
             Scan for<br />directions

@@ -351,9 +351,9 @@ export default async function CrewSheetPage({
         try {
           const svg = await QRCode.toString(mapsUrl, {
             type: 'svg',
-            color: { dark: '#114574', light: '#ffffff' },
+            color: { dark: '#000000', light: '#ffffff' },
             margin: 1,
-            width: 72,
+            width: 120,
           })
           qrSvgMap.set(s.order, svg)
         } catch {
@@ -619,18 +619,18 @@ export default async function CrewSheetPage({
             print-color-adjust: exact;
           }
           .qr-frame {
-            width: 46px !important;
-            height: 46px !important;
-            border-color: #1D7CBE !important;
+            width: 80px !important;
+            height: 80px !important;
+            border-color: #000000 !important;
             border-radius: 3px !important;
-            padding: 2px !important;
+            padding: 3px !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
           .qr-caption {
             font-size: 6.3px !important;
             color: #114574 !important;
-            width: 46px !important;
+            width: 80px !important;
           }
 
           /* ── Bridge (print version) ── */
@@ -722,8 +722,8 @@ export default async function CrewSheetPage({
           .stn-right { order: 3; margin-left: auto; }
           /* Location strip: shrink QR sidebar at narrow widths, keep grid */
           .qr-sidebar { padding: 8px 10px !important; }
-          .qr-frame { width: 60px !important; height: 60px !important; }
-          .qr-caption { font-size: 7px !important; width: 60px !important; }
+          .qr-frame { width: 72px !important; height: 72px !important; }
+          .qr-caption { font-size: 7px !important; width: 72px !important; }
           .location-strip { padding: 8px 0 9px 12px !important; }
           /* Bridge: stack on mobile */
           .bridge-inner { flex-direction: column !important; }
