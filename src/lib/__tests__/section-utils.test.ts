@@ -53,13 +53,20 @@ function makeWeather(elapsedHours: number, temperature: number, isNight = false)
 }
 
 describe('computeSections', () => {
-  it('returns [] when fewer than 2 drop-bag / boundary stations', () => {
+  it('returns 1 section for old data with no isStart/isFinish/hasDropBag flags (infers first/last as boundaries)', () => {
     const stations = [
       makeStation(0, 0),
       makeStation(1, 10),
       makeStation(2, 20),
     ]
     const result = computeSections(stations, [], [], [], raceStart)
+    expect(result).toHaveLength(1)
+    expect(result[0].fromStation.order).toBe(0)
+    expect(result[0].toStation.order).toBe(2)
+  })
+
+  it('returns [] when fewer than 2 stations', () => {
+    const result = computeSections([makeStation(0, 0)], [], [], [], raceStart)
     expect(result).toEqual([])
   })
 

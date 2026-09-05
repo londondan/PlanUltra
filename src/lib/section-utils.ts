@@ -15,9 +15,17 @@ export function computeSections(
   raceStart: Date
 ): Section[] {
   // Step 1: identify drop-bag boundary stations
-  const boundaries = aidStations
-    .filter((s) => s.isStart || s.isFinish || s.hasDropBag)
-    .sort((a, b) => a.order - b.order)
+  // For old data lacking isStart/isFinish flags, infer from position.
+  const sorted = [...aidStations].sort((a, b) => a.order - b.order)
+  const hasExplicitStart = aidStations.some((s) => s.isStart)
+  const hasExplicitFinish = aidStations.some((s) => s.isFinish)
+
+  const boundaries = sorted.filter((s, i) => {
+    if (s.isStart || s.isFinish || s.hasDropBag) return true
+    if (!hasExplicitStart && i === 0) return true
+    if (!hasExplicitFinish && i === sorted.length - 1) return true
+    return false
+  })
 
   if (boundaries.length < 2) return []
 

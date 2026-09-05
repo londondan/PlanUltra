@@ -74,17 +74,17 @@ export async function getRaceByCrewToken(token: string): Promise<Race | null> {
       if (race.gpxData) race.gpxData = decompressGPX(race.gpxData)
       return race
     }
-    return null
+    // GSI query succeeded but returned empty — fall through to scan to guard
+    // against eventual-consistency misses and items predating the GSI.
   } catch (err) {
-    // If IAM doesn't cover the index yet, fall back to a full-table scan.
+    // If IAM doesn't cover the index, fall back to a full-table scan.
     const errName = (err as { name?: string }).name ?? ''
     if (errName !== 'AccessDeniedException' && errName !== 'ValidationException') {
-      throw err // re-throw unexpected errors
+      throw err
     }
   }
 
-  // Fallback: scan (slow, but correct until IAM policy covers the index)
-  const { ScanCommand } = await import('@aws-sdk/lib-dynamodb')
+  // Fallback: scan (authoritative — always runs when GSI can't confirm the result)
   const scan = await docClient.send(
     new ScanCommand({
       TableName: TABLE_NAME,
