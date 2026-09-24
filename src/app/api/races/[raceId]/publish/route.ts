@@ -1,7 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { randomBytes } from 'crypto'
 import { auth } from '@/lib/auth'
-import { getRaceById, updateRace } from '@/lib/db/races'
+import { getRaceById, updateRace, LIBRARY_USER_ID } from '@/lib/db/races'
+import { isAdmin } from '@/lib/admin'
+
+async function resolveRace(userId: string, email: string | null | undefined, raceId: string) {
+  const race = await getRaceById(userId, raceId)
+  if (race) return { race, ownerId: userId }
+  // Admin can also publish/unpublish library races
+  if (isAdmin(email)) {
+    const libraryRace = await getRaceById(LIBRARY_USER_ID, raceId)
+    if (libraryRace) return { race: libraryRace, ownerId: LIBRARY_USER_ID }
+  }
+  return null
+}
 
 export async function POST(
   _req: NextRequest,
@@ -13,15 +25,15 @@ export async function POST(
   }
 
   const { raceId } = await params
-  const race = await getRaceById(session.user.id, raceId)
-  if (!race) {
+  const resolved = await resolveRace(session.user.id, session.user.email, raceId)
+  if (!resolved) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
   const crewShareToken = randomBytes(12).toString('base64url')
   const crewPublishedAt = new Date().toISOString()
   const runnerName = session.user.name ?? ''
-  await updateRace(session.user.id, raceId, { crewShareToken, crewPublishedAt, runnerName })
+  await updateRace(resolved.ownerId, raceId, { crewShareToken, crewPublishedAt, runnerName })
   return NextResponse.json({ crewShareToken, crewPublishedAt })
 }
 
@@ -35,14 +47,12 @@ export async function DELETE(
   }
 
   const { raceId } = await params
-  const race = await getRaceById(session.user.id, raceId)
-  if (!race) {
+  const resolved = await resolveRace(session.user.id, session.user.email, raceId)
+  if (!resolved) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  // DynamoDB doesn't support unsetting via UpdateExpression SET with undefined;
-  // we store empty string to indicate unpublished
-  await updateRace(session.user.id, raceId, {
+  await updateRace(resolved.ownerId, raceId, {
     crewShareToken: undefined,
     crewPublishedAt: undefined,
   })

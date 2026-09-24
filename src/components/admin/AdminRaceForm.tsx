@@ -67,6 +67,42 @@ export function AdminRaceForm({ race, initialAidStations, showCreatedBanner }: A
   const [showGpxConfirm, setShowGpxConfirm] = useState(false)
   const [pendingSubmit, setPendingSubmit] = useState(false)
 
+  // Crew sheet publish
+  const [crewShareToken, setCrewShareToken] = useState(race?.crewShareToken ?? '')
+  const [publishing, setPublishing] = useState(false)
+  const [publishError, setPublishError] = useState<string | null>(null)
+
+  const handlePublish = async () => {
+    if (!race?.raceId) return
+    setPublishing(true)
+    setPublishError(null)
+    try {
+      const res = await fetch(`/api/races/${race.raceId}/publish`, { method: 'POST' })
+      if (!res.ok) throw new Error('Failed to publish')
+      const data = await res.json()
+      setCrewShareToken(data.crewShareToken)
+    } catch {
+      setPublishError('Failed to publish. Try again.')
+    } finally {
+      setPublishing(false)
+    }
+  }
+
+  const handleUnpublish = async () => {
+    if (!race?.raceId) return
+    setPublishing(true)
+    setPublishError(null)
+    try {
+      const res = await fetch(`/api/races/${race.raceId}/publish`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to unpublish')
+      setCrewShareToken('')
+    } catch {
+      setPublishError('Failed to unpublish. Try again.')
+    } finally {
+      setPublishing(false)
+    }
+  }
+
   const handleFile = async (file: File) => {
     setError(null)
     try {
@@ -510,6 +546,51 @@ export function AdminRaceForm({ race, initialAidStations, showCreatedBanner }: A
                 })}
               </CardContent>
             )}
+          </Card>
+        )}
+
+        {/* Crew sheet publish — only shown when editing an existing race */}
+        {isEdit && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Crew sheet</CardTitle>
+              <CardDescription>Publish a public crew sheet URL for this library race.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {crewShareToken ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Published at:</p>
+                  <a
+                    href={`/crew/${crewShareToken}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-mono text-primary underline break-all"
+                  >
+                    /crew/{crewShareToken}
+                  </a>
+                  <div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleUnpublish}
+                      disabled={publishing}
+                    >
+                      {publishing ? 'Unpublishing…' : 'Unpublish'}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={handlePublish}
+                  disabled={publishing}
+                >
+                  {publishing ? 'Publishing…' : 'Publish crew sheet'}
+                </Button>
+              )}
+              {publishError && <p className="text-sm text-destructive">{publishError}</p>}
+            </CardContent>
           </Card>
         )}
 
