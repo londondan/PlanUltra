@@ -29,9 +29,10 @@ export interface AidStation {
   visitNumber?: number    // 1-indexed per unique station name; defaults to 1
   isStart?: boolean
   isFinish?: boolean
-  // PRD-022: crew location data (only meaningful when hasCrewAccess === true)
+  // PRD-022 / PRD-031: crew location data (only meaningful when hasCrewAccess === true)
   crewParkingCoords?: { lat: number; lng: number }
-  crewParkingType?: 'parking-lot' | 'side-of-road' | 'trailhead' | 'drop-off'
+  crewParkingUrl?: string     // original Google Maps link; falls back to coords if absent
+  crewParkingType?: 'parking-lot' | 'side-of-road' | 'trailhead' | 'drop-off' | 'shuttle' | 'walk-in'
   crewLocationNotes?: string  // free text, max 500 chars
   // PRD-025: admin-only provenance metadata; never copied to user races
   crewParkingCoordsSource?: 'gpx' | 'admin'

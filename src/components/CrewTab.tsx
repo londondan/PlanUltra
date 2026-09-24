@@ -9,13 +9,15 @@ import type { Coordinates } from '@/lib/maps'
 
 const KM_TO_MI = 0.621371
 
-type ParkingType = 'parking-lot' | 'side-of-road' | 'trailhead' | 'drop-off'
+type ParkingType = 'parking-lot' | 'side-of-road' | 'trailhead' | 'drop-off' | 'shuttle' | 'walk-in'
 
 const PARKING_OPTIONS: { value: ParkingType; icon: string; label: string; desc: string }[] = [
   { value: 'parking-lot',   icon: '🅿',  label: 'Parking lot',    desc: 'Designated lot' },
   { value: 'side-of-road',  icon: '🛣',  label: 'Side of road',   desc: 'Roadside pull-off' },
   { value: 'trailhead',     icon: '🥾',  label: 'Trailhead',      desc: 'Trailhead parking area' },
   { value: 'drop-off',      icon: '🚗',  label: 'Drop-off only',  desc: 'Brief stop, no parking' },
+  { value: 'shuttle',       icon: '🚌',  label: 'Shuttle only',   desc: 'Access by shuttle bus' },
+  { value: 'walk-in',       icon: '🚶',  label: 'Walk-in / hike-in', desc: 'No vehicle access' },
 ]
 
 function getResolveErrorMessage(reason?: string): string {

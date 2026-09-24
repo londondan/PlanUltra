@@ -1,14 +1,25 @@
 import Link from "next/link";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { NavScrollWatcher } from "./NavScrollWatcher";
 import { CrewSheetDemo } from "./CrewSheetDemo";
+import { HomeRaceList } from "./HomeRaceList";
+import { getLibraryRaces } from "@/lib/db/races";
+import { getAidStations } from "@/lib/db/aid-stations";
 
 export default async function HomePage() {
-  const session = await auth();
-  if (session?.user) {
-    redirect("/dashboard");
-  }
+  const rawRaces = await getLibraryRaces()
+  const races = await Promise.all(
+    rawRaces.map(async ({ gpxData: _, ...r }) => {
+      const stations = await getAidStations(r.raceId)
+      const crewStations = stations.filter((s) => s.hasCrewAccess)
+      const isComplete =
+        crewStations.length > 0 &&
+        crewStations.every((s) => s.crewParkingUrl || s.crewParkingCoords)
+      return { ...r, isComplete }
+    })
+  )
+  const completeRaces = races
+    .filter((r) => r.isComplete)
+    .sort((a, b) => a.name.localeCompare(b.name))
 
   return (
     <div style={{ fontFamily: "var(--font-geist-sans, system-ui)", color: "var(--midnight)", background: "white", overflowX: "hidden" }}>
@@ -54,7 +65,7 @@ export default async function HomePage() {
             See an example ↗
           </a>
           <Link
-            href="/auth/signin"
+            href="/new"
             style={{
               background: "var(--ridge-blue)",
               color: "white",
@@ -168,7 +179,7 @@ export default async function HomePage() {
           </p>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
             <Link
-              href="/auth/signin"
+              href="/new"
               style={{
                 display: "inline-block",
                 background: "var(--ridge-blue)",
@@ -214,6 +225,42 @@ export default async function HomePage() {
 
         {/* Sentinel for scroll watcher */}
         <NavScrollWatcher navId="marketing-nav" />
+      </section>
+
+      {/* ── Race Library ── */}
+      <section style={{ background: "#02071E", borderTop: "1px solid rgba(130,199,246,0.1)", padding: "72px 32px" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+          <h2 style={{
+            fontFamily: "var(--font-dm-sans, system-ui)",
+            fontSize: "clamp(22px, 3vw, 30px)", fontWeight: 800,
+            color: "white", letterSpacing: "-0.02em", marginBottom: 8,
+          }}>
+            Start from a race in the library
+          </h2>
+          <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", marginBottom: 32, lineHeight: 1.6 }}>
+            Stations and parking already filled in. Pick your race, set your start time, and you&apos;re done.
+          </p>
+          <HomeRaceList races={completeRaces} />
+          <div style={{ marginTop: 32, textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>
+              Your race isn&apos;t listed?
+            </p>
+            <Link
+              href="/new"
+              style={{
+                fontFamily: "var(--font-geist-sans, system-ui)",
+                fontSize: 14, fontWeight: 600,
+                color: "#82C7F6",
+                border: "1px solid rgba(130,199,246,0.3)",
+                borderRadius: 8,
+                padding: "8px 20px",
+                textDecoration: "none",
+              }}
+            >
+              Build from a GPX file →
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* ── Crew Sheet Demo ── */}
@@ -409,7 +456,7 @@ export default async function HomePage() {
           </div>
           <div style={{ textAlign: "center", marginTop: 40 }}>
             <Link
-              href="/auth/signin"
+              href="/new"
               style={{
                 display: "inline-block",
                 background: "var(--ridge-blue)",
@@ -505,7 +552,7 @@ export default async function HomePage() {
             Give them everything they need so they can focus on being there for you.
           </p>
           <Link
-            href="/auth/signin"
+            href="/new"
             style={{
               display: "inline-block",
               background: "var(--ridge-blue)",

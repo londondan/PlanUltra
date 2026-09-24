@@ -8,9 +8,12 @@ export default auth((req: NextRequest & { auth: unknown }) => {
 
   const isPublicRoute =
     nextUrl.pathname === '/' ||
+    nextUrl.pathname === '/new' ||
     nextUrl.pathname.startsWith('/auth') ||
     nextUrl.pathname.startsWith('/api/auth') ||
-    nextUrl.pathname.startsWith('/crew')
+    nextUrl.pathname.startsWith('/api/plans') ||
+    nextUrl.pathname.startsWith('/crew') ||
+    nextUrl.pathname.startsWith('/races')
 
   const isGuestCookie = req.cookies.get('pua_guest')?.value === '1'
   if (!isPublicRoute && !isLoggedIn && !isGuestCookie) {

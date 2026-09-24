@@ -55,6 +55,11 @@ export interface Race {
     lng: number
     label?: string  // display name shown on crew sheet, max 80 chars. Defaults to "Home base" if absent.
   }
+  // PRD-031: anonymous plan ownership
+  editKeyHash?: string           // SHA-256 of the raw editKey (raw key never stored)
+  lapCount?: number              // defaults to 1 when absent
+  sourceLibraryRaceId?: string   // set when copied from a library race
+  slug?: string                  // URL slug for library races (e.g. "cruel-jewel-100")
 }
 
 export async function getRaceByCrewToken(token: string): Promise<Race | null> {
@@ -207,6 +212,11 @@ export async function updateRace(
 
 export async function getLibraryRaces(): Promise<Race[]> {
   return getRacesByUser(LIBRARY_USER_ID)
+}
+
+export async function getRaceBySlug(slug: string): Promise<Race | null> {
+  const races = await getLibraryRaces()
+  return races.find((r) => r.slug === slug) ?? null
 }
 
 export interface RaceActivityDay {

@@ -11,6 +11,7 @@ import { alignWeatherToRace, type RaceWeatherEntry } from '@/lib/weather-timelin
 import { getDriveSegment, type DriveSegment } from '@/lib/maps'
 import { CrewSheetHeader } from '@/components/crew/CrewSheetHeader'
 import { CrewStationCard } from '@/components/crew/CrewStationCard'
+import { CrewPlanActions } from '@/components/crew/CrewPlanActions'
 import type { Race } from '@/lib/db/races'
 import type { AidStation } from '@/types/gpx'
 import type { Section, SectionPlan } from '@/types/section'
@@ -191,7 +192,7 @@ function NotFoundPage({ token }: { token: string }) {
         {/* CTA */}
         <div style={{ marginTop: 40 }}>
           <Link
-            href="/"
+            href="/new"
             style={{
               display: 'inline-block',
               border: '1px solid #1D7CBE',
@@ -204,7 +205,7 @@ function NotFoundPage({ token }: { token: string }) {
               textDecoration: 'none',
             }}
           >
-            Sign in to PlanUltra
+            Create a crew plan
           </Link>
           <p
             style={{
@@ -214,7 +215,7 @@ function NotFoundPage({ token }: { token: string }) {
               color: 'rgba(17,69,116,0.4)',
             }}
           >
-            For runners only — crew members don&apos;t need to sign in
+            Create a free crew access plan from any GPX file
           </p>
         </div>
       </div>
@@ -237,10 +238,12 @@ export default async function CrewSheetPage({
     return <NotFoundPage token={token} />
   }
 
+  const mode = (race.editKeyHash || race.isLibraryRace) ? 'generic' : 'detailed'
+
   // Fetch aid stations and section plans
   const [aidStations, sectionPlans] = await Promise.all([
     getAidStations(race.raceId),
-    getSectionPlans(race.raceId),
+    mode === 'detailed' ? getSectionPlans(race.raceId) : Promise.resolve([]),
   ])
 
   const sortedStations = [...aidStations].sort((a, b) => a.order - b.order)
@@ -255,42 +258,36 @@ export default async function CrewSheetPage({
 
   const raceStart = new Date(`${race.date}T${race.startTime}:00`)
 
-  // Calculate arrival times
+  // Calculate arrival times (detailed mode only)
   let arrivalEstimates: ArrivalEstimate[] = []
-  const paceConfig = buildPaceConfig(race, totalDistanceKm)
-  if (paceConfig && sortedStations.length > 0) {
-    arrivalEstimates = calculateArrivalTimes(paceConfig, sortedStations, raceStart)
-  }
-
-  // Parse GPX
   let trackPoints: import('@/types/gpx').TrackPoint[] = []
-  if (race.gpxData) {
-    try {
-      const parsed = parseGPX(race.gpxData)
-      trackPoints = parsed.trackPoints
-    } catch {
-      // GPX parse failed — proceed without elevation/track data
-    }
-  }
-
-  // Fetch weather (best-effort; past races will fail)
   let weatherEntries: RaceWeatherEntry[] = []
-  if (race.startLat && race.startLon && arrivalEstimates.length > 0 && trackPoints.length > 0) {
-    try {
-      const lastArrival = arrivalEstimates[arrivalEstimates.length - 1].estimatedArrival
-      const endDate = lastArrival.toISOString().split('T')[0]
-      const result = await fetchForecast(
-        race.startLat,
-        race.startLon,
-        race.date,
-        endDate,
-        race.timezone
-      )
-      if (result.available) {
-        weatherEntries = alignWeatherToRace(result.forecasts, arrivalEstimates, trackPoints, raceStart)
+
+  if (mode === 'detailed') {
+    const paceConfig = buildPaceConfig(race, totalDistanceKm)
+    if (paceConfig && sortedStations.length > 0) {
+      arrivalEstimates = calculateArrivalTimes(paceConfig, sortedStations, raceStart)
+    }
+
+    if (race.gpxData) {
+      try {
+        trackPoints = parseGPX(race.gpxData).trackPoints
+      } catch {
+        // GPX parse failed — proceed without track data
       }
-    } catch {
-      // Weather unavailable — proceed without it
+    }
+
+    if (race.startLat && race.startLon && arrivalEstimates.length > 0 && trackPoints.length > 0) {
+      try {
+        const lastArrival = arrivalEstimates[arrivalEstimates.length - 1].estimatedArrival
+        const endDate = lastArrival.toISOString().split('T')[0]
+        const result = await fetchForecast(race.startLat, race.startLon, race.date, endDate, race.timezone)
+        if (result.available) {
+          weatherEntries = alignWeatherToRace(result.forecasts, arrivalEstimates, trackPoints, raceStart)
+        }
+      } catch {
+        // Weather unavailable
+      }
     }
   }
 
@@ -311,45 +308,46 @@ export default async function CrewSheetPage({
   const raceLat = race.startLat ?? null
   const raceLon = race.startLon ?? null
 
-  // Fetch drive segments between adjacent crew stations with coords
+  // Fetch drive segments between adjacent crew stations with coords (detailed mode only)
   const crewStationsWithCoords = sortedStations.filter(
     (s) => (s.hasCrewAccess || s.isFinish) && s.crewParkingCoords
   )
   const driveSegmentMap = new Map<number, DriveSegment | null>()
-  if (crewStationsWithCoords.length >= 2) {
-    const driveResults = await Promise.all(
-      crewStationsWithCoords.slice(0, -1).map((s, i) =>
-        getDriveSegment(s.crewParkingCoords!, crewStationsWithCoords[i + 1].crewParkingCoords!)
-      )
-    )
-    crewStationsWithCoords.slice(0, -1).forEach((s, i) => {
-      driveSegmentMap.set(s.order, driveResults[i])
-    })
-  }
-
-  // Fetch base-to-station drive segments when crew home base is set
   const homeBase = race.crewHomeBase ?? null
   const baseToStationMap = new Map<number, DriveSegment | null>()
-  if (homeBase && crewStationsWithCoords.length > 0) {
-    const b2sResults = await Promise.all(
-      crewStationsWithCoords.map((s) =>
-        getDriveSegment(homeBase, s.crewParkingCoords!)
+
+  if (mode === 'detailed') {
+    if (crewStationsWithCoords.length >= 2) {
+      const driveResults = await Promise.all(
+        crewStationsWithCoords.slice(0, -1).map((s, i) =>
+          getDriveSegment(s.crewParkingCoords!, crewStationsWithCoords[i + 1].crewParkingCoords!)
+        )
       )
-    )
-    crewStationsWithCoords.forEach((s, i) => {
-      baseToStationMap.set(s.order, b2sResults[i])
-    })
+      crewStationsWithCoords.slice(0, -1).forEach((s, i) => {
+        driveSegmentMap.set(s.order, driveResults[i])
+      })
+    }
+
+    if (homeBase && crewStationsWithCoords.length > 0) {
+      const b2sResults = await Promise.all(
+        crewStationsWithCoords.map((s) => getDriveSegment(homeBase, s.crewParkingCoords!))
+      )
+      crewStationsWithCoords.forEach((s, i) => {
+        baseToStationMap.set(s.order, b2sResults[i])
+      })
+    }
   }
 
-  // Generate QR SVGs for crew stations with parking coords
+  // Generate QR SVGs for crew stations — prefer crewParkingUrl, fall back to coords
   const qrSvgMap = new Map<number, string>()
   await Promise.all(
     sortedStations
-      .filter((s) => (s.hasCrewAccess || s.isFinish) && s.crewParkingCoords)
+      .filter((s) => (s.hasCrewAccess || s.isFinish) && (s.crewParkingUrl || s.crewParkingCoords))
       .map(async (s) => {
-        const mapsUrl = `https://maps.google.com/?q=${s.crewParkingCoords!.lat},${s.crewParkingCoords!.lng}`
+        const qrTarget = s.crewParkingUrl
+          || `https://maps.google.com/?q=${s.crewParkingCoords!.lat},${s.crewParkingCoords!.lng}`
         try {
-          const svg = await QRCode.toString(mapsUrl, {
+          const svg = await QRCode.toString(qrTarget, {
             type: 'svg',
             color: { dark: '#000000', light: '#ffffff' },
             margin: 1,
@@ -369,6 +367,7 @@ export default async function CrewSheetPage({
     destStation: AidStation
     driveSegment: DriveSegment | null
     baseToStation: DriveSegment | null
+    prevCrewDistKm: number
   }
   type StationItem = { type: 'station'; station: AidStation }
   type RenderItem = StationItem | BridgeItem
@@ -381,18 +380,15 @@ export default async function CrewSheetPage({
     const isCrewOrFinish = station.hasCrewAccess || station.isFinish
     if (isCrewOrFinish) {
       if (prevCrewStation !== null || pendingNonCrew.length > 0) {
-        // Emit bridge before this crew station
-        const originStation = prevCrewStation
-        const driveKey = originStation?.order ?? -1
-        const seg = driveSegmentMap.get(driveKey) ?? null
-        // Only emit bridge if there were non-crew stations between OR there's a prev crew station
+        const driveKey = prevCrewStation?.order ?? -1
         if (pendingNonCrew.length > 0 || prevCrewStation !== null) {
           renderItems.push({
             type: 'bridge',
             nonCrewStations: pendingNonCrew,
             destStation: station,
-            driveSegment: seg,
+            driveSegment: driveSegmentMap.get(driveKey) ?? null,
             baseToStation: baseToStationMap.get(station.order) ?? null,
+            prevCrewDistKm: prevCrewStation?.distanceFromStart ?? 0,
           })
         }
         pendingNonCrew = []
@@ -400,7 +396,6 @@ export default async function CrewSheetPage({
       renderItems.push({ type: 'station', station })
       prevCrewStation = station
     } else {
-      // First station (start) is typically crew — but if not, still handle
       if (prevCrewStation === null && renderItems.length === 0) {
         renderItems.push({ type: 'station', station })
       } else {
@@ -758,8 +753,13 @@ export default async function CrewSheetPage({
           aidStationCount={aidStationCount}
           targetFinish={targetFinish}
           estFinish={estFinish}
-          transitToggle={transitToggleNode}
+          transitToggle={mode === 'detailed' ? transitToggleNode : null}
+          mode={mode}
+          startTime={race.startTime}
+          timezone={race.timezone}
+          date={race.date}
         />
+        {mode === 'generic' && <CrewPlanActions shareToken={token} />}
 
         {/* Station list */}
         {sortedStations.length === 0 ? (
@@ -795,7 +795,55 @@ export default async function CrewSheetPage({
               const isLast = idx === renderItems.length - 1
 
               if (item.type === 'bridge') {
-                const { nonCrewStations, destStation, driveSegment, baseToStation } = item
+                const { nonCrewStations, destStation, driveSegment, baseToStation, prevCrewDistKm } = item
+
+                // Generic mode: simplified non-crew list + "next crew stop" line
+                if (mode === 'generic') {
+                  const destMi = (destStation.distanceFromStart * KM_TO_MI).toFixed(1)
+                  const legMi = ((destStation.distanceFromStart - prevCrewDistKm) * KM_TO_MI).toFixed(1)
+                  return (
+                    <div key={`bridge-${destStation.order}`}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '44px 1fr', alignItems: 'stretch' }}>
+                        <div style={{ minHeight: 40 }} />
+                        <div style={{
+                          border: '1px solid rgba(130,199,246,0.2)',
+                          borderRadius: 8,
+                          background: '#f7fafd',
+                          padding: '8px 14px',
+                          margin: '2px 0',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 3,
+                        }}>
+                          {nonCrewStations.length > 0 && (
+                            <p style={{
+                              fontFamily: 'var(--font-geist-sans), Inter, sans-serif',
+                              fontSize: 11,
+                              color: 'rgba(17,69,116,0.45)',
+                              margin: 0,
+                            }}>
+                              Not crew-accessible: {nonCrewStations.map((cp) =>
+                                `${cp.name} MI ${(cp.distanceFromStart * KM_TO_MI).toFixed(1)}`
+                              ).join(' · ')}
+                            </p>
+                          )}
+                          <p style={{
+                            fontFamily: 'var(--font-geist-sans), Inter, sans-serif',
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: '#114574',
+                            margin: 0,
+                          }}>
+                            Next crew stop: {visitInfoMap.get(destStation.order)?.displayName ?? destStation.name}
+                            {' · '}{destMi} mi (+{legMi})
+                          </p>
+                        </div>
+                      </div>
+                      {!isLast && <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: '44px 1fr', height: 16 }} />}
+                    </div>
+                  )
+                }
+
                 return (
                   <div key={`bridge-${destStation.order}`}>
                     <div
@@ -1023,16 +1071,17 @@ export default async function CrewSheetPage({
                     {/* Card */}
                     <CrewStationCard
                       station={station}
-                      arrivalTime={arrivalTime}
-                      sectionPlan={sectionPlan}
-                      section={section}
+                      arrivalTime={mode === 'generic' ? null : arrivalTime}
+                      sectionPlan={mode === 'generic' ? null : sectionPlan}
+                      section={mode === 'generic' ? null : section}
                       raceLat={raceLat}
                       raceLon={raceLon}
-                      caloriesPerHour={race.caloriesPerHour ?? null}
+                      caloriesPerHour={mode === 'generic' ? null : (race.caloriesPerHour ?? null)}
                       isFinish={isFinish}
                       qrSvg={qrSvgMap.get(station.order) ?? null}
                       visitIndex={visitInfoMap.get(station.order)?.visitIndex ?? 1}
                       visitTotal={visitInfoMap.get(station.order)?.visitTotal ?? 1}
+                      mode={mode}
                     />
                   </div>
                   {!isLast && (

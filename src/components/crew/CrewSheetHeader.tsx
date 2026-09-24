@@ -12,6 +12,27 @@ interface CrewSheetHeaderProps {
   targetFinish: string | null
   estFinish: string | null
   transitToggle?: React.ReactNode  // optional transit mode toggle, rendered at bottom of header
+  // Generic mode (PRD-031): time-free plan
+  mode?: 'generic' | 'detailed'
+  startTime?: string   // HH:MM
+  timezone?: string    // IANA timezone
+  date?: string        // YYYY-MM-DD (needed to format start time with tz abbr)
+}
+
+function formatStartTimeLine(date: string, time: string, timezone: string): string {
+  if (!time) return ''
+  try {
+    const dt = new Date(`${date}T${time}:00`)
+    return dt.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: timezone,
+      timeZoneName: 'short',
+    })
+  } catch {
+    return time
+  }
 }
 
 export function CrewSheetHeader({
@@ -25,15 +46,31 @@ export function CrewSheetHeader({
   targetFinish,
   estFinish,
   transitToggle,
+  mode = 'detailed',
+  startTime,
+  timezone,
+  date,
 }: CrewSheetHeaderProps) {
-  const stats: { val: string | number; lbl: string }[] = [
-    { val: crewStationCount, lbl: 'Crew stations' },
-    { val: aidStationCount, lbl: 'Aid stations' },
-    ...(targetFinish ? [{ val: targetFinish, lbl: 'Target finish' }] : []),
-    ...(estFinish ? [{ val: estFinish, lbl: 'Est. finish' }] : []),
-  ]
+  const isGeneric = mode === 'generic'
 
-  const showStats = crewStationCount > 0 || aidStationCount > 0 || targetFinish || estFinish
+  const startTimeLine =
+    isGeneric && startTime && timezone && date
+      ? formatStartTimeLine(date, startTime, timezone)
+      : null
+
+  const stats: { val: string | number; lbl: string }[] = isGeneric
+    ? [
+        { val: crewStationCount, lbl: 'Crew stops' },
+        { val: aidStationCount, lbl: 'Aid stations' },
+      ]
+    : [
+        { val: crewStationCount, lbl: 'Crew stations' },
+        { val: aidStationCount, lbl: 'Aid stations' },
+        ...(targetFinish ? [{ val: targetFinish, lbl: 'Target finish' }] : []),
+        ...(estFinish ? [{ val: estFinish, lbl: 'Est. finish' }] : []),
+      ]
+
+  const showStats = crewStationCount > 0 || aidStationCount > 0 || (!isGeneric && (targetFinish || estFinish))
 
   return (
     <>
@@ -86,36 +123,52 @@ export function CrewSheetHeader({
           >
             {raceName}
           </p>
-          <p
-            className="crew-hdr-runner"
-            style={{
-              fontSize: 13,
-              color: '#82C7F6',
-              marginBottom: 4,
-            }}
-          >
-            Crew sheet for {runnerName}
-          </p>
+          {!isGeneric && (
+            <p
+              className="crew-hdr-runner"
+              style={{
+                fontSize: 13,
+                color: '#82C7F6',
+                marginBottom: 4,
+              }}
+            >
+              Crew sheet for {runnerName}
+            </p>
+          )}
           <p
             className="crew-hdr-meta"
             style={{
               fontSize: 12,
               color: 'rgba(255,255,255,0.5)',
-              marginBottom: 12,
+              marginBottom: isGeneric ? 4 : 12,
             }}
           >
             {raceDate} · {totalMiles} mi
           </p>
-          <p
-            className="crew-hdr-published"
-            style={{
-              fontFamily: 'var(--font-geist-mono), Courier New, monospace',
-              fontSize: 10,
-              color: 'rgba(255,255,255,0.28)',
-            }}
-          >
-            Published {publishedAt}
-          </p>
+          {isGeneric && startTimeLine && (
+            <p
+              className="crew-hdr-meta"
+              style={{
+                fontSize: 12,
+                color: '#82C7F6',
+                marginBottom: 12,
+              }}
+            >
+              Start {startTimeLine}
+            </p>
+          )}
+          {!isGeneric && publishedAt && (
+            <p
+              className="crew-hdr-published"
+              style={{
+                fontFamily: 'var(--font-geist-mono), Courier New, monospace',
+                fontSize: 10,
+                color: 'rgba(255,255,255,0.28)',
+              }}
+            >
+              Published {publishedAt}
+            </p>
+          )}
         </div>
 
         {/* Stats row */}

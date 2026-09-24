@@ -25,6 +25,8 @@ const PARKING_TYPE_MAP: Record<string, { icon: string; label: string }> = {
   'side-of-road': { icon: '🛣', label: 'Side of road' },
   'trailhead':    { icon: '🥾', label: 'Trailhead parking' },
   'drop-off':     { icon: '🚗', label: 'Drop-off only' },
+  'shuttle':      { icon: '🚌', label: 'Shuttle only' },
+  'walk-in':      { icon: '🚶', label: 'Walk-in / hike-in' },
 }
 
 interface CrewStationCardProps {
@@ -39,6 +41,7 @@ interface CrewStationCardProps {
   qrSvg?: string | null
   visitIndex?: number
   visitTotal?: number
+  mode?: 'generic' | 'detailed'
 }
 
 export function CrewStationCard({
@@ -53,7 +56,9 @@ export function CrewStationCard({
   qrSvg,
   visitIndex,
   visitTotal,
+  mode = 'detailed',
 }: CrewStationCardProps) {
+  const isGeneric = mode === 'generic'
   const mileBadge = (station.distanceFromStart * KM_TO_MI).toFixed(1)
 
   // Mist-background mile badge pill
@@ -358,11 +363,12 @@ export function CrewStationCard({
     </div>
   )
 
-  // Location block (PRD-022 Option D — spanning QR sidebar)
-  const mapsUrl = station.crewParkingCoords
-    ? `https://maps.google.com/?q=${station.crewParkingCoords.lat},${station.crewParkingCoords.lng}`
-    : null
-  const showLocationBlock = !!station.crewParkingCoords
+  // Location block (PRD-022 / PRD-031): prefer crewParkingUrl, fall back to coords
+  const mapsUrl = station.crewParkingUrl
+    || (station.crewParkingCoords
+      ? `https://maps.google.com/?q=${station.crewParkingCoords.lat},${station.crewParkingCoords.lng}`
+      : null)
+  const showLocationBlock = !!(mapsUrl || station.crewLocationNotes?.trim() || (isGeneric && station.hasCrewAccess))
 
   // When coords are set, wrap header + location strip in a grid with a spanning QR sidebar
   const cardTopContent = showLocationBlock ? (
@@ -395,30 +401,45 @@ export function CrewStationCard({
             borderRight: '1px solid rgba(130,199,246,0.25)',
           }}
         >
-          <a
-            className="maps-link"
-            href={mapsUrl!}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-lat={station.crewParkingCoords!.lat}
-            data-lng={station.crewParkingCoords!.lng}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              fontSize: 11,
-              fontWeight: 600,
-              color: '#1D7CBE',
-              textDecoration: 'none',
-              background: 'white',
-              border: '1px solid rgba(29,124,190,0.35)',
-              borderRadius: 6,
-              padding: '5px 12px',
-              width: 'fit-content',
-            }}
-          >
-            📍 Directions to crew parking
-          </a>
+          {mapsUrl ? (
+            <a
+              className="maps-link"
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              {...(station.crewParkingCoords ? {
+                'data-lat': station.crewParkingCoords.lat,
+                'data-lng': station.crewParkingCoords.lng,
+              } : {})}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                fontSize: 11,
+                fontWeight: 600,
+                color: '#1D7CBE',
+                textDecoration: 'none',
+                background: 'white',
+                border: '1px solid rgba(29,124,190,0.35)',
+                borderRadius: 6,
+                padding: '5px 12px',
+                width: 'fit-content',
+              }}
+            >
+              📍 Directions to crew parking
+            </a>
+          ) : isGeneric ? (
+            <p
+              style={{
+                fontFamily: 'var(--font-geist-sans), Inter, sans-serif',
+                fontSize: 12,
+                color: 'rgba(17,69,116,0.4)',
+                fontStyle: 'italic',
+              }}
+            >
+              No parking details yet
+            </p>
+          ) : null}
           {station.crewLocationNotes?.trim() && (
             <div
               className="location-notes-block"
@@ -545,7 +566,7 @@ export function CrewStationCard({
         }}
       >
         {/* Segment label */}
-        {sectionPlan && (
+        {!isGeneric && sectionPlan && (
           <div>
             <p style={LABEL_STYLE}>Next segment</p>
             <p
@@ -564,12 +585,12 @@ export function CrewStationCard({
         )}
 
         {/* Divider after segment block */}
-        {sectionPlan && (gearItems.length > 0 || showNutrition || showPackingList || showCrewNotes || hasConditions) && (
+        {!isGeneric && sectionPlan && (gearItems.length > 0 || showNutrition || showPackingList || showCrewNotes || hasConditions) && (
           <div style={{ height: 1, background: 'rgba(130,199,246,0.3)', margin: '-8px 0' }} />
         )}
 
         {/* Gear from drop bag */}
-        {gearItems.length > 0 && (
+        {!isGeneric && gearItems.length > 0 && (
           <div>
             <p style={LABEL_STYLE}>Grab from drop bag</p>
             <div className="gear-pill-container" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -596,7 +617,7 @@ export function CrewStationCard({
         )}
 
         {/* Nutrition for this leg */}
-        {showNutrition && (
+        {!isGeneric && showNutrition && (
           <div>
             <p style={LABEL_STYLE}>Nutrition for this leg</p>
             <p
@@ -614,7 +635,7 @@ export function CrewStationCard({
         )}
 
         {/* Packing list (free text) */}
-        {showPackingList && (
+        {!isGeneric && showPackingList && (
           <div>
             <p style={LABEL_STYLE}>Food / supplies</p>
             <p
@@ -631,7 +652,7 @@ export function CrewStationCard({
         )}
 
         {/* Crew notes — yellow highlight */}
-        {showCrewNotes && (
+        {!isGeneric && showCrewNotes && (
           <div>
             <p style={{ ...LABEL_STYLE, color: '#d97706' }}>Crew notes</p>
             <div
@@ -653,7 +674,7 @@ export function CrewStationCard({
         )}
 
         {/* Conditions */}
-        {hasConditions && (
+        {!isGeneric && hasConditions && (
           <div>
             <p style={LABEL_STYLE}>Conditions — next segment</p>
             <div
