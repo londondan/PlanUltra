@@ -89,18 +89,26 @@ export async function getRaceByCrewToken(token: string): Promise<Race | null> {
     }
   }
 
-  // Fallback: scan (authoritative — always runs when GSI can't confirm the result)
-  const scan = await docClient.send(
-    new ScanCommand({
-      TableName: TABLE_NAME,
-      FilterExpression: 'crewShareToken = :token',
-      ExpressionAttributeValues: { ':token': token },
-    })
-  )
-  if (!scan.Items || scan.Items.length === 0) return null
-  const race = scan.Items[0] as unknown as Race
-  if (race.gpxData) race.gpxData = decompressGPX(race.gpxData)
-  return race
+  // Fallback: paginated scan (authoritative — always runs when GSI can't confirm the result)
+  let lastKey: Record<string, unknown> | undefined
+  do {
+    const scan = await docClient.send(
+      new ScanCommand({
+        TableName: TABLE_NAME,
+        FilterExpression: 'crewShareToken = :token',
+        ExpressionAttributeValues: { ':token': token },
+        ExclusiveStartKey: lastKey,
+      })
+    )
+    if (scan.Items && scan.Items.length > 0) {
+      const race = scan.Items[0] as unknown as Race
+      if (race.gpxData) race.gpxData = decompressGPX(race.gpxData)
+      return race
+    }
+    lastKey = scan.LastEvaluatedKey as Record<string, unknown> | undefined
+  } while (lastKey)
+
+  return null
 }
 
 export async function createRace(
