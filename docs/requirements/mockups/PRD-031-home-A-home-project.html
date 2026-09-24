@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlanUltra</title>
+<!-- Direction A: home project. System fonts, one narrow column, plain HTML elements. Example data is fictional. -->
+<style>
+  :root{--midnight:#02071E;--deep:#114574;--blue:#1D7CBE;--sky:#82C7F6;--mist:#DBF1FA}
+  body{margin:0;background:#fff;color:var(--midnight);font:17px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  main{max-width:680px;margin:0 auto;padding:0 18px 60px}
+  a{color:var(--blue)}
+  a:visited{color:#5a4fa0}
+  .banner{display:block;width:100%;height:auto;margin-top:18px}
+  .site{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--sky);padding:6px 0 10px;margin-bottom:28px}
+  .site b{font-size:19px}
+  .site nav a{margin-left:14px;font-size:15px}
+  h1{font-size:32px;line-height:1.2;margin:0 0 12px}
+  h2{font-size:22px;margin:44px 0 10px}
+  p{margin:0 0 14px}
+  input[type=search]{font:inherit;font-size:16px;padding:6px 8px;border:1px solid #9bb3c7;border-radius:3px;width:260px;max-width:100%}
+  table{border-collapse:collapse;width:100%;margin:12px 0 10px;font-size:16px}
+  th{text-align:left;font-size:13px;color:var(--deep);font-weight:600;border-bottom:2px solid var(--sky);padding:4px 8px 4px 0}
+  td{padding:7px 8px 7px 0;border-bottom:1px solid #e3eef5}
+  td.mi,th.mi{text-align:right;font-family:ui-monospace,Menlo,monospace;font-size:14px}
+  tr:nth-child(even) td{background:#f6fbfd}
+  .add{display:inline-block;background:var(--blue);color:#fff!important;text-decoration:none;padding:7px 14px;border-radius:4px;font-size:16px}
+  .small{font-size:14px;color:#4a5a70}
+  figure{margin:18px 0 8px}
+  figcaption{font-size:14px;color:#4a5a70;margin-top:6px}
+  .shot{border:1px solid #c9d7e2;box-shadow:2px 3px 0 #e6eef4;font-size:14px;line-height:1.45}
+  .shot-hd{background:var(--midnight);color:#fff;padding:12px 16px}
+  .shot-hd b{font-size:18px} .shot-hd div{font-size:13px;color:#b9c6d8}
+  .shot-url{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--sky)}
+  .stop{display:flex;gap:12px;padding:12px 16px;border-top:1px solid #e3eef5}
+  .stop .body{flex:1}
+  .stop .nm{font-weight:700} .stop .mi{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--mist);padding:1px 5px;margin-right:6px}
+  .qr{width:64px;text-align:center;font-size:10px;color:#4a5a70;font-family:ui-monospace,Menlo,monospace} .qr svg{width:64px;height:64px;display:block}
+  .skip{padding:6px 16px 8px 30px;font-size:12.5px;color:#6b7b90;background:#fafcfd;border-top:1px dashed #d5e3ec}
+  ol li{margin-bottom:10px}
+  .photo{float:right;width:190px;height:150px;margin:4px 0 12px 20px;background:var(--mist);border:1px solid var(--sky);display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;color:var(--deep);padding:10px;box-sizing:border-box}
+  footer{border-top:1px solid var(--sky);margin-top:48px;padding-top:12px;font-size:14px;color:#4a5a70}
+  @media(max-width:560px){h1{font-size:27px} .photo{float:none;width:100%;margin:0 0 14px} th:nth-child(3),td:nth-child(3){display:none}}
+</style></head>
+<body><main>
+  <svg class="banner" viewBox="0 0 680 120" aria-hidden="true">
+    <path d="M0,93 C14,88 57,63 85,63 C113,62 142,90 170,89 C198,89 227,61 255,60 C283,59 312,79 340,83 C368,87 397,82 425,85 C453,87 482,104 510,98 C538,92 567,50 595,49 C623,48 666,85 680,92 L680,120 L0,120 Z" fill="#82C7F6" opacity=".55"/>
+    <path d="M0,103 C11,97 45,69 68,69 C91,69 113,103 136,105 C159,106 181,77 204,77 C227,77 249,103 272,105 C295,108 317,94 340,91 C363,89 385,89 408,90 C431,90 453,92 476,93 C499,94 521,97 544,96 C567,94 589,84 612,85 C635,85 669,97 680,99 L680,120 L0,120 Z" fill="#1D7CBE" opacity=".8"/>
+  </svg>
+  <div class="site"><b>PlanUltra</b><nav><a href="#races">races</a><a href="#">add a race</a><a href="#">faq</a><a href="#about">about</a></nav></div>
+
+  <h1>Give your crew one link.</h1>
+  <p>I made this for my own races. Pick your race, or upload the GPX if it's not here, then mark which aid stations your crew can get to and where they should park.</p>
+  <p>You get a link to send them, and a page to print for when there's no signal.</p>
+
+  <h2 id="races" style="margin-top:30px">Pick a race</h2>
+  <input type="search" placeholder="Search races" aria-label="Search races">
+  <table>
+    <thead><tr><th>Race</th><th>Where</th><th>Date</th><th class="mi">Miles</th></tr></thead>
+    <tbody><tr><td><a href="#">Laurel Ridge 50</a></td><td>Marshall, NC</td><td>Oct 10</td><td class="mi">50.2</td></tr>
+<tr><td><a href="#">Broad River 100K</a></td><td>Gaffney, SC</td><td>Nov 7</td><td class="mi">62.4</td></tr>
+<tr><td><a href="#">Tamarack Loops 50K</a></td><td>Ellijay, GA</td><td>Dec 5</td><td class="mi">32.8</td></tr>
+<tr><td><a href="#">Hollins Gap 100</a></td><td>Damascus, VA</td><td>May 15</td><td class="mi">101.8</td></tr></tbody>
+  </table>
+  <p>Not listed? <a class="add" href="#">Add your race</a> <span class="small">&nbsp;You'll need the GPX file from the race website.</span></p>
+  <p class="small">On this device you've made: <a href="#">Laurel Ridge 50</a></p>
+
+  <h2>What your crew gets</h2>
+  <p>Here's the top of a sheet for a made-up race:</p>
+  <figure>
+    <div class="shot">
+      <div class="shot-hd"><b>Laurel Ridge 50</b><div>Sat Oct 10, 2026 · 6:00 AM start · 50.2 mi</div><span class="shot-url">planultrarace.com/crew/k7Qm2x</span></div>
+      <div class="stop"><div class="body"><span class="mi">mi 0</span><span class="nm">Start, Laurel Valley Lodge</span><br><span class="small">Parking lot</span> · <a href="#">Directions to parking</a><br>Lot behind the lodge fills by 5:15. Overflow is the gravel field on Hwy 208.</div><div class="qr"><svg viewBox="0 0 25 25" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM12 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM10 1h1v1h-1zM13 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM8 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM11 3h1v1h-1zM12 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM9 4h1v1h-1zM11 4h1v1h-1zM16 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM10 5h1v1h-1zM11 5h1v1h-1zM12 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM14 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM11 7h1v1h-1zM12 7h1v1h-1zM16 7h1v1h-1zM2 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM9 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM22 8h1v1h-1zM0 9h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM14 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM24 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM18 10h1v1h-1zM21 10h1v1h-1zM1 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM6 11h1v1h-1zM10 11h1v1h-1zM18 11h1v1h-1zM21 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM21 12h1v1h-1zM22 12h1v1h-1zM24 12h1v1h-1zM1 13h1v1h-1zM4 13h1v1h-1zM6 13h1v1h-1zM10 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM17 13h1v1h-1zM18 13h1v1h-1zM20 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM7 14h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM21 14h1v1h-1zM24 14h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM9 15h1v1h-1zM12 15h1v1h-1zM14 15h1v1h-1zM16 15h1v1h-1zM17 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM2 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM8 16h1v1h-1zM10 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM23 16h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM11 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM18 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM12 18h1v1h-1zM13 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM21 18h1v1h-1zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM13 19h1v1h-1zM19 19h1v1h-1zM24 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM9 20h1v1h-1zM10 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM14 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM0 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM8 21h1v1h-1zM9 21h1v1h-1zM18 21h1v1h-1zM19 21h1v1h-1zM20 21h1v1h-1zM23 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM9 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM16 22h1v1h-1zM17 22h1v1h-1zM21 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM11 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM15 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM9 24h1v1h-1zM12 24h1v1h-1zM18 24h1v1h-1zM19 24h1v1h-1zM23 24h1v1h-1z"/></svg>35.8871,<br>−82.7318</div></div>
+      <div class="skip">Crew can't get to: Bear Gap (mi 4.2), Laurel Fork (mi 7.9). Next crew stop is Ridge Road, 13.3 mi.</div>
+      <div class="stop"><div class="body"><span class="mi">mi 13.3</span><span class="nm">Ridge Road</span><br><span class="small">Trailhead</span> · <a href="#">Directions to parking</a><br>Upper lot only. Last two miles are gravel.</div><div class="qr"><svg viewBox="0 0 25 25" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM13 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM15 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM14 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM10 3h1v1h-1zM11 3h1v1h-1zM14 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM13 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM12 5h1v1h-1zM13 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM21 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM1 9h1v1h-1zM3 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM10 9h1v1h-1zM11 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM12 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM17 10h1v1h-1zM20 10h1v1h-1zM21 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM24 10h1v1h-1zM1 11h1v1h-1zM4 11h1v1h-1zM6 11h1v1h-1zM7 11h1v1h-1zM12 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM17 11h1v1h-1zM19 11h1v1h-1zM22 11h1v1h-1zM24 11h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM11 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM20 12h1v1h-1zM24 12h1v1h-1zM1 13h1v1h-1zM2 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM9 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM14 13h1v1h-1zM18 13h1v1h-1zM19 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM5 14h1v1h-1zM11 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM20 14h1v1h-1zM21 14h1v1h-1zM0 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM10 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1zM16 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM22 15h1v1h-1zM24 15h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM15 16h1v1h-1zM18 16h1v1h-1zM21 16h1v1h-1zM22 16h1v1h-1zM23 16h1v1h-1zM24 16h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM17 17h1v1h-1zM19 17h1v1h-1zM20 17h1v1h-1zM21 17h1v1h-1zM24 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM10 18h1v1h-1zM13 18h1v1h-1zM16 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM8 19h1v1h-1zM10 19h1v1h-1zM14 19h1v1h-1zM15 19h1v1h-1zM16 19h1v1h-1zM17 19h1v1h-1zM22 19h1v1h-1zM23 19h1v1h-1zM24 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM16 20h1v1h-1zM18 20h1v1h-1zM21 20h1v1h-1zM24 20h1v1h-1zM0 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM8 21h1v1h-1zM11 21h1v1h-1zM17 21h1v1h-1zM18 21h1v1h-1zM20 21h1v1h-1zM24 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM11 22h1v1h-1zM12 22h1v1h-1zM14 22h1v1h-1zM18 22h1v1h-1zM22 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM15 23h1v1h-1zM16 23h1v1h-1zM18 23h1v1h-1zM21 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM9 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM19 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1z"/></svg>35.9403,<br>−82.6617</div></div>
+    </div>
+    <figcaption>Full example: <a href="#">planultrarace.com/races/laurel-ridge-50</a></figcaption>
+  </figure>
+  <ol>
+    <li><b>A link you can text.</b> Opens on any phone. They don't need an app or an account.</li>
+    <li><b>Directions to the parking,</b> not just the aid station, with a note on the lot, the walk in, or the shuttle.</li>
+    <li><b>A printout for when there's no signal.</b> Each stop has a QR code for the maps app, with the coordinates printed underneath in case the phone can't load anything.</li>
+  </ol>
+
+  <h2 id="about">About</h2>
+  <div class="photo">[Photo of Dan at a race goes here. A real photo matters more than anything else on this page.]</div>
+  <p>I'm Dan. I'm a product manager in Charlotte and I run ultras. I started this after a DNF at Grindstone 100. The race website listed the aid stations, but my crew needed to know where to park and which stops they could skip.</p>
+  <p>It's a hobby project. It's free, there are no ads or accounts, and the code is on <a href="https://github.com/londondan/PlanUltra">GitHub</a>. If a parking spot is wrong, <a href="mailto:danrjames@gmail.com">email me</a> and I'll fix it.</p>
+  <p>I'm also on <a href="https://www.linkedin.com/in/daniel-james-45863320/">LinkedIn</a> if you want to talk about the product side.</p>
+
+  <footer>Last updated September 2026 · <a href="#">FAQ</a> · <a href="https://github.com/londondan/PlanUltra">GitHub</a></footer>
+</main></body></html>

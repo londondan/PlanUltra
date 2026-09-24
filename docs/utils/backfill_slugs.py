@@ -13,13 +13,14 @@ Usage:
 Requires: boto3, AWS credentials with DynamoDB access.
 """
 
+import os
 import re
 import sys
 import argparse
 import boto3
 from botocore.exceptions import ClientError
 
-TABLE_NAME = "PlanUltraTable"
+TABLE_NAME = os.environ.get("DYNAMODB_TABLE_NAME", "PlanUltra")
 LIBRARY_PK = "USER#__LIBRARY__"
 
 

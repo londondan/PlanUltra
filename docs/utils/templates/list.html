@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Race Review Queue — PlanUltra{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-xl font-semibold">Race Review Queue</h1>
+  <span class="text-sm text-gray-500">{{ staged|length }} staged · {{ approved|length }} approved</span>
+</div>
+
+{% macro score_badge(race) %}
+  {% if race.completeness_score is not none %}
+    <span class="px-2 py-0.5 rounded text-xs font-medium {{ race._badge }}">
+      {{ race.completeness_score }}
+    </span>
+  {% else %}
+    <span class="px-2 py-0.5 rounded text-xs font-medium badge-unknown">—</span>
+  {% endif %}
+{% endmacro %}
+
+{% macro issue_summary(race) %}
+  {% set h = race._issues | selectattr('severity', 'equalto', 'high') | list | length %}
+  {% set m = race._issues | selectattr('severity', 'equalto', 'medium') | list | length %}
+  {% if h > 0 %}<span class="sev-high text-xs">{{ h }} high</span>{% endif %}
+  {% if m > 0 %}<span class="sev-medium text-xs ml-1">{{ m }} medium</span>{% endif %}
+  {% if h == 0 and m == 0 and race._issues | length == 0 %}
+    <span class="text-gray-400 text-xs">—</span>
+  {% endif %}
+{% endmacro %}
+
+{% if staged %}
+<table class="w-full bg-white rounded-lg shadow-sm border border-gray-200 text-sm mb-8">
+  <thead>
+    <tr class="border-b border-gray-200 text-left text-xs text-gray-500 uppercase tracking-wide">
+      <th class="px-4 py-3">Race</th>
+      <th class="px-4 py-3 text-right">Score</th>
+      <th class="px-4 py-3">Status</th>
+      <th class="px-4 py-3">Staged</th>
+      <th class="px-4 py-3">Issues</th>
+      <th class="px-4 py-3"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for race in staged %}
+    <tr class="border-b border-gray-100 hover:bg-gray-50">
+      <td class="px-4 py-3 font-medium">{{ race.race_name }}</td>
+      <td class="px-4 py-3 text-right">{{ score_badge(race) }}</td>
+      <td class="px-4 py-3 text-gray-500">{{ race.status }}</td>
+      <td class="px-4 py-3 text-gray-400 text-xs">{{ (race.staged_at or '')[:10] }}</td>
+      <td class="px-4 py-3">{{ issue_summary(race) }}</td>
+      <td class="px-4 py-3 text-right">
+        <a href="/race/{{ race.slug }}" class="text-indigo-600 hover:underline text-xs font-medium">Review →</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-400 mb-8">
+  No staged races. Run <code class="text-xs bg-gray-100 px-1 rounded">python3 ingest.py run --all</code> to process new rows from the Sheet.
+</div>
+{% endif %}
+
+{% if approved or rejected %}
+<details class="mt-4">
+  <summary class="cursor-pointer text-sm text-gray-500 hover:text-gray-700 mb-3">
+    Show {{ approved|length }} approved + {{ rejected|length }} rejected/error
+  </summary>
+  <table class="w-full bg-white rounded-lg shadow-sm border border-gray-200 text-sm mt-2">
+    <thead>
+      <tr class="border-b border-gray-200 text-left text-xs text-gray-500 uppercase tracking-wide">
+        <th class="px-4 py-3">Race</th>
+        <th class="px-4 py-3 text-right">Score</th>
+        <th class="px-4 py-3">Status</th>
+        <th class="px-4 py-3">Updated</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for race in approved + rejected %}
+      <tr class="border-b border-gray-100 hover:bg-gray-50">
+        <td class="px-4 py-3 font-medium {{ 'text-gray-400' if race.status == 'rejected' else '' }}">{{ race.race_name }}</td>
+        <td class="px-4 py-3 text-right">{{ score_badge(race) }}</td>
+        <td class="px-4 py-3">
+          {% if race.status == 'approved' %}
+            <span class="text-green-600 text-xs font-medium">✓ approved</span>
+          {% elif race.status == 'fetch_error' %}
+            <span class="text-red-500 text-xs">✗ fetch_error</span>
+          {% else %}
+            <span class="text-gray-400 text-xs">✗ rejected</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3 text-gray-400 text-xs">{{ (race.approved_at or race.staged_at or '')[:10] }}</td>
+        <td class="px-4 py-3 text-right">
+          <a href="/race/{{ race.slug }}" class="text-indigo-600 hover:underline text-xs">View</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</details>
+{% endif %}
+{% endblock %}

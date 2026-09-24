@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlanUltra Homepage — PRD-031</title>
+<!--
+  Mockup for PRD-031 §4 (Home). Conforms to PRD-003 Ridge Light.
+  Example sheet reuses the crew sheet design (specs/mockups/crew-travel-v3b-refined.html), minus times.
+  Example race data is fictional.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700;800&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ── PRD-003 Ridge Light tokens ── */
+  :root{
+    --midnight:#02071E; --deep-ridge:#114574; --ridge-blue:#1D7CBE; --sky:#82C7F6; --mist:#DBF1FA;
+    --meta:rgba(17,69,116,.7);                 /* Deep Ridge 70% — secondary text */
+    --border:rgba(130,199,246,.6);             /* Sky 60% — card border (PRD-003 §10) */
+    --font-display:'DM Sans',system-ui,sans-serif;
+    --font-sans:'Geist','Geist Sans',system-ui,sans-serif;
+    --font-mono:'Geist Mono',ui-monospace,monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font-sans);color:var(--midnight);background:#fff;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--ridge-blue);text-decoration:none;font-weight:500}
+  a:hover{opacity:.7}
+  .container{max-width:1280px;margin:0 auto;padding:0 32px}
+
+  /* ── Nav header (PRD-003 §5) ── */
+  .nav{position:sticky;top:0;z-index:50;height:64px;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--sky)}
+  .nav .container{height:100%;display:flex;align-items:center;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:8px;font:700 18px/1 var(--font-display);letter-spacing:-.03em;color:var(--midnight)}
+  .logo:hover{opacity:1}
+  .nav-links{display:flex;gap:28px}
+  .nav-links a{font-size:14px}
+
+  /* ── Hero: MountainHero (white → Mist, three polygon layers) ── */
+  .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#fff,var(--mist));min-height:calc(100vh - 64px);display:flex;align-items:center}
+  .hero svg.mountains{position:absolute;left:0;right:0;bottom:0;width:100%;height:46%;min-height:260px}
+  .hero-inner{position:relative;z-index:10;width:100%;display:grid;grid-template-columns:1fr 480px;gap:64px;align-items:center;padding-top:48px;padding-bottom:120px}
+  .hero h1{font:800 48px/1.15 var(--font-display);letter-spacing:-.02em;color:var(--midnight)}
+  .hero h1 span{color:var(--ridge-blue)}
+  .hero-sub{font-size:18px;line-height:1.6;color:var(--deep-ridge);max-width:460px;margin-top:18px}
+  .example-link{display:inline-block;margin-top:22px;font-size:14px}
+
+  /* ── Card (static) PRD-003 §10 ── */
+  .card{background:#fff;border:1px solid var(--border);border-radius:.75rem;box-shadow:0 2px 6px rgba(29,124,190,.07)}
+  .picker{box-shadow:0 4px 16px rgba(29,124,190,.12);overflow:hidden}
+  .picker-head{padding:22px 24px 16px}
+  .picker-head h2{font:700 18px/1.3 var(--font-display);letter-spacing:-.01em}
+  .picker-head p{font-size:13px;color:var(--meta);margin-top:2px}
+
+  /* Input (PRD-003 §5) */
+  .input{width:100%;border:1.5px solid var(--sky);border-radius:6px;padding:10px 12px;font:600 14px var(--font-sans);color:var(--midnight);background:#fff;margin-top:14px}
+  .input::placeholder{color:var(--meta);font-weight:400}
+  .input:focus{outline:none;border-color:var(--ridge-blue);box-shadow:0 0 0 3px rgba(29,124,190,.10)}
+
+  /* Race list uses the Table spec: striped Mist rows, Sky hover */
+  .races{list-style:none;border-top:1px solid var(--sky)}
+  .races li:nth-child(odd){background:var(--mist)}
+  .races li:nth-child(even){background:#fff}
+  .races li{border-bottom:1px solid rgba(130,199,246,.3)}
+  .races li:hover{background:rgba(130,199,246,.3)}
+  .races a{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;color:var(--midnight);font-weight:400}
+  .races a:hover{opacity:1}
+  .race-name{font-weight:600;font-size:14px}
+  .race-meta{font-size:13px;color:var(--meta)}
+  .race-dist{font:600 13px var(--font-mono);color:var(--deep-ridge);white-space:nowrap}
+  .picker-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px}
+  .picker-foot span{font-size:13px;color:var(--meta)}
+
+  /* Primary button (PRD-003 §5) */
+  .btn{display:inline-block;background:var(--ridge-blue);color:#fff;padding:10px 20px;border-radius:8px;font:600 14px var(--font-sans);box-shadow:0 2px 8px rgba(29,124,190,.2);transition:all .2s;white-space:nowrap}
+  .btn:hover{opacity:1;background:var(--deep-ridge);transform:translateY(-2px);box-shadow:0 4px 12px rgba(29,124,190,.25)}
+  .device-plans{font-size:13px;color:var(--meta);padding:12px 24px;background:var(--mist);border-top:1px solid rgba(130,199,246,.4)}
+
+  /* ── Section shell ── */
+  .section{padding:88px 0}
+  .section-label{font:700 12px/1 var(--font-sans);text-transform:uppercase;letter-spacing:.8px;color:var(--deep-ridge)}
+  .section h2{font:700 36px/1.2 var(--font-display);letter-spacing:-.02em;margin-top:12px}
+  .section .lead{font-size:16px;color:var(--deep-ridge);max-width:560px;margin-top:10px}
+  .how-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:56px;margin-top:48px;align-items:start}
+
+  /* ── Example sheet = crew sheet components (crew-travel v3b), no times ── */
+  .sheet{border:1px solid var(--border);border-radius:.75rem;overflow:hidden;box-shadow:0 4px 16px rgba(29,124,190,.12);max-height:980px;position:relative}
+  .sheet::after{content:"";position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(rgba(255,255,255,0),#fff)}
+  .crew-header{background:var(--midnight);color:#fff;padding:28px 32px 24px}
+  .crew-header .race-title{font:800 26px/1.15 var(--font-display);letter-spacing:-.03em}
+  .crew-header .race-line{font-size:13px;color:rgba(255,255,255,.6);margin-top:6px}
+  .share-row{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .share-url{font:500 12px var(--font-mono);color:var(--sky);background:rgba(130,199,246,.1);border:1px solid rgba(130,199,246,.25);border-radius:6px;padding:6px 10px}
+  .share-copy{font:600 12px var(--font-sans);color:#fff;border:1px solid rgba(130,199,246,.4);border-radius:6px;padding:6px 10px}
+  .header-stats{display:flex;gap:28px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(130,199,246,.15)}
+  .header-stats .val{font:800 18px/1.2 var(--font-display);color:var(--sky);letter-spacing:-.02em}
+  .header-stats .lbl{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em}
+
+  .station-list{padding:24px 28px 40px;position:relative}
+  .station-list::before{content:"";position:absolute;left:calc(28px + 21px);top:24px;bottom:40px;width:2px;background:rgba(130,199,246,.55)}
+  .row{display:grid;grid-template-columns:44px 1fr;align-items:start}
+  .gap{height:12px}
+  .dot-col{display:flex;justify-content:center;padding-top:18px;position:relative;z-index:1}
+  .dot{width:14px;height:14px;border-radius:50%;background:var(--ridge-blue);box-shadow:0 0 0 3px rgba(29,124,190,.18)}
+
+  .station-card{border:1px solid rgba(29,124,190,.35);border-radius:10px;overflow:hidden;background:#fff}
+  .station-header{display:flex;align-items:center;gap:10px;padding:13px 16px;background:var(--mist);border-bottom:1px solid rgba(130,199,246,.4);flex-wrap:wrap}
+  .mile-badge{font:500 10px var(--font-mono);color:var(--midnight);background:rgba(219,241,250,.7);border:1px solid rgba(130,199,246,.6);border-radius:5px;padding:3px 8px;white-space:nowrap;background:#fff}
+  .station-name{font:700 15px var(--font-display);flex:1}
+  .parking-badge{font-size:10px;font-weight:500;color:var(--deep-ridge);background:#fff;border:1px solid rgba(130,199,246,.6);border-radius:5px;padding:2px 8px}
+  .loc{display:flex;gap:14px;align-items:flex-start;padding:12px 16px 14px}
+  .loc-main{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+  .maps-link{display:inline-flex;align-items:center;gap:6px;width:fit-content;font-size:12px;font-weight:600;color:var(--ridge-blue);background:#fff;border:1px solid rgba(29,124,190,.35);border-radius:6px;padding:5px 12px}
+  .notes{padding:7px 11px;border-left:3px solid var(--sky);background:rgba(219,241,250,.3);border-radius:0 5px 5px 0}
+  .eyebrow{font:500 9px/1.4 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ridge-blue);opacity:.8}
+  .notes p{font-size:12.5px;line-height:1.55;color:var(--deep-ridge)}
+  .qr-wrap{text-align:center;flex:none;position:relative}
+  .qr{width:76px;height:76px;padding:5px;border:1px solid rgba(130,199,246,.6);border-radius:6px;color:var(--midnight);background:#fff}
+  .qr svg{display:block;width:100%;height:100%}
+  .qr-label{font:500 8.5px/1.3 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:rgba(17,69,116,.5);margin-top:4px}
+  .qr-coords{font:500 9.5px var(--font-mono);color:var(--deep-ridge);margin-top:2px}
+
+  .bridge{border:1px solid rgba(130,199,246,.28);border-radius:8px;background:#f7fafd;padding:10px 14px;display:flex;flex-direction:column;gap:5px}
+  .checkpoint{display:flex;align-items:center;gap:8px}
+  .cp-dot{width:5px;height:5px;border-radius:50%;background:rgba(130,199,246,.6);border:1px solid rgba(130,199,246,.9)}
+  .cp-mile{font:400 10px var(--font-mono);background:rgba(219,241,250,.7);border:1px solid rgba(130,199,246,.4);border-radius:4px;padding:1px 6px}
+  .cp-name{font-size:11px;font-weight:600;color:rgba(17,69,116,.65)}
+  .next-stop{font-size:11.5px;color:var(--deep-ridge);border-top:1px solid rgba(130,199,246,.25);padding-top:6px;margin-top:2px}
+  .next-stop b{font-weight:600}
+  .next-stop .m{font-family:var(--font-mono);font-size:11px}
+
+  /* Callout markers: PRD-003 default badge (Ridge Blue outline, no fill) */
+  .marker{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border:1.5px solid var(--ridge-blue);border-radius:6px;background:#fff;color:var(--ridge-blue);font:600 12px/1 var(--font-sans);flex:none}
+  .crew-header .marker{background:var(--midnight);border-color:var(--sky);color:var(--sky)}
+  .qr-wrap .marker{position:absolute;left:-30px;top:26px}
+
+  /* Callout list */
+  .points{list-style:none;display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}
+  .point{padding:20px 22px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px}
+  .point h3{font:700 18px/1.3 var(--font-display);letter-spacing:-.01em}
+  .point p{grid-column:2;font-size:14.5px;color:var(--deep-ridge)}
+  .point .fine{font-size:13px;color:var(--meta)}
+  .points-foot{padding-left:4px;font-size:14px}
+
+  /* ── About: Mist wash section ── */
+  .about{background:var(--mist);border-top:1px solid var(--sky)}
+  .about-grid{display:grid;grid-template-columns:240px 1fr;gap:48px;max-width:960px}
+  .avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--deep-ridge),var(--ridge-blue));display:grid;place-items:center;color:#fff;font:700 20px var(--font-display);margin-bottom:14px}
+  .who{font:700 18px/1.3 var(--font-display);letter-spacing:-.01em}
+  .role{font-size:13px;color:var(--meta)}
+  .who-links{display:flex;flex-direction:column;gap:6px;margin-top:14px;font-size:14px}
+  .about p{font-size:16px;line-height:1.7;max-width:600px}
+  .about p+p{margin-top:14px}
+
+  .footer{border-top:1px solid var(--sky);padding:24px 0 36px;font-size:13px;color:var(--meta)}
+  .footer .container{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .footer nav{display:flex;gap:22px}
+  .footer a{font-size:13px}
+
+  /* ── Mobile (PRD-003 §6: px-4, stacks to 1 column) ── */
+  @media (max-width:900px){
+    .container{padding:0 16px}
+    .hero{min-height:0}
+    .hero-inner{grid-template-columns:1fr;gap:24px;padding-top:28px;padding-bottom:110px}
+    .hero h1{font-size:36px}
+    .hero-sub{font-size:16px;margin-top:10px}
+    .example-link{display:none}
+    .hero svg.mountains{height:180px;min-height:0}
+    .races li:nth-child(n+4){display:none}
+    .picker-foot{flex-direction:column;align-items:stretch}
+    .picker-foot .btn{text-align:center}
+    .section{padding:64px 0}
+    .section h2{font-size:28px}
+    .how-grid{grid-template-columns:1fr;gap:32px}
+    .points{position:static}
+    .crew-header{padding:22px 18px}
+    .station-list{padding:18px 12px 32px}
+    .station-list::before{left:calc(12px + 15px)}
+    .row{grid-template-columns:32px 1fr}
+    .qr{width:64px;height:64px}
+    .about-grid{grid-template-columns:1fr;gap:20px}
+    .nav-links{gap:18px}
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="container">
+    <a class="logo" href="#">PlanUltra
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2 15 14H1Z" fill="#1D7CBE"/></svg>
+    </a>
+    <nav class="nav-links"><a href="#how">How it works</a><a href="#">FAQ</a></nav>
+  </div>
+</header>
+
+<!-- ── Screen 1: headline + race picker ── -->
+<section class="hero">
+  <svg class="mountains" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+    <polygon points="0,600 120,380 260,480 400,180 540,420 680,260 820,440 940,320 1000,420 1000,600" fill="#114574" opacity="0.6"/>
+    <polygon points="0,600 160,460 300,300 460,390 600,230 740,400 880,290 1000,400 1000,600" fill="#1D7CBE" opacity="0.75"/>
+    <polygon points="0,600 100,520 240,400 380,460 520,360 660,470 800,380 920,490 1000,440 1000,600" fill="#82C7F6" opacity="0.85"/>
+  </svg>
+
+  <div class="container hero-inner">
+    <div>
+      <h1>Give your crew <span>one link.</span></h1>
+      <p class="hero-sub">A link that gets them to every crew stop, and a printout that still works when there&#39;s no signal.</p>
+      <a class="example-link" href="#how">See an example ↓</a>
+    </div>
+
+    <div>
+      <div class="card picker">
+        <div class="picker-head">
+          <h2>Pick your race, or add one</h2>
+          <input class="input" type="text" placeholder="Search by race name or town" aria-label="Search races">
+        </div>
+        <ul class="races">
+          <li><a href="#"><span><div class="race-name">Laurel Ridge 50</div><div class="race-meta">Marshall, NC · Oct 10</div></span><span class="race-dist">50.2 mi</span></a></li>
+          <li><a href="#"><span><div class="race-name">Broad River 100K</div><div class="race-meta">Gaffney, SC · Nov 7</div></span><span class="race-dist">62.4 mi</span></a></li>
+          <li><a href="#"><span><div class="race-name">Tamarack Loops 50K</div><div class="race-meta">Ellijay, GA · Dec 5 · 8 × 4.1 mi loop</div></span><span class="race-dist">32.8 mi</span></a></li>
+          <li><a href="#"><span><div class="race-name">Hollins Gap 100</div><div class="race-meta">Damascus, VA · May 15</div></span><span class="race-dist">101.8 mi</span></a></li>
+        </ul>
+        <div class="picker-foot">
+          <span>Race not listed? You'll need its GPX file.</span>
+          <a class="btn" href="#">Add your race</a>
+        </div>
+        <p class="device-plans">Your plans on this device: <a href="#">Laurel Ridge 50</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 2: How it works ── -->
+<section class="section" id="how">
+  <div class="container">
+    <div class="section-label">How it works</div>
+    <h2>What your crew gets</h2>
+    <p class="lead">Mark which aid stations your crew can reach and where they should park. PlanUltra builds the sheet in race order.</p>
+
+    <div class="how-grid">
+      <div class="sheet">
+        <div class="crew-header">
+          <div class="race-title">Laurel Ridge 50</div>
+          <div class="race-line">Saturday, October 10, 2026 · 6:00 AM EDT start · 50.2 miles</div>
+          <div class="share-row">
+            <span class="marker">1</span>
+            <span class="share-url">planultrarace.com/crew/k7Qm2x</span>
+            <span class="share-copy">Copy link</span>
+          </div>
+          <div class="header-stats">
+            <div><div class="val">4</div><div class="lbl">Crew stops</div></div>
+            <div><div class="val">9</div><div class="lbl">Aid stations</div></div>
+          </div>
+        </div>
+
+        <div class="station-list">
+          <div class="row">
+            <div class="dot-col"><span class="dot"></span></div>
+            <div class="station-card">
+              <div class="station-header"><span class="mile-badge">MILE 0</span><span class="station-name">Race Start · Laurel Valley Lodge</span><span class="parking-badge">Parking lot</span></div>
+              <div class="loc">
+                <div class="loc-main">
+                  <a class="maps-link" href="#"><span class="marker" style="margin:-2px 2px -2px -6px">2</span>Directions to crew parking ↗</a>
+                  <div class="notes"><div class="eyebrow">Location notes</div><p>The lot behind the lodge fills by 5:15. Overflow parking is the gravel field on Hwy 208, a five-minute walk.</p></div>
+                </div>
+                <div class="qr-wrap"><div class="qr"><svg viewBox="0 0 25 25" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM12 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM10 1h1v1h-1zM13 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM8 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM11 3h1v1h-1zM12 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM9 4h1v1h-1zM11 4h1v1h-1zM16 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM10 5h1v1h-1zM11 5h1v1h-1zM12 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM14 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM11 7h1v1h-1zM12 7h1v1h-1zM16 7h1v1h-1zM2 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM9 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM22 8h1v1h-1zM0 9h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM14 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM24 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM18 10h1v1h-1zM21 10h1v1h-1zM1 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM6 11h1v1h-1zM10 11h1v1h-1zM18 11h1v1h-1zM21 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM21 12h1v1h-1zM22 12h1v1h-1zM24 12h1v1h-1zM1 13h1v1h-1zM4 13h1v1h-1zM6 13h1v1h-1zM10 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM17 13h1v1h-1zM18 13h1v1h-1zM20 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM7 14h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM21 14h1v1h-1zM24 14h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM9 15h1v1h-1zM12 15h1v1h-1zM14 15h1v1h-1zM16 15h1v1h-1zM17 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM2 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM8 16h1v1h-1zM10 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM23 16h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM11 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM18 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM12 18h1v1h-1zM13 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM21 18h1v1h-1zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM13 19h1v1h-1zM19 19h1v1h-1zM24 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM9 20h1v1h-1zM10 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM14 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM0 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM8 21h1v1h-1zM9 21h1v1h-1zM18 21h1v1h-1zM19 21h1v1h-1zM20 21h1v1h-1zM23 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM9 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM16 22h1v1h-1zM17 22h1v1h-1zM21 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM11 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM15 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM9 24h1v1h-1zM12 24h1v1h-1zM18 24h1v1h-1zM19 24h1v1h-1zM23 24h1v1h-1z"/></svg></div><div class="qr-label">Scan for directions</div><div class="qr-coords">35.8871, −82.7318</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="gap"></div>
+          <div class="row">
+            <div></div>
+            <div class="bridge">
+              <div class="eyebrow" style="color:rgba(17,69,116,.5)">Crew can't reach</div>
+              <div class="checkpoint"><span class="cp-dot"></span><span class="cp-mile">MI 4.2</span><span class="cp-name">Bear Gap</span></div>
+              <div class="checkpoint"><span class="cp-dot"></span><span class="cp-mile">MI 7.9</span><span class="cp-name">Laurel Fork</span></div>
+              <div class="next-stop">Next crew stop: <b>Ridge Road</b> · <span class="m">mile 13.3 (+13.3 mi)</span></div>
+            </div>
+          </div>
+          <div class="gap"></div>
+
+          <div class="row">
+            <div class="dot-col"><span class="dot"></span></div>
+            <div class="station-card">
+              <div class="station-header"><span class="mile-badge">MILE 13.3</span><span class="station-name">Ridge Road</span><span class="parking-badge">Trailhead</span></div>
+              <div class="loc">
+                <div class="loc-main">
+                  <a class="maps-link" href="#">Directions to crew parking ↗</a>
+                  <div class="notes"><div class="eyebrow">Location notes</div><p>Use the upper lot only. The last two miles are gravel, fine for any car if you take it slowly.</p></div>
+                </div>
+                <div class="qr-wrap"><span class="marker">3</span><div class="qr"><svg viewBox="0 0 25 25" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM13 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM15 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM14 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM10 3h1v1h-1zM11 3h1v1h-1zM14 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM13 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM12 5h1v1h-1zM13 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM21 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM1 9h1v1h-1zM3 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM10 9h1v1h-1zM11 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM12 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM17 10h1v1h-1zM20 10h1v1h-1zM21 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM24 10h1v1h-1zM1 11h1v1h-1zM4 11h1v1h-1zM6 11h1v1h-1zM7 11h1v1h-1zM12 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM17 11h1v1h-1zM19 11h1v1h-1zM22 11h1v1h-1zM24 11h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM11 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM20 12h1v1h-1zM24 12h1v1h-1zM1 13h1v1h-1zM2 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM9 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM14 13h1v1h-1zM18 13h1v1h-1zM19 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM5 14h1v1h-1zM11 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM20 14h1v1h-1zM21 14h1v1h-1zM0 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM10 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1zM16 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM22 15h1v1h-1zM24 15h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM15 16h1v1h-1zM18 16h1v1h-1zM21 16h1v1h-1zM22 16h1v1h-1zM23 16h1v1h-1zM24 16h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM17 17h1v1h-1zM19 17h1v1h-1zM20 17h1v1h-1zM21 17h1v1h-1zM24 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM10 18h1v1h-1zM13 18h1v1h-1zM16 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM8 19h1v1h-1zM10 19h1v1h-1zM14 19h1v1h-1zM15 19h1v1h-1zM16 19h1v1h-1zM17 19h1v1h-1zM22 19h1v1h-1zM23 19h1v1h-1zM24 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM16 20h1v1h-1zM18 20h1v1h-1zM21 20h1v1h-1zM24 20h1v1h-1zM0 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM8 21h1v1h-1zM11 21h1v1h-1zM17 21h1v1h-1zM18 21h1v1h-1zM20 21h1v1h-1zM24 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM11 22h1v1h-1zM12 22h1v1h-1zM14 22h1v1h-1zM18 22h1v1h-1zM22 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM15 23h1v1h-1zM16 23h1v1h-1zM18 23h1v1h-1zM21 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM9 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM19 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1z"/></svg></div><div class="qr-label">Scan for directions</div><div class="qr-coords">35.9403, −82.6617</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="gap"></div>
+          <div class="row">
+            <div></div>
+            <div class="bridge">
+              <div class="eyebrow" style="color:rgba(17,69,116,.5)">Crew can't reach</div>
+              <div class="checkpoint"><span class="cp-dot"></span><span class="cp-mile">MI 18.6</span><span class="cp-name">Hickory Knob</span></div>
+              <div class="checkpoint"><span class="cp-dot"></span><span class="cp-mile">MI 22.0</span><span class="cp-name">Sams Gap</span></div>
+              <div class="next-stop">Next crew stop: <b>Walnut Creek</b> · <span class="m">mile 27.4 (+14.1 mi)</span></div>
+            </div>
+          </div>
+          <div class="gap"></div>
+
+          <div class="row">
+            <div class="dot-col"><span class="dot"></span></div>
+            <div class="station-card">
+              <div class="station-header"><span class="mile-badge">MILE 27.4</span><span class="station-name">Walnut Creek</span><span class="parking-badge">Shuttle only</span></div>
+              <div class="loc">
+                <div class="loc-main">
+                  <a class="maps-link" href="#">Directions to shuttle pickup ↗</a>
+                  <div class="notes"><div class="eyebrow">Location notes</div><p>There's no crew parking at the station. Park at Mars Hill Elementary and take the shuttle, which runs every 20 minutes.</p></div>
+                </div>
+                <div class="qr-wrap"><div class="qr"><svg viewBox="0 0 25 25" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM12 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM10 1h1v1h-1zM13 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM8 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM11 3h1v1h-1zM12 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM9 4h1v1h-1zM11 4h1v1h-1zM16 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM10 5h1v1h-1zM11 5h1v1h-1zM12 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM14 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM11 7h1v1h-1zM12 7h1v1h-1zM16 7h1v1h-1zM2 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM9 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM22 8h1v1h-1zM0 9h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM14 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM24 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM18 10h1v1h-1zM21 10h1v1h-1zM1 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM6 11h1v1h-1zM10 11h1v1h-1zM18 11h1v1h-1zM21 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM21 12h1v1h-1zM22 12h1v1h-1zM24 12h1v1h-1zM1 13h1v1h-1zM4 13h1v1h-1zM6 13h1v1h-1zM10 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM17 13h1v1h-1zM18 13h1v1h-1zM20 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM7 14h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM21 14h1v1h-1zM24 14h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM9 15h1v1h-1zM12 15h1v1h-1zM14 15h1v1h-1zM16 15h1v1h-1zM17 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM2 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM8 16h1v1h-1zM10 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM23 16h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM11 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM18 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM12 18h1v1h-1zM13 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM21 18h1v1h-1zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM13 19h1v1h-1zM19 19h1v1h-1zM24 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM9 20h1v1h-1zM10 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM14 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM0 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM8 21h1v1h-1zM9 21h1v1h-1zM18 21h1v1h-1zM19 21h1v1h-1zM20 21h1v1h-1zM23 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM9 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM16 22h1v1h-1zM17 22h1v1h-1zM21 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM11 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM15 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM9 24h1v1h-1zM12 24h1v1h-1zM18 24h1v1h-1zM19 24h1v1h-1zM23 24h1v1h-1z"/></svg></div><div class="qr-label">Scan for directions</div><div class="qr-coords">35.8265, −82.5490</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <ol class="points">
+          <li class="card point">
+            <span class="marker">1</span>
+            <h3>A link you can text</h3>
+            <p>Send it to your crew. It opens on any phone, with no app or account.</p>
+          </li>
+          <li class="card point">
+            <span class="marker">2</span>
+            <h3>Directions to the parking</h3>
+            <p>Each crew stop links to where to park, not just the aid station, with notes on the lot, the walk in, or the shuttle.</p>
+          </li>
+          <li class="card point">
+            <span class="marker">3</span>
+            <h3>A printed copy for when there's no signal</h3>
+            <p>Print it before you leave. Each stop has a QR code that opens the parking spot in your maps app.</p>
+            <p class="fine">Coordinates are printed under each code, so an offline map can still find the spot.</p>
+          </li>
+          <li class="points-foot"><a href="#">Open the full example →</a></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 3: About ── -->
+<section class="section about">
+  <div class="container">
+    <div class="about-grid">
+      <div>
+        <div class="avatar" aria-hidden="true">DJ</div>
+        <div class="who">Dan James</div>
+        <div class="role">Product manager and ultrarunner</div>
+        <div class="who-links">
+          <a href="https://www.linkedin.com/in/daniel-james-45863320/">LinkedIn ↗</a>
+          <a href="https://github.com/londondan/PlanUltra">GitHub ↗</a>
+          <a href="mailto:danrjames@gmail.com">danrjames@gmail.com</a>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Who made this</div>
+        <p style="margin-top:14px">I built PlanUltra after a DNF at Grindstone 100, wanting to do better by my crew next time. Race websites list the aid stations. Crews need to know where to park, how to get in, and which stops they can skip.</p>
+        <p>This is a hobby project, not a startup. It's free, there are no ads or accounts, and the code is on GitHub. It's also an example of my product work, so if you want to talk about that, find me on LinkedIn.</p>
+        <p>If you spot a wrong parking location, email me and I'll fix it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <span>PlanUltra is free and open source.</span>
+    <nav><a href="#">FAQ</a><a href="https://github.com/londondan/PlanUltra">GitHub</a><a href="mailto:danrjames@gmail.com">Email</a></nav>
+  </div>
+</footer>
+
+</body>
+</html>

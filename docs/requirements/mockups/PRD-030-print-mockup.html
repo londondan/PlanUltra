@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew Sheet — Print Density Mockup (PRD-030)</title>
+<style>
+  :root {
+    --midnight:   #02071E;
+    --deep-ridge: #114574;
+    --ridge-blue: #1D7CBE;
+    --sky:        #82C7F6;
+    --mist:       #DBF1FA;
+    --green:      #15803d;
+    --white:      #ffffff;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Geist Sans', 'Inter', system-ui, sans-serif;
+    background: #e6ebf1;
+    color: var(--midnight);
+    padding: 28px 0 60px;
+  }
+
+  /* ── Screen-only chrome, hidden on print ── */
+  .screen-bar {
+    max-width: 8.5in; margin: 0 auto 20px; padding: 0 4px;
+  }
+  .screen-bar .title { font-family: 'DM Sans','Inter',sans-serif; font-weight: 800; font-size: 15px; color: var(--midnight); }
+  .screen-bar .subtitle { font-size: 12px; color: var(--deep-ridge); margin-top: 3px; line-height: 1.5; max-width: 640px; }
+  .legend {
+    max-width: 8.5in; margin: 0 auto 22px; padding: 12px 16px;
+    background: #fff8e1; border: 1px solid #f0d999; border-radius: 8px;
+    font-size: 12px; color: #6b5100; line-height: 1.6;
+  }
+  .legend b { color: #4a3800; }
+  .page-label {
+    max-width: 8.5in; margin: 0 auto; padding: 0 4px 6px;
+    font-family: 'Geist Mono','Courier New',monospace; font-size: 10px; letter-spacing: 0.08em;
+    color: #8a97a6; text-transform: uppercase;
+  }
+
+  /* ── Simulated page ── */
+  .page {
+    width: 8.5in;
+    min-height: 11in;
+    background: white;
+    margin: 0 auto 30px;
+    padding: 0.42in 0.45in;
+    box-shadow: 0 4px 22px rgba(0,0,0,0.18);
+    position: relative;
+  }
+
+  /* ── Header strip ── */
+  .header-strip {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-bottom: 3px solid var(--ridge-blue);
+    padding-bottom: 8px; margin-bottom: 12px;
+  }
+  .header-left .wordmark { font-family: 'DM Sans','Inter',sans-serif; font-weight: 800; font-size: 10px; color: var(--ridge-blue); letter-spacing: 0.02em; margin-bottom: 2px; }
+  .header-left .race-name { font-family: 'DM Sans','Inter',sans-serif; font-weight: 800; font-size: 17px; color: var(--midnight); letter-spacing: -0.02em; }
+  .header-left .runner-line { font-size: 10.5px; color: var(--deep-ridge); margin-top: 2px; }
+  .header-right { display: flex; gap: 16px; align-items: flex-end; }
+  .hstat { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+  .hstat .val { font-family: 'DM Sans','Inter',sans-serif; font-weight: 800; font-size: 14px; color: var(--ridge-blue); letter-spacing: -0.01em; }
+  .hstat .lbl { font-size: 8px; color: var(--deep-ridge); text-transform: uppercase; letter-spacing: 0.07em; }
+  .published-line { font-size: 8px; color: var(--deep-ridge); text-align: right; margin-top: 3px; font-family: 'Geist Mono','Courier New',monospace; }
+
+  /* ── Timeline ── */
+  .timeline { border-left: 2px solid var(--sky); margin-left: 4px; padding-left: 12px; }
+
+  /* ── Station block ── */
+  .station {
+    display: flex;
+    border: 1px solid var(--ridge-blue);
+    border-left: 4px solid var(--ridge-blue);
+    border-radius: 4px;
+    margin: 5px 0;
+    position: relative;
+    break-inside: avoid;
+  }
+  .station::before {
+    content: '';
+    position: absolute; left: -17px; top: 9px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--ridge-blue); border: 1.5px solid var(--ridge-blue);
+  }
+  .station.finish { border-left-color: var(--midnight); }
+  .station.finish::before { background: var(--midnight); border-color: var(--midnight); }
+
+  .station-main { flex: 1; min-width: 0; }
+  .station-header {
+    display: flex; align-items: center; gap: 7px;
+    padding: 5px 8px;
+  }
+  .mile-badge {
+    font-family: 'Geist Mono','Courier New',monospace; font-size: 8.5px;
+    border: 1px solid var(--ridge-blue); color: var(--deep-ridge);
+    padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+  }
+  .station-name { font-size: 12.5px; font-weight: 700; color: var(--midnight); flex: 1; min-width: 0; }
+  .badge {
+    font-size: 8.5px; border-radius: 3px; padding: 1px 5px; white-space: nowrap; font-weight: 600;
+    border: 1px solid var(--ridge-blue); color: var(--deep-ridge);
+  }
+  .station-eta { font-size: 13.5px; font-weight: 800; color: var(--ridge-blue); white-space: nowrap; }
+  .finish-flag { font-size: 12px; font-weight: 700; color: var(--midnight); }
+
+  .location-strip {
+    padding: 3px 8px 6px; border-top: 1px solid var(--sky);
+  }
+  .maps-link { font-size: 8.5px; color: var(--ridge-blue); font-weight: 600; }
+  .location-notes {
+    font-size: 9px; color: var(--deep-ridge); line-height: 1.3;
+    border-left: 2px solid var(--sky); padding-left: 6px; margin-top: 3px;
+  }
+
+  .qr-side {
+    flex-shrink: 0; width: 0.66in;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    padding: 4px 6px; border-left: 1px solid var(--sky);
+  }
+  .qr-frame {
+    width: 46px; height: 46px; border: 1px solid var(--ridge-blue); border-radius: 3px; padding: 2px;
+  }
+  .qr-caption { font-size: 6.3px; color: var(--deep-ridge); text-transform: uppercase; letter-spacing: 0.04em; text-align: center; line-height: 1.2; }
+
+  /* ── Bridge block (drive info + vertical checkpoint list) ── */
+  .bridge {
+    margin: 3px 0 3px 2px;
+    border: 1px solid var(--sky);
+    border-radius: 4px;
+    padding: 4px 8px 5px;
+    break-inside: avoid;
+  }
+  .bridge .drive-line {
+    font-size: 9.5px; font-weight: 700; color: var(--deep-ridge);
+    display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+  }
+  .bridge .drive-line .time { color: var(--ridge-blue); font-weight: 800; }
+  .bridge .drive-line .inline-none { font-weight: 400; color: var(--deep-ridge); }
+  .checkpoint-row {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 9px; color: var(--deep-ridge);
+    padding: 1.5px 0; margin-top: 1.5px;
+  }
+  .checkpoint-row .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--sky); border: 1px solid var(--ridge-blue); flex-shrink: 0; }
+  .checkpoint-row .mi {
+    font-family: 'Geist Mono','Courier New',monospace; font-size: 8px;
+    border: 1px solid var(--sky); color: var(--deep-ridge);
+    padding: 0 4px; border-radius: 3px; white-space: nowrap;
+  }
+  .checkpoint-row .name { flex: 1; font-weight: 500; }
+  .checkpoint-row .ckp-time { font-family: 'Geist Mono','Courier New',monospace; font-size: 8.5px; color: var(--ridge-blue); font-weight: 600; white-space: nowrap; }
+
+  /* ── Footer ── */
+  .sheet-footer { text-align: center; margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--sky); }
+  .sheet-footer .l1 { font-size: 9px; color: var(--deep-ridge); }
+  .sheet-footer .l2 { font-family: 'Geist Mono','Courier New',monospace; font-size: 8px; color: var(--deep-ridge); margin-top: 2px; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .screen-bar, .legend, .page-label { display: none !important; }
+    /* Screen-only page tiles are just visual chrome for this mockup — in
+       real print, content flows continuously and paginates naturally via
+       @page + break-inside:avoid on individual station/bridge blocks, so
+       we do NOT force a break between the two .page divs here. Forcing
+       one (page-break-after) would restart pagination at a fixed point
+       regardless of how much room was actually left on the page, which
+       is exactly the rigid behavior this PRD is trying to get away from. */
+    .page { box-shadow: none; margin: 0; padding: 0; width: auto; min-height: 0; }
+    @page { size: letter; margin: 0.4in; }
+  }
+</style>
+</head>
+<body>
+
+<div class="screen-bar">
+  <div class="title">PRD-030 — Crew sheet print mockup</div>
+  <div class="subtitle">Same data as the attached Grindstone 100 sample (7 crew stations, 18 aid stations). The two sheets below are sized to actual US Letter dimensions (8.5×11in) so what you see is what would print. The current production print output runs 4 pages for this exact race. This layout was verified with a real headless-Chromium print-to-PDF render — the split below matches where the browser actually breaks the page, not a guess.</div>
+</div>
+
+<div class="legend">
+  <b>What changed from the current print output:</b> (1) Header and label text is now solid, opaque color — nothing depends on a dark background rendering, since browsers commonly print with "background graphics" switched off, which is very likely why the current header prints washed-out. (2) Card padding, font sizes, and line-height are tightened for paper, not touch targets, and the redundant "✓ Crew access" badge is dropped from station cards — every card in this timeline is a crew station by definition, so the badge said nothing the mile pill and QR sidebar didn't already imply. (3) Intermediate checkpoints keep their one-row-per-checkpoint layout (per feedback — this is useful information crew members read at a glance) but the rows themselves are tightened to the same print scale as everything else. ETA, QR codes, directions, and location notes are all still present.
+</div>
+
+<div class="page-label">Page 1 of 2</div>
+<div class="page">
+
+  <div class="header-strip">
+    <div class="header-left">
+      <div class="wordmark">PlanUltra ▲</div>
+      <div class="race-name">2026 Grindstone</div>
+      <div class="runner-line">Crew sheet for Daniel James · Friday, September 18, 2026 · 104.2 mi</div>
+    </div>
+    <div class="header-right">
+      <div class="hstat"><span class="val">7</span><span class="lbl">Crew stations</span></div>
+      <div class="hstat"><span class="val">18</span><span class="lbl">Aid stations</span></div>
+      <div class="hstat"><span class="val">~34h</span><span class="lbl">Target finish</span></div>
+      <div class="hstat"><span class="val">4:00 AM</span><span class="lbl">Est. finish</span></div>
+    </div>
+  </div>
+  <div class="published-line">Published Sep 5, 2026, 12:12 PM</div>
+
+  <div class="timeline">
+
+    <!-- S1 -->
+    <div class="station">
+      <div class="station-main">
+        <div class="station-header">
+          <span class="mile-badge">MI 0.0</span>
+          <span class="station-name">Start / Finish</span>
+          <span class="badge">🅿 Parking lot</span>
+          <span class="station-eta">6:00 PM</span>
+        </div>
+        <div class="location-strip">
+          <span class="maps-link">📍 Directions — maps.google.com/?q=38.169335,-79.138158</span>
+        </div>
+      </div>
+      <div class="qr-side">
+        <div class="qr-frame">
+          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <rect x="0" y="0" width="7" height="7" fill="#114574"/><rect x="1" y="1" width="5" height="5" fill="white"/><rect x="2" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="14" y="0" width="7" height="7" fill="#114574"/><rect x="15" y="1" width="5" height="5" fill="white"/><rect x="16" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="0" y="14" width="7" height="7" fill="#114574"/><rect x="1" y="15" width="5" height="5" fill="white"/><rect x="2" y="16" width="3" height="3" fill="#114574"/>
+            <rect x="9" y="0" width="1" height="1" fill="#114574"/><rect x="11" y="0" width="1" height="1" fill="#114574"/><rect x="9" y="2" width="1" height="1" fill="#114574"/>
+            <rect x="9" y="9" width="4" height="4" fill="#114574"/><rect x="14" y="9" width="1" height="1" fill="#114574"/><rect x="16" y="9" width="1" height="1" fill="#114574"/>
+            <rect x="9" y="14" width="1" height="1" fill="#114574"/><rect x="9" y="17" width="1" height="1" fill="#114574"/><rect x="12" y="15" width="1" height="1" fill="#114574"/>
+            <rect x="14" y="18" width="3" height="1" fill="#114574"/><rect x="18" y="14" width="1" height="4" fill="#114574"/>
+          </svg>
+        </div>
+        <div class="qr-caption">Scan for<br>directions</div>
+      </div>
+    </div>
+
+    <!-- B1 -->
+    <div class="bridge">
+      <div class="drive-line">🚗 Drive to Start/Finish — <span class="time">41 min</span> · 31.1 mi <span class="inline-none">— No intermediate checkpoints</span></div>
+    </div>
+
+    <!-- S2 -->
+    <div class="station">
+      <div class="station-main">
+        <div class="station-header">
+          <span class="mile-badge">MI 1.3</span>
+          <span class="station-name">Start / Finish</span>
+          <span class="badge">🅿 Parking lot</span>
+          <span class="station-eta">6:23 PM</span>
+        </div>
+        <div class="location-strip">
+          <span class="maps-link">📍 Directions — maps.google.com/?q=38.169335,-79.138158</span>
+        </div>
+      </div>
+      <div class="qr-side">
+        <div class="qr-frame">
+          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <rect x="0" y="0" width="7" height="7" fill="#114574"/><rect x="1" y="1" width="5" height="5" fill="white"/><rect x="2" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="14" y="0" width="7" height="7" fill="#114574"/><rect x="15" y="1" width="5" height="5" fill="white"/><rect x="16" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="0" y="14" width="7" height="7" fill="#114574"/><rect x="1" y="15" width="5" height="5" fill="white"/><rect x="2" y="16" width="3" height="3" fill="#114574"/>
+            <rect x="9" y="1" width="1" height="1" fill="#114574"/><rect x="9" y="4" width="2" height="1" fill="#114574"/>
+            <rect x="9" y="9" width="4" height="4" fill="#114574"/><rect x="15" y="10" width="1" height="1" fill="#114574"/><rect x="17" y="9" width="1" height="1" fill="#114574"/>
+            <rect x="9" y="15" width="1" height="1" fill="#114574"/><rect x="11" y="17" width="1" height="1" fill="#114574"/><rect x="9" y="18" width="1" height="1" fill="#114574"/>
+            <rect x="15" y="15" width="3" height="1" fill="#114574"/><rect x="17" y="17" width="2" height="2" fill="#114574"/>
+          </svg>
+        </div>
+        <div class="qr-caption">Scan for<br>directions</div>
+      </div>
+    </div>
+
+    <!-- B2 -->
+    <div class="bridge">
+      <div class="drive-line">🚗 Drive to North River Gap AS#5/14 — <span class="time">45 min</span> · 24.0 mi</div>
+      <div class="checkpoint-row"><span class="dot"></span><span class="mi">MI 5.7</span><span class="name">Lick Run AS#1/15</span><span class="ckp-time">7:36 PM</span></div>
+      <div class="checkpoint-row"><span class="dot"></span><span class="mi">MI 11.5</span><span class="name">Wolf Ridge AS#2</span><span class="ckp-time">9:19 PM</span></div>
+      <div class="checkpoint-row"><span class="dot"></span><span class="mi">MI 20.4</span><span class="name">Reddish Knob AS#3</span><span class="ckp-time">12:27 AM</span></div>
+      <div class="checkpoint-row"><span class="dot"></span><span class="mi">MI 24.3</span><span class="name">Little Bald AS#4</span><span class="ckp-time">1:37 AM</span></div>
+    </div>
+
+    <!-- S3 -->
+    <div class="station">
+      <div class="station-main">
+        <div class="station-header">
+          <span class="mile-badge">MI 32.9</span>
+          <span class="station-name">North River Gap AS #5/14</span>
+          <span class="badge">🥾 Trailhead</span>
+          <span class="station-eta">4:23 AM</span>
+        </div>
+        <div class="location-strip">
+          <span class="maps-link">📍 Directions — maps.google.com/?q=38.3646,-79.1654949</span>
+          <div class="location-notes">Walking access to aid station is 300m after leaving camp entrance and to your left.</div>
+        </div>
+      </div>
+      <div class="qr-side">
+        <div class="qr-frame">
+          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <rect x="0" y="0" width="7" height="7" fill="#114574"/><rect x="1" y="1" width="5" height="5" fill="white"/><rect x="2" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="14" y="0" width="7" height="7" fill="#114574"/><rect x="15" y="1" width="5" height="5" fill="white"/><rect x="16" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="0" y="14" width="7" height="7" fill="#114574"/><rect x="1" y="15" width="5" height="5" fill="white"/><rect x="2" y="16" width="3" height="3" fill="#114574"/>
+            <rect x="9" y="0" width="2" height="1" fill="#114574"/><rect x="12" y="3" width="1" height="1" fill="#114574"/>
+            <rect x="9" y="9" width="4" height="4" fill="#114574"/><rect x="16" y="10" width="2" height="1" fill="#114574"/>
+            <rect x="9" y="16" width="1" height="1" fill="#114574"/><rect x="10" y="18" width="2" height="1" fill="#114574"/>
+            <rect x="15" y="14" width="1" height="3" fill="#114574"/><rect x="18" y="15" width="2" height="2" fill="#114574"/>
+          </svg>
+        </div>
+        <div class="qr-caption">Scan for<br>directions</div>
+      </div>
+    </div>
+
+    <!-- B3 -->
+    <div class="bridge">
+      <div class="drive-line">🚗 Drive to Dowells Draft AS#7 — <span class="time">53 min</span> · 33.7 mi</div>
+      <div class="checkpoint-row"><span class="dot"></span><span class="mi">MI 38.6</span><span class="name">Lookout Mtn AS#6</span><span class="ckp-time">6:22 AM</span></div>
+    </div>
+
+    <!-- S4 -->
+    <div class="station">
+      <div class="station-main">
+        <div class="station-header">
+          <span class="mile-badge">MI 46.1</span>
+          <span class="station-name">Dowells Draft AS #7</span>
+          <span class="badge">🛣 Side of road</span>
+          <span class="station-eta">8:41 AM</span>
+        </div>
+        <div class="location-strip">
+          <span class="maps-link">📍 Directions — maps.google.com/?q=38.280746,-79.293497</span>
+          <div class="location-notes">Walking access is on same side as parking; 300m walk past gate on USFS 449. Do not park in front of or block the USFS gate — all four wheels must be off the road surface, or USFS law enforcement may issue a citation.</div>
+        </div>
+      </div>
+      <div class="qr-side">
+        <div class="qr-frame">
+          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <rect x="0" y="0" width="7" height="7" fill="#114574"/><rect x="1" y="1" width="5" height="5" fill="white"/><rect x="2" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="14" y="0" width="7" height="7" fill="#114574"/><rect x="15" y="1" width="5" height="5" fill="white"/><rect x="16" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="0" y="14" width="7" height="7" fill="#114574"/><rect x="1" y="15" width="5" height="5" fill="white"/><rect x="2" y="16" width="3" height="3" fill="#114574"/>
+            <rect x="9" y="2" width="1" height="2" fill="#114574"/><rect x="11" y="1" width="1" height="1" fill="#114574"/>
+            <rect x="9" y="9" width="4" height="4" fill="#114574"/><rect x="14" y="11" width="1" height="1" fill="#114574"/>
+            <rect x="9" y="15" width="2" height="1" fill="#114574"/><rect x="9" y="18" width="1" height="1" fill="#114574"/>
+            <rect x="15" y="16" width="3" height="1" fill="#114574"/><rect x="18" y="18" width="1" height="1" fill="#114574"/>
+          </svg>
+        </div>
+        <div class="qr-caption">Scan for<br>directions</div>
+      </div>
+    </div>
+
+    <!-- B4 -->
+    <div class="bridge">
+      <div class="drive-line">🚗 Drive to Dowells Draft AS#7 — <span class="time">53 min</span> · 33.7 mi</div>
+      <div class="checkpoint-row"><span class="dot"></span><span class="mi">MI 52.9</span><span class="name">Dry Branch Gap AS#8/10</span><span class="ckp-time">11:22 AM</span></div>
+      <div class="checkpoint-row"><span class="dot"></span><span class="mi">MI 59.7</span><span class="name">Cold Springs AS#9</span><span class="ckp-time">2:01 PM</span></div>
+      <div class="checkpoint-row"><span class="dot"></span><span class="mi">MI 65.2</span><span class="name">Dry Branch Gap AS#8/10</span><span class="ckp-time">3:38 PM</span></div>
+    </div>
+
+    <!-- S5 -->
+    <div class="station">
+      <div class="station-main">
+        <div class="station-header">
+          <span class="mile-badge">MI 72.0</span>
+          <span class="station-name">Dowells Draft AS #7</span>
+          <span class="badge">🛣 Side of road</span>
+          <span class="station-eta">6:04 PM</span>
+        </div>
+        <div class="location-strip">
+          <span class="maps-link">📍 Directions — maps.google.com/?q=38.280746,-79.293497</span>
+          <div class="location-notes">Walking access is on same side as parking; 300m walk past gate on USFS 449. Do not park in front of or block the USFS gate — all four wheels must be off the road surface, or USFS law enforcement may issue a citation.</div>
+        </div>
+      </div>
+      <div class="qr-side">
+        <div class="qr-frame">
+          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <rect x="0" y="0" width="7" height="7" fill="#114574"/><rect x="1" y="1" width="5" height="5" fill="white"/><rect x="2" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="14" y="0" width="7" height="7" fill="#114574"/><rect x="15" y="1" width="5" height="5" fill="white"/><rect x="16" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="0" y="14" width="7" height="7" fill="#114574"/><rect x="1" y="15" width="5" height="5" fill="white"/><rect x="2" y="16" width="3" height="3" fill="#114574"/>
+            <rect x="9" y="3" width="2" height="1" fill="#114574"/><rect x="12" y="0" width="1" height="1" fill="#114574"/>
+            <rect x="9" y="9" width="4" height="4" fill="#114574"/><rect x="17" y="12" width="1" height="1" fill="#114574"/>
+            <rect x="9" y="17" width="1" height="1" fill="#114574"/><rect x="11" y="15" width="1" height="1" fill="#114574"/>
+            <rect x="14" y="15" width="2" height="1" fill="#114574"/><rect x="18" y="18" width="1" height="1" fill="#114574"/>
+          </svg>
+        </div>
+        <div class="qr-caption">Scan for<br>directions</div>
+      </div>
+    </div>
+
+    <!-- B5 -->
+    <div class="bridge">
+      <div class="drive-line">🚗 Drive to Camp Todd AS#13 — <span class="time">1 hr 2 min</span> · 33.6 mi</div>
+      <div class="checkpoint-row"><span class="dot"></span><span class="mi">MI 77.3</span><span class="name">Magic Moss AS#12</span><span class="ckp-time">7:48 PM</span></div>
+    </div>
+
+    <!-- S6 -->
+    <div class="station">
+      <div class="station-main">
+        <div class="station-header">
+          <span class="mile-badge">MI 82.4</span>
+          <span class="station-name">Camp Todd AS #13</span>
+          <span class="badge">🛣 Side of road</span>
+          <span class="station-eta">9:01 PM</span>
+        </div>
+        <div class="location-strip">
+          <span class="maps-link">📍 Directions — maps.google.com/?q=38.368519,-79.276122</span>
+          <div class="location-notes">Drive slow past Magic Moss aid station — no crew access there. Drive slow on gravel, runners may be on the road. Do not park before reaching the aid station; park on the road shoulder, one side only, and do not block traffic.</div>
+        </div>
+      </div>
+      <div class="qr-side">
+        <div class="qr-frame">
+          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <rect x="0" y="0" width="7" height="7" fill="#114574"/><rect x="1" y="1" width="5" height="5" fill="white"/><rect x="2" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="14" y="0" width="7" height="7" fill="#114574"/><rect x="15" y="1" width="5" height="5" fill="white"/><rect x="16" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="0" y="14" width="7" height="7" fill="#114574"/><rect x="1" y="15" width="5" height="5" fill="white"/><rect x="2" y="16" width="3" height="3" fill="#114574"/>
+            <rect x="9" y="1" width="1" height="2" fill="#114574"/><rect x="11" y="3" width="2" height="1" fill="#114574"/>
+            <rect x="9" y="9" width="4" height="4" fill="#114574"/><rect x="16" y="9" width="1" height="1" fill="#114574"/>
+            <rect x="9" y="16" width="2" height="1" fill="#114574"/><rect x="9" y="18" width="1" height="1" fill="#114574"/>
+            <rect x="14" y="16" width="1" height="1" fill="#114574"/><rect x="17" y="17" width="2" height="2" fill="#114574"/>
+          </svg>
+        </div>
+        <div class="qr-caption">Scan for<br>directions</div>
+      </div>
+    </div>
+
+    <!-- B6 -->
+    <div class="bridge">
+      <div class="drive-line">🚗 Drive to North River Gap AS#5/14 — <span class="time">45 min</span> · 24.0 mi <span class="inline-none">— No intermediate checkpoints</span></div>
+    </div>
+
+    <!-- S7 -->
+    <div class="station">
+      <div class="station-main">
+        <div class="station-header">
+          <span class="mile-badge">MI 92.1</span>
+          <span class="station-name">North River Gap AS #5/14</span>
+          <span class="badge">🥾 Trailhead</span>
+          <span class="station-eta">12:42 AM</span>
+        </div>
+        <div class="location-strip">
+          <span class="maps-link">📍 Directions — maps.google.com/?q=38.3646,-79.1654949</span>
+          <div class="location-notes">Walking access to aid station is 300m after leaving camp entrance and to your left.</div>
+        </div>
+      </div>
+      <div class="qr-side">
+        <div class="qr-frame">
+          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <rect x="0" y="0" width="7" height="7" fill="#114574"/><rect x="1" y="1" width="5" height="5" fill="white"/><rect x="2" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="14" y="0" width="7" height="7" fill="#114574"/><rect x="15" y="1" width="5" height="5" fill="white"/><rect x="16" y="2" width="3" height="3" fill="#114574"/>
+            <rect x="0" y="14" width="7" height="7" fill="#114574"/><rect x="1" y="15" width="5" height="5" fill="white"/><rect x="2" y="16" width="3" height="3" fill="#114574"/>
+            <rect x="9" y="0" width="2" height="1" fill="#114574"/><rect x="12" y="3" width="1" height="1" fill="#114574"/>
+            <rect x="9" y="9" width="4" height="4" fill="#114574"/><rect x="16" y="10" width="2" height="1" fill="#114574"/>
+            <rect x="9" y="16" width="1" height="1" fill="#114574"/><rect x="10" y="18" width="2" height="1" fill="#114574"/>
+            <rect x="15" y="14" width="1" height="3" fill="#114574"/><rect x="18" y="15" width="2" height="2" fill="#114574"/>
+          </svg>
+        </div>
+        <div class="qr-caption">Scan for<br>directions</div>
+      </div>
+    </div>
+
+    <!-- B7 -->
+    <div class="bridge">
+      <div class="drive-line">🚗 Drive to Start/Finish — <span class="time">41 min</span> · 31.1 mi</div>
+      <div class="checkpoint-row"><span class="dot"></span><span class="mi">MI 99.8</span><span class="name">Lick Run AS#1/15</span><span class="ckp-time">2:52 AM</span></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="page-label">Page 2 of 2</div>
+<div class="page">
+
+  <div class="timeline">
+
+    <!-- S8 finish -->
+    <div class="station finish">
+      <div class="station-main">
+        <div class="station-header">
+          <span class="mile-badge">MI 104.2</span>
+          <span class="station-name">Start / Finish</span>
+          <span class="finish-flag">🏁 Finish line</span>
+          <span class="station-eta">4:00 AM</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sheet-footer">
+    <div class="l1">Generated by PlanUltra</div>
+    <div class="l2">Sep 5, 2026, 12:12 PM</div>
+  </div>
+</div>
+
+</body>
+</html>

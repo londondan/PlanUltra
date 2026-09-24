@@ -145,8 +145,14 @@ def _snap_to_track(lat, lon, track_points, cumulative):
 # Stage 2 — Text / PDF ingestion
 # ---------------------------------------------------------------------------
 
+TRIGGER_WORDS = [
+    'aid station', 'crew', 'drop bag', 'cutoff', 'cut-off',
+    'mile', 'pacer', 'parking', 'access',
+]
+
+
 def extract_text_from_pdf(pdf_path: str) -> str:
-    """Extract raw text from a PDF using pdfplumber."""
+    """Extract raw text from a PDF using pdfplumber (all pages)."""
     try:
         import pdfplumber
     except ImportError:
@@ -161,6 +167,36 @@ def extract_text_from_pdf(pdf_path: str) -> str:
             if text:
                 text_parts.append(f"--- Page {i+1} ---\n{text}")
     return '\n\n'.join(text_parts)
+
+
+def extract_relevant_pages(pdf_path: str) -> str:
+    """
+    Extract text from pages likely to contain aid station data.
+    Pages with 2+ trigger words are kept; falls back to all pages if none match.
+    Replaces the 15,000-char truncation for pipeline use.
+    """
+    try:
+        import pdfplumber
+    except ImportError:
+        print("ERROR: pdfplumber is required for PDF extraction.")
+        print("       Run: pip install pdfplumber")
+        sys.exit(1)
+
+    relevant = []
+    with pdfplumber.open(pdf_path) as pdf:
+        for i, page in enumerate(pdf.pages):
+            text = page.extract_text() or ''
+            hit_count = sum(1 for w in TRIGGER_WORDS if w in text.lower())
+            if hit_count >= 2:
+                relevant.append(f"--- Page {i+1} ---\n{text}")
+
+    if not relevant:
+        # Fallback: return everything
+        with pdfplumber.open(pdf_path) as pdf:
+            relevant = [f"--- Page {i+1} ---\n{page.extract_text() or ''}"
+                        for i, page in enumerate(pdf.pages)]
+
+    return '\n\n'.join(relevant)
 
 
 def load_source_text(args) -> str | None:
@@ -195,9 +231,9 @@ Aid stations — an array named "aid_stations", each with:
 - mile: number (distance from start)
 - mile_return: number or null (for out-and-back courses where the station appears twice — the return mileage)
 - cutoff_elapsed_minutes: number or null (minutes from race start, not clock time)
-- crew_access: boolean
+- crew_access: boolean (flag per station — not just course-level crew notes)
 - drop_bag: boolean
-- parking_notes: string or null (any parking or directions info mentioned)
+- parking_notes: string or null (parking details per station, including pacer pickup points and road access notes)
 
 Rules:
 - If a cutoff is given as a clock time, convert it to elapsed minutes from the race start time.
@@ -205,6 +241,8 @@ Rules:
 - If a field is genuinely unknown, use null.
 - Do not invent data. If you are uncertain, use null.
 - For out-and-back courses, if a station appears on both the outbound and return legs, set mile for the outbound appearance and mile_return for the return. If it only appears once, set mile_return to null.
+- Extract parking details per station even if brief — "parking area off Hwy 193" is useful.
+- Note pacer pickup points in parking_notes where mentioned.
 
 Race packet text:
 ---
@@ -213,9 +251,84 @@ Race packet text:
 
 Return only the JSON object."""
 
+# Tool schema for structured output extraction (pipeline use)
+_EXTRACTION_TOOL_SCHEMA = {
+    'name': 'submit_race_data',
+    'description': 'Submit the extracted race data in structured form.',
+    'input_schema': {
+        'type': 'object',
+        'properties': {
+            'name':           {'type': 'string'},
+            'date':           {'type': ['string', 'null']},
+            'start_time':     {'type': ['string', 'null']},
+            'timezone':       {'type': ['string', 'null']},
+            'location':       {'type': ['string', 'null']},
+            'distance_miles': {'type': ['number', 'null']},
+            'description':    {'type': ['string', 'null']},
+            'aid_stations': {
+                'type': 'array',
+                'items': {
+                    'type': 'object',
+                    'properties': {
+                        'name':                    {'type': 'string'},
+                        'mile':                    {'type': 'number'},
+                        'mile_return':             {'type': ['number', 'null']},
+                        'cutoff_elapsed_minutes':  {'type': ['integer', 'null']},
+                        'crew_access':             {'type': 'boolean'},
+                        'drop_bag':                {'type': 'boolean'},
+                        'parking_notes':           {'type': ['string', 'null']},
+                    },
+                    'required': ['name', 'mile', 'crew_access', 'drop_bag'],
+                },
+            },
+        },
+        'required': ['name', 'aid_stations'],
+    },
+}
+
+
+def llm_extract_structured(source_text: str, race_name_hint: str = None) -> dict:
+    """
+    Call Anthropic API with tool_choice to force structured output.
+    Used by the ingestion pipeline — no JSON parsing, no regex stripping.
+    """
+    try:
+        import anthropic
+    except ImportError:
+        raise ImportError(
+            "anthropic package is required. Run: pip install anthropic"
+        )
+
+    api_key = os.environ.get('ANTHROPIC_API_KEY')
+    if not api_key:
+        raise EnvironmentError('ANTHROPIC_API_KEY environment variable is not set.')
+
+    prompt = EXTRACTION_PROMPT.format(source_text=source_text)
+    if race_name_hint:
+        prompt = f"Race name hint: {race_name_hint}\n\n" + prompt
+
+    print("  Calling Anthropic API for structured extraction (tool_choice)...")
+    client = anthropic.Anthropic(api_key=api_key)
+    response = client.messages.create(
+        model='claude-opus-4-6',
+        max_tokens=4096,
+        tools=[_EXTRACTION_TOOL_SCHEMA],
+        tool_choice={'type': 'tool', 'name': 'submit_race_data'},
+        messages=[{'role': 'user', 'content': prompt}],
+    )
+
+    tool_use = next(
+        (b for b in response.content if b.type == 'tool_use'),
+        None,
+    )
+    if tool_use is None:
+        raise ValueError('Anthropic API did not return a tool_use block.')
+
+    return tool_use.input
+
 
 def llm_extract(source_text: str, race_name_hint: str = None) -> dict:
-    """Call Anthropic API to extract structured race data from text."""
+    """Call Anthropic API to extract structured race data from text (legacy prose mode)."""
     try:
         import anthropic
     except ImportError:
@@ -399,6 +512,28 @@ def merge(gpx_data: dict, extracted: dict, args) -> dict:
             'unmatched_gpx_waypoints': len(waypoints) - len(used_waypoint_indices),
         }
     }
+
+
+# ---------------------------------------------------------------------------
+# Pipeline merge variant (no argparse dependency)
+# ---------------------------------------------------------------------------
+
+def merge_pipeline(gpx_data: dict, extracted: dict, overrides: dict | None = None) -> dict:
+    """
+    Like merge(), but accepts a plain dict of overrides instead of argparse args.
+    Used by ingest.py so it doesn't need to construct a fake Namespace object.
+
+    overrides keys: name, date, start_time, timezone, location
+    """
+    class _Args:
+        pass
+    args = _Args()
+    args.name       = (overrides or {}).get('name')
+    args.date       = (overrides or {}).get('date')
+    args.start_time = (overrides or {}).get('start_time')
+    args.timezone   = (overrides or {}).get('timezone')
+    args.location   = (overrides or {}).get('location')
+    return merge(gpx_data, extracted, args)
 
 
 # ---------------------------------------------------------------------------

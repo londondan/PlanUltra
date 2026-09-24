@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Diff — {{ record.race_name }}{% endblock %}
+{% block nav_label %}<a href="/" class="hover:underline">Queue</a> / <a href="/race/{{ record.slug }}" class="hover:underline">{{ record.race_name }}</a> / Diff{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-lg font-semibold">{{ record.race_name }} — Edit diff</h1>
+  <a href="/race/{{ record.slug }}" class="text-sm text-indigo-600 hover:underline">← Back to review</a>
+</div>
+
+{% if diff_text %}
+<div class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto text-xs font-mono leading-relaxed">
+  <pre>{% for line in diff_text.split('\n') %}{% if line.startswith('+') and not line.startswith('+++') %}<span class="text-green-400">{{ line }}</span>
+{% elif line.startswith('-') and not line.startswith('---') %}<span class="text-red-400">{{ line }}</span>
+{% elif line.startswith('@@') %}<span class="text-blue-400">{{ line }}</span>
+{% else %}{{ line }}
+{% endif %}{% endfor %}</pre>
+</div>
+{% else %}
+<div class="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-400">
+  No edits — the original extraction will be loaded as-is on approval.
+</div>
+{% endif %}
+{% endblock %}

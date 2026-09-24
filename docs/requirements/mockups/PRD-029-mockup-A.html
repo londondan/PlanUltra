@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD-029 Mockup A — Inline Muted Suffix</title>
+<style>
+  /* Ridge Light Design System */
+  :root {
+    --midnight: #02071E;
+    --deep-ridge: #114574;
+    --ridge-blue: #1D7CBE;
+    --sky: #82C7F6;
+    --mist: #DBF1FA;
+    --white: #FFFFFF;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&family=Geist+Mono:wght@400&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #F0F4F8;
+    color: var(--midnight);
+    min-height: 100vh;
+  }
+
+  /* ---- Design label ---- */
+  .design-label {
+    background: var(--ridge-blue);
+    color: white;
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .design-label span {
+    font-weight: 400;
+    opacity: 0.85;
+  }
+
+  /* ---- Page header ---- */
+  .crew-header {
+    background: var(--midnight);
+    color: var(--white);
+    padding: 28px 24px 24px;
+    text-align: center;
+  }
+  .crew-header .race-name {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .crew-header .crew-for {
+    font-size: 14px;
+    color: var(--sky);
+    margin-top: 6px;
+    font-family: 'Geist Mono', monospace;
+  }
+  .crew-header .race-meta {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 4px;
+  }
+
+  /* ---- Content wrapper ---- */
+  .content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  /* ---- Section label ---- */
+  .section-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: rgba(17, 69, 116, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    margin-top: 8px;
+  }
+
+  /* ---- Connector ---- */
+  .connector {
+    width: 2px;
+    height: 20px;
+    background: rgba(130, 199, 246, 0.3);
+    margin: 0 auto;
+  }
+
+  /* ---- Station card base ---- */
+  .station-card {
+    background: var(--white);
+    border: 1px solid rgba(130, 199, 246, 0.4);
+    border-radius: 10px;
+    padding: 14px 16px;
+    position: relative;
+  }
+
+  .station-card--crew {
+    background: var(--mist);
+    border-color: rgba(29, 124, 190, 0.35);
+  }
+
+  /* ---- Station header row ---- */
+  .station-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .mile-pill {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: rgba(17, 69, 116, 0.6);
+    white-space: nowrap;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ---- APPROACH A: Inline muted suffix ---- */
+  .station-name-wrap {
+    flex: 1;
+    padding: 0 8px;
+  }
+
+  .station-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--midnight);
+  }
+
+  /* THE KEY TREATMENT: suffix inline, reduced opacity, smaller */
+  .station-name .visit-suffix {
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(17, 69, 116, 0.45);
+    margin-left: 5px;
+    font-family: 'Geist Mono', monospace;
+    letter-spacing: 0em;
+  }
+
+  .station-eta-col {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .station-eta {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ridge-blue);
+    white-space: nowrap;
+  }
+
+  .access-label {
+    font-size: 12px;
+    font-style: italic;
+    color: rgba(17, 69, 116, 0.4);
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+
+  .access-label--crew {
+    color: #2D7D46;
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  /* ---- Card divider ---- */
+  .card-divider {
+    border: none;
+    border-top: 1px solid rgba(130, 199, 246, 0.4);
+    margin: 12px 0;
+  }
+
+  /* ---- Segment detail ---- */
+  .segment-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: rgba(17, 69, 116, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .detail-section-head {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: rgba(17, 69, 116, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    margin-top: 10px;
+  }
+
+  .gear-list {
+    list-style: none;
+    padding: 0;
+  }
+  .gear-list li {
+    font-size: 14px;
+    color: var(--midnight);
+    padding: 2px 0;
+  }
+  .gear-list li::before {
+    content: "• ";
+    color: var(--deep-ridge);
+    opacity: 0.5;
+  }
+
+  .crew-notes {
+    font-size: 14px;
+    color: var(--midnight);
+    line-height: 1.5;
+  }
+
+  /* ---- Finish card ---- */
+  .station-card--finish {
+    background: var(--white);
+    border: 1px solid rgba(130, 199, 246, 0.4);
+  }
+  .finish-label {
+    font-size: 12px;
+    color: rgba(17, 69, 116, 0.5);
+    margin-top: 2px;
+  }
+
+  /* ---- Annotation callout ---- */
+  .annotation {
+    background: #FFF8E1;
+    border: 1.5px solid #F9A825;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #5D4037;
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+  .annotation strong { color: #E65100; }
+
+  /* ---- Footer ---- */
+  .crew-footer {
+    text-align: center;
+    padding: 24px 16px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    color: rgba(17, 69, 116, 0.4);
+  }
+</style>
+</head>
+<body>
+
+<div class="design-label">
+  PRD-029 · Mockup A — <span>Inline muted suffix: name stays dominant, ordinal fades in beside it</span>
+</div>
+
+<div class="crew-header">
+  <div class="race-name">Leadville Trail 100</div>
+  <div class="crew-for">Crew sheet for Scott Mitchell</div>
+  <div class="race-meta">August 15, 2026 · 100 miles</div>
+</div>
+
+<div class="content">
+
+  <div class="section-label">Aid Stations · 10 of 24 shown for review</div>
+
+  <!-- Station 1: Fish Hatchery (unique name) -->
+  <div class="station-card">
+    <div class="station-header">
+      <div class="mile-pill">MILE 23.5</div>
+      <div class="station-name-wrap">
+        <div class="station-name">Fish Hatchery</div>
+      </div>
+      <div class="station-eta-col">
+        <div class="station-eta">10:42 AM</div>
+        <div class="access-label">No crew access</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+
+  <!-- Station 2: Halfmoon (unique name) -->
+  <div class="station-card">
+    <div class="station-header">
+      <div class="mile-pill">MILE 30.0</div>
+      <div class="station-name-wrap">
+        <div class="station-name">Halfmoon</div>
+      </div>
+      <div class="station-eta-col">
+        <div class="station-eta">12:05 PM</div>
+        <div class="access-label">No crew access</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+
+  <!-- Station 3: Twin Lakes FIRST VISIT — DUPLICATE -->
+  <div class="station-card station-card--crew">
+    <div class="station-header">
+      <div class="mile-pill">MILE 39.4</div>
+      <div class="station-name-wrap">
+        <div class="station-name">
+          Twin Lakes
+          <span class="visit-suffix">(1 of 2)</span>
+        </div>
+      </div>
+      <div class="station-eta-col">
+        <div class="station-eta">1:48 PM</div>
+        <div class="access-label access-label--crew">✓ Crew access</div>
+      </div>
+    </div>
+    <hr class="card-divider">
+    <div class="segment-label">Next segment: Twin Lakes (1 of 2) → Hope Pass Outbound</div>
+    <div class="detail-section-head">Grab from drop bag</div>
+    <ul class="gear-list">
+      <li>Trekking poles</li>
+      <li>Extra salt tabs</li>
+    </ul>
+    <div class="detail-section-head">Crew notes</div>
+    <div class="crew-notes">Refill both soft flasks. Quick stop — pacers join at mile 60.</div>
+  </div>
+
+  <div class="connector"></div>
+
+  <!-- Station 4: Hope Pass (unique) -->
+  <div class="station-card">
+    <div class="station-header">
+      <div class="mile-pill">MILE 45.0</div>
+      <div class="station-name-wrap">
+        <div class="station-name">Hope Pass Outbound</div>
+      </div>
+      <div class="station-eta-col">
+        <div class="station-eta">3:20 PM</div>
+        <div class="access-label">No crew access</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+
+  <!-- Station 5: Winfield (unique) -->
+  <div class="station-card station-card--crew">
+    <div class="station-header">
+      <div class="mile-pill">MILE 50.0</div>
+      <div class="station-name-wrap">
+        <div class="station-name">Winfield</div>
+      </div>
+      <div class="station-eta-col">
+        <div class="station-eta">4:55 PM</div>
+        <div class="access-label access-label--crew">✓ Crew access</div>
+      </div>
+    </div>
+    <hr class="card-divider">
+    <div class="segment-label">Next segment: Winfield → Hope Pass Inbound</div>
+    <div class="detail-section-head">Grab from drop bag</div>
+    <ul class="gear-list">
+      <li>Headlamp</li>
+      <li>Warm layer</li>
+      <li>Rain jacket</li>
+    </ul>
+    <div class="detail-section-head">Crew notes</div>
+    <div class="crew-notes">Turnaround point. Fresh socks in drop bag. Check blisters.</div>
+  </div>
+
+  <div class="connector"></div>
+
+  <!-- Station 6: Hope Pass Inbound (unique) -->
+  <div class="station-card">
+    <div class="station-header">
+      <div class="mile-pill">MILE 55.0</div>
+      <div class="station-name-wrap">
+        <div class="station-name">Hope Pass Inbound</div>
+      </div>
+      <div class="station-eta-col">
+        <div class="station-eta">6:40 PM</div>
+        <div class="access-label">No crew access</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+
+  <!-- Station 7: Twin Lakes SECOND VISIT — DUPLICATE -->
+  <div class="station-card station-card--crew">
+    <div class="station-header">
+      <div class="mile-pill">MILE 60.2</div>
+      <div class="station-name-wrap">
+        <div class="station-name">
+          Twin Lakes
+          <span class="visit-suffix">(2 of 2)</span>
+        </div>
+      </div>
+      <div class="station-eta-col">
+        <div class="station-eta">8:14 PM</div>
+        <div class="access-label access-label--crew">✓ Crew access</div>
+      </div>
+    </div>
+    <hr class="card-divider">
+    <div class="segment-label">Next segment: Twin Lakes (2 of 2) → Halfmoon Inbound</div>
+    <div class="detail-section-head">Grab from drop bag</div>
+    <ul class="gear-list">
+      <li>Night layers</li>
+      <li>Extra batteries</li>
+    </ul>
+    <div class="detail-section-head">Crew notes</div>
+    <div class="crew-notes">Pacer joins here. Confirm headlamp is on and working. Long climb ahead.</div>
+  </div>
+
+  <div class="connector"></div>
+
+  <!-- Station 8: Halfmoon Inbound (unique) -->
+  <div class="station-card">
+    <div class="station-header">
+      <div class="mile-pill">MILE 70.0</div>
+      <div class="station-name-wrap">
+        <div class="station-name">Halfmoon Inbound</div>
+      </div>
+      <div class="station-eta-col">
+        <div class="station-eta">10:30 PM</div>
+        <div class="access-label">No crew access</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+
+  <!-- Station 9: Fish Hatchery Inbound (unique name — race has distinguished these) -->
+  <div class="station-card station-card--crew">
+    <div class="station-header">
+      <div class="mile-pill">MILE 76.5</div>
+      <div class="station-name-wrap">
+        <div class="station-name">Fish Hatchery Inbound</div>
+      </div>
+      <div class="station-eta-col">
+        <div class="station-eta">12:10 AM</div>
+        <div class="access-label access-label--crew">✓ Crew access</div>
+      </div>
+    </div>
+    <hr class="card-divider">
+    <div class="segment-label">Next segment: Fish Hatchery Inbound → May Queen</div>
+    <div class="crew-notes">Last major crew point. Extra calories, warm gloves.</div>
+  </div>
+
+  <div class="connector"></div>
+
+  <!-- Finish -->
+  <div class="station-card station-card--finish">
+    <div class="station-header">
+      <div class="mile-pill">MILE 100.0</div>
+      <div class="station-name-wrap">
+        <div class="station-name">Finish Line</div>
+      </div>
+      <div class="station-eta-col">
+        <div class="station-eta">8:30 AM</div>
+        <div class="finish-label">🏁 Projected finish</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotation -->
+  <div class="annotation">
+    <strong>Design A — Inline muted suffix.</strong> The visit ordinal <code>(1 of 2)</code> / <code>(2 of 2)</code> sits inline after the station name in Geist Mono at 12px, 45% opacity. The name remains the dominant element; the suffix is clearly supplemental and does not compete for attention. Works well on both mobile and desktop. Prints cleanly without extra ink. The trade-off: the suffix is small enough that a stressed crew member scanning quickly might miss it — they need to read to the end of the name line.
+  </div>
+
+</div>
+
+<div class="crew-footer">
+  Generated by PlanUltra · Published Apr 23, 2026 · planultrarace.com
+</div>
+
+</body>
+</html>

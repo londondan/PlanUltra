@@ -1,7 +1,7 @@
 # PRD-031 — Crew Parking Planner: Re-orient the Site Around One Flow
 
 **Status:** Draft
-**Date:** 2026-09-23
+**Date:** 2026-09-23 (§4 revised 2026-09-24: retro homepage)
 **Supersedes:** PRD-014 (guest flow), PRD-023 (homepage reposition), `planultra_pivot_plan.md` Phases 3–4
 **Absorbs:** PRD-026 (aid station setup), backlog items "Lapped race support" and "Shareable race-only crew template"
 **Reuses:** PRD-022 (parking fields), PRD-029 (duplicate station names), PRD-030 (print density), PRD-003 (Ridge Light)
@@ -90,17 +90,114 @@ Anyone with the edit link can edit. There is no recovery if it's lost. That's ac
 
 ---
 
-## 4. Screen 0 — Home (`/`)
+## 4. Screen 0 — Home (`/`) — Retro direction
 
-Replaces the marketing homepage. The FAQ page stays and moves to the footer.
+**Mockup (canonical):** `docs/requirements/mockups/PRD-031-home-D-retro.html`
+**Reference generator:** `docs/requirements/mockups/PRD-031-home-D-retro.build.py` (font, sprites, icons, scene algorithm)
+**Superseded mockups:** `PRD-031-homepage.html`, `PRD-031-home-A/B/C-*.html`. They're kept for reference only; don't build from them.
 
-- **Hero:** one line: "Crew parking and access plans for ultramarathons." Two CTAs: **Find your race** (scrolls to the list) and **Create a race** (→ `/new`).
-- **Race list:** library races from `GET /api/library/races`. Each shows name, location, distance and next date if known. There's a text filter, and it's all client-side, since the library is small.
-- **Your plans on this device** (only when `localStorage` has entries): links to each edit URL.
-- Only **complete** library races are listed (§8.1).
-- Selecting a library race → `/races/<slug>` (§8).
+Replaces the marketing homepage (PRD-009/015/023).
 
-> ⚠️ **Contest:** the library has only a handful of races. At launch, "Select a race" will mostly return nothing, so **Create is the real primary path**. Don't lead with an empty search box. Show the list under the fold, with a fallback: "Don't see your race? Create it from a GPX."
+### 4.0 Design intent and scope
+The homepage has a retro, pixel-art video game look: console type, a night-time pixel mountain scene, and menu-style UI. The aim is for it to feel made by a person with a sense of humour, not generated.
+
+**Scope of the retro treatment:** the Home page only (and optionally the 404 page later). **The crew sheet / plan view (§6) and the editor screens (§5) stay in PRD-003 Ridge Light, unchanged.** The crew sheet needs the least personality: it's read on a phone at 2am and on paper.
+
+This is a deliberate exception to PRD-003. Add a note to PRD-003's decisions log (§9) when this ships (see §4.9).
+
+### 4.1 Visual rules
+
+| Rule | Spec |
+|---|---|
+| Palette | Ridge Light only: Midnight `#02071E`, Deep Ridge `#114574`, Ridge Blue `#1D7CBE`, Sky `#82C7F6`, Mist `#DBF1FA`, white. No new colours. |
+| Body font | IBM Plex Mono 400/500/600/700 via `next/font/google`. Body 15px desktop / 15px mobile, line-height 1.65. |
+| Label font | Press Start 2P via `next/font/google`. **Labels only**: nav links, window titles, section headings, item titles, the button. Never body copy. Minimum 9px. |
+| Headline + logo | **Not a webfont.** Rendered as SVG rects from a built-in 5×7 bitmap font (§4.6), so it looks identical everywhere and never shifts while fonts load. |
+| Corners | **No border-radius anywhere** on the page. |
+| Depth | Hard offset shadows only (e.g. `8px 8px 0 Deep Ridge`). No blur shadows, gradients or glows. |
+| Pixel rendering | All pixel SVGs use `shape-rendering="crispEdges"` and `image-rendering: pixelated`. The scene uses `preserveAspectRatio="xMidYMax slice"` so pixels stay square. |
+| Motion | One blinking `_` cursor after the subtitle (`steps(1)`, 1s). Disable it under `prefers-reduced-motion`. Nothing else animates. |
+| Originality | All sprites and icons are original. **Don't draw or reference any recognisable game character, item or UI** (no mushroom, coin, heart containers, or any moon/sphere with a "mouth" notch). "Insert coin" / "Game over" style copy is also out; one retro joke too many and it turns into a costume. |
+
+### 4.2 Screen 1 — night scene, headline, race menu (must fit one screen)
+Full-viewport section, Midnight background.
+
+- **Top bar:** the pixel `PLANULTRA` logo (bitmap font, white, 14px tall) on the left. On the right are `HOW IT WORKS` (anchor to §4.3) and `FAQ` in Press Start 2P 10px, Sky, turning white on hover. There's no sign-in.
+- **Left column**
+  - **H1:** `GIVE YOUR CREW` (white) / `ONE LINK.` (Sky), bitmap font with a 1px Deep Ridge drop shadow. It fills the column width, max 600px.
+  - Subtitle (Plex Mono 17px, Mist; "every crew stop" in Sky 600): `A link that gets them to every crew stop, and a printout that still works when there's no signal.` Then the blinking `_`.
+- **Right column (470px): `SELECT RACE` window** (§4.5 window component)
+  - Title bar: `SELECT RACE` left, `<N> IN LIBRARY` right
+  - Search prompt: `>` in Sky, then a borderless input with placeholder `search races`. It sits on a dashed Sky rule and filters client-side on name and location.
+  - Menu rows: `► RACE NAME ........ 50.2 MI`, with a meta line under the name: `Marshall, NC · Oct 10`. Loop races add `· 8 loops`. Only complete races are listed (§8.1). Desktop shows up to 6 rows, then scrolls inside the window. Mobile shows 3 until the user types.
+  - Footer: `Not listed? Bring the GPX file.` + pixel button **`+ ADD RACE`** (→ `/new`)
+  - Last line: `SAVED ON THIS DEVICE: <plan name>, …` from localStorage (§3.4). Hidden when empty.
+  - If there are no complete library races, hide the search and menu. The window becomes the add-race prompt only, titled `ADD YOUR RACE`.
+- **Scene** (§4.7) across the bottom 42vh (minimum 250px) behind the content. On mobile it's 170px, sitting below the window.
+
+### 4.3 Section 2 — What your crew gets
+Mist background.
+
+- Heading (Press Start 2P 22px / 16px mobile, Midnight): `WHAT YOUR CREW GETS`
+- Lead (Plex Mono, Deep Ridge, max 680px): `PlanUltra builds an overview of the race with every crew stop in order, plus where and how to park. Each stop has a QR code for directions, with the coordinates printed underneath for when there's no signal.`
+- **Left: example sheet.** A pixel window frame (4px Midnight border, `8px 8px 0` Deep Ridge shadow, a Midnight title bar reading `CREW SHEET`) wrapping the **real plan-view components (§6) in their normal Ridge Light styling**. Render a real, complete library race, cropped to the first 2–3 crew stops. Only the frame is retro. The sheet inside must look exactly like the product, because it's the product.
+- Numbered markers `1`/`2`/`3` (Press Start 2P 9px, white on Ridge Blue, square) are placed on the share URL, the first "Directions to crew parking" link and a QR code.
+- **Right: three item cards** (white, 4px Midnight border, `6px 6px 0` Sky shadow), each with a 9×9 pixel icon (§4.8):
+  1. `A LINK YOU CAN TEXT` — `It opens on any phone, with no app or account.`
+  2. `DIRECTIONS TO PARKING` — `Not just the aid station, with notes on the lot, the walk in, or the shuttle.`
+  3. `A PRINTOUT FOR NO SIGNAL` — `Every stop has a QR code for your maps app.` Fine print: `Coordinates are printed underneath for an offline map.`
+- Link below: `> open the full example_` (→ `/races/<slug>` of the same race).
+
+> **Copy constraint:** never claim the QR code works without signal. A QR only holds a link. The no-signal promise rests on the paper and the printed coordinates. **This requires §6 to print lat/lng under every station QR code.**
+
+### 4.4 Section 3 — Credits
+Midnight background.
+
+- Heading: `CREDITS` (Press Start 2P 14px, Sky, letter-spacing 0.1em)
+- Left column: **Dan James** / `design, code, parking scouting` / LinkedIn · GitHub / email
+- Right column copy (Plex Mono, Mist):
+  > I'm a product manager and ultrarunner. I built PlanUltra after a DNF at Grindstone 100, wanting to do better by my crew. Race websites list the aid stations. Crews need to know where to park and which stops to skip.
+  >
+  > It's a hobby project: free, no ads, no accounts, and the code is on GitHub. If a parking spot is wrong, email me and I'll fix it.
+- A pixel ground strip (scene variant: no stars or sprites, 14 rows) closes the section.
+- **Recommended:** add a real photo of Dan at a race, pixelated with CSS `image-rendering: pixelated` from a small source (~96px wide, shown at 192px). A real person is the strongest signal that a person made this.
+- Remove the old copy line "An account is required so your plan has somewhere to live". It's no longer true.
+
+### 4.5 Components (build these, reuse on 404 later)
+
+| Component | File | Notes |
+|---|---|---|
+| `PixelText` | `src/components/retro/PixelText.tsx` | Props `lines: {text, color}[]`, `shadow?`, `label`. Renders `<svg aria-hidden>` plus a visually hidden text span, so the H1 stays real text for SEO and screen readers. Uses the glyph map in `pixel-font.ts`. |
+| `pixel-font.ts` | `src/components/retro/pixel-font.ts` | A 5×7 glyph map. Glyphs are 5 wide, 1-col gap, space = 4 cols, line pitch = 10 rows. Needs A–Z, 0–9, `.` `-` `!` at minimum. The reference generator includes only the glyphs the mockup uses, so draw the rest in the same 5×7 style. |
+| `PixelScene` | `src/components/retro/PixelScene.tsx` | Server component. Deterministic output (seeded), **generated at build time, no runtime randomness**, so it doesn't cause hydration mismatches. Props: `cols=180`, `rows=44`, `stars`, `sprites`. |
+| `PixelWindow` | `src/components/retro/PixelWindow.tsx` | 4px Sky border, `0 0 0 4px` Midnight ring, `8px 8px 0 4px` Deep Ridge shadow, Sky title bar in Press Start 2P 10px. Variant `light` for Section 2 (Midnight border and title bar). |
+| `PixelButton` | `src/components/retro/PixelButton.tsx` | Ridge Blue fill, bevel `inset -4px -4px 0` Deep Ridge + `inset 4px 4px 0 #4d9fd6`, outer ring `0 0 0 3px` Midnight + `0 0 0 5px` Sky. On `:active`, move down 2px and invert the bevel. |
+| `RaceMenu` | `src/components/home/RaceMenu.tsx` | Client. The search filters rows. ↑/↓ move the `►` selection (roving tabindex), Enter opens it, and hover/focus also moves it. The first row is selected by default. |
+| `PixelIcon` | `src/components/retro/PixelIcon.tsx` | Renders a char-grid sprite (`'.'` = empty) with a palette map. |
+
+### 4.6 Bitmap font
+The glyph data is `FONT` in `docs/requirements/mockups/PRD-031-home-D-retro.build.py`, the reference generator for the mockup. Render each lit cell as a 1×1 `<rect>`. Draw the shadow pass first, offset by (1,1), then the colour pass. The viewBox is the text's cell size, and CSS scales it (`width:100%; height:auto`).
+
+### 4.7 Scene
+- Three layers, back to front: Deep Ridge (tallest), Ridge Blue, Sky. Each layer is one `<rect>` per column (180 columns). Heights are a sum of 3 sine waves with seeded frequency and phase, rounded to whole cells.
+- **Snow caps:** the top 2 cells of back-layer columns within 3 cells of the highest peak are Mist.
+- **Sky:** about 70 single-cell stars (white or Sky, opacity 0.5–1) in the upper area, and a 7×7 round Mist moon with Sky crater pixels, top-left.
+- **Sprites, placed on the front ridge line:** a course flag (col ~30), a runner (col ~46), a crew car (col ~108) and a **P** parking sign (col ~121). The sprite grids (`RUNNER`, `FLAG`, `CAR`, `PSIGN`) and the `heights()`/`scene_svg()` algorithm are in `PRD-031-home-D-retro.build.py`. Sprites use Midnight, white and Ridge Blue only.
+- Target: under 1,000 rects total. If needed, merge adjacent same-colour cells into runs.
+
+### 4.8 Icons
+Sprite grids for `ICON_LINK` (chain), `ICON_P` (parking sign) and `ICON_QR` are in `PRD-031-home-D-retro.build.py`. Shown at 36×36.
+
+### 4.9 Accessibility and QA
+- **Contrast:** all body text must meet 4.5:1. Mist on Midnight, Sky on Midnight and Deep Ridge on Mist all pass. Mist at 60% opacity on Midnight, used for meta lines, must be checked; raise it to 70% if it fails.
+- **Headline:** the visually hidden H1 text must exactly match what's drawn.
+- **Keyboard:** everything in `RaceMenu` is reachable, focus is visible (the selection background plus `►`), and the search input is labelled.
+- **Reduced motion:** `prefers-reduced-motion: reduce` turns off the blink.
+- **Layout:** no horizontal scroll at 390px. The race window must start within the first screen at 390×844.
+- **PRD-003 note:** add to §9 Decisions Log: "Home page uses a retro/pixel treatment (PRD-031 §4) as a deliberate exception. The crew sheet, editor and all app screens stay Ridge Light."
+
+### 4.10 Footer
+Deep Ridge band: `PLANULTRA · FREE · OPEN SOURCE` | `FAQ` · `GITHUB` (Sky links). Plex Mono 12.5px.
 
 ---
 
@@ -206,6 +303,7 @@ A **mode of the existing crew sheet**, not a new page. With pace hidden, the pag
 ```
 
 - **Crew station card:** name, mile(s), parking type, Maps link (prefer `crewParkingUrl`, fall back to coords, omit if neither), QR for the link (existing), instructions.
+- **Coordinates under every QR code**, in mono small type (e.g. `35.8871, −82.7318`), printed and on screen. This is what makes the sheet usable with no signal (§4.3). If only `crewParkingUrl` exists and it didn't resolve, show no coordinates.
 - **Bridge:** the list of non-crew stations with mileage in **small, muted type**, plus "Next crew stop: <name> · <mile> (+<leg distance>)".
 - **Removed from the card:** ETA, arrival windows, weather, sun/night, drop-bag chips, drive time/distance, home-base legs.
 - **Missing data:** a crew station with no link, type or notes still renders its name and mile, plus "No parking details yet" in muted type. On the edit side, a "Missing details" count shows on step 3.
@@ -261,7 +359,7 @@ Each phase ships independently and leaves the site working.
 | B | Create + stations + loops | `/new` without auth, step 2 page, `expandLaps` + tests, loop warnings | 3-loop race shows correct mile badges; double-count warning fires on a multi-lap GPX |
 | C | Crew details | Step 3 page, `crewParkingUrl`, new parking types, resolve without auth | Short link, long link and `lat,lng` all resolve; partial saves work |
 | D | Plan view | `mode: 'generic'` on crew sheet, bridge "next crew stop", missing-data state, print | Prints cleanly; the header start time is the only time on the page, and there's no weather |
-| E | Home + library | New `/`, `/races/<slug>`, copy-to-edit, localStorage "your plans" | Library race viewable logged-out; incomplete races hidden from Home; copy lands in step 2 with data |
+| E | Home + library | New retro `/` per §4 and mockup `PRD-031-home-D-retro.html` (+ `retro/` components), `/races/<slug>`, copy-to-edit, localStorage "your plans" | Library race viewable logged-out; incomplete races hidden from Home; copy lands in step 2 with data |
 | F | Hide legacy | Nav/header cleanup, §9 table | No links to dashboard/pace/weather reachable from `/` |
 
 **Test fixtures:** `docs/utils/test/cruel_jewel_sample.gpx` (point-to-point), plus a new single-lap loop fixture and a 2-lap fixture for the double-count guard.
